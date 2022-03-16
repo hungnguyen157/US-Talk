@@ -3,12 +3,17 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+<<<<<<< Updated upstream
         <entry key="..\:/Users/Thong/Documents/GitHub/US-Talk/USTalk/app/src/main/res/drawable/ic_baseline_home.xml" value="0.2265" />
         <entry key="..\:/Users/Thong/Documents/GitHub/US-Talk/USTalk/app/src/main/res/drawable/ic_dashboard_black_24dp.xml" value="0.2265" />
         <entry key="..\:/Users/Thong/Documents/GitHub/US-Talk/USTalk/app/src/main/res/layout/activity_main.xml" value="0.18432971014492755" />
         <entry key="..\:/Users/Thong/Documents/GitHub/US-Talk/USTalk/app/src/main/res/layout/custom_user_row.xml" value="0.1" />
         <entry key="..\:/Users/Thong/Documents/GitHub/US-Talk/USTalk/app/src/main/res/layout/show_user.xml" value="0.1" />
         <entry key="..\:/Users/Thong/Documents/GitHub/US-Talk/USTalk/app/src/main/res/menu/menu.xml" value="0.25416666666666665" />
+=======
+        <entry key="..\:/GitHub/US-Talk/USTalk/app/src/main/res/layout/sign_in.xml" value="0.25" />
+        <entry key="..\:/GitHub/US-Talk/USTalk/app/src/main/res/layout/sign_up.xml" value="0.1" />
+>>>>>>> Stashed changes
       </map>
     </option>
   </component>
