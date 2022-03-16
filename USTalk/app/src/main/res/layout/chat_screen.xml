@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+<!--    Header-->
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:background="@color/teal_200"
+        android:stretchColumns="1">
+        <TableRow>
+            <ImageView
+                android:layout_width="@dimen/person_icon_size"
+                android:layout_height="@dimen/person_icon_size"
+                android:src="@drawable/person_icon"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="His/her name"
+                android:textSize="30sp"
+                />
+            <ImageView
+                android:layout_width="@dimen/person_icon_size"
+                android:layout_height="@dimen/person_icon_size"
+                android:src="@drawable/call_icon_with_circle"
+                />
+            <ImageView
+                android:layout_width="@dimen/person_icon_size"
+                android:layout_height="@dimen/person_icon_size"
+                android:src="@drawable/video_icon_with_circle"
+                />
+        </TableRow>
+
+    </TableLayout>
+
+<!--    Messages-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/layRelative">
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/listMessages"
+            android:layout_marginBottom="64dp"
+            />
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:stretchColumns="2"
+            android:padding="@dimen/main_margin"
+            android:background="@color/teal_700">
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/image_icon"
+                    />
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/voice_icon"
+                    />
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Send"
+                    android:backgroundTint="@color/teal_200"
+                    />
+            </TableRow>
+
+        </TableLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>
