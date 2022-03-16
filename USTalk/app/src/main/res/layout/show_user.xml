@@ -25,8 +25,7 @@
         android:layout_height="30dp"
         android:layout_marginLeft="5dp"
         android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:src="@drawable/thongdeptrai"/>
+        android:layout_centerVertical="true"/>
     </RelativeLayout>
     <View
         android:layout_width="match_parent"
