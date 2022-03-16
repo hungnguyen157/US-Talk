@@ -63,10 +63,19 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Create New Account"
+            android:text="Don't Have Account"
             android:textSize="20dp"
             android:textColor="@color/black"
             android:layout_gravity="center"/>
+        <TextView
+            android:id="@+id/signup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SIGN UP"
+            android:textSize="20dp"
+            android:textColor="@color/purple_500"
+            android:layout_gravity="center"
+            android:textStyle="bold" />
 
     </LinearLayout>
 

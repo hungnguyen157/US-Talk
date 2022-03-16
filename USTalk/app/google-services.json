@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "533918784808",
+    "project_id": "us-talk",
+    "storage_bucket": "us-talk.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:533918784808:android:31a74a1641e2f4b019841d",
+        "android_client_info": {
+          "package_name": "com.example.ustalk"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "533918784808-70ovmbbac93qaag7im4gcbqiunm9jtk2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpi9UsX7QObP_5ify16fewOGusJ7Lo-bc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "533918784808-70ovmbbac93qaag7im4gcbqiunm9jtk2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
