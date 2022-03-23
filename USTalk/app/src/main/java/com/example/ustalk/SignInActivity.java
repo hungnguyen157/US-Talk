@@ -2,7 +2,11 @@ package com.example.ustalk;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.LinearGradient;
+import android.graphics.Shader;
 import android.os.Bundle;
+import android.text.TextPaint;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
@@ -33,6 +37,7 @@ public class SignInActivity extends Activity implements View.OnClickListener {
     EditText editEmail, editPassword;
     Button btnSignIn;
     ProgressBar progressBar;
+    TextView txt_label;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +55,19 @@ public class SignInActivity extends Activity implements View.OnClickListener {
         progressBar.setVisibility(View.INVISIBLE);
         signup = (TextView) findViewById(R.id.signup);
         signup.setOnClickListener(this);
+        txt_label = (TextView) findViewById(R.id.txt_label);
+
+//        Make the label become gradient
+//        TextPaint txt_paint = txt_label.getPaint();
+//        float txt_width = txt_paint.measureText(txt_label.getText().toString());
+//        Shader txt_shader = new LinearGradient(0, 0, txt_width, txt_label.getTextSize(),
+//                new int[]{
+//                        Color.parseColor("#F89B29"),
+//                        Color.parseColor("#F89B29"),
+//                        Color.parseColor("#E12B4F"),
+//                        Color.parseColor("#FF0F7B"),
+//                }, null, Shader.TileMode.CLAMP);
+//        txt_label.getPaint().setShader(txt_shader);
     }
 
     @Override
