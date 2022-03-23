@@ -1,4 +1,20 @@
 <resources>
     <string name="app_name">US Talk</string>
     <string name="search">Search</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="confirm_password_hint">Confirm password</string>
+    <string name="name_hint">Name</string>
+    <string name="welcome">Welcome to the</string>
+    <string name="dont_have_account">Don\'t have an account?</string>
+    <string name="already_have_account">Already have an account?</string>
+    <string name="sign_up_label">Registration form</string>
+    <string name="sex">Sex:</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="sign_up">SIGN UP</string>
+    <string name="sign_in">SIGN IN</string>
+    <string name="sex_male">Male</string>
+    <string name="sex_female">Female</string>
+    <string name="bottom_tab_1">Home</string>
+    <string name="bottom_tab_2">Contact</string>
 </resources>

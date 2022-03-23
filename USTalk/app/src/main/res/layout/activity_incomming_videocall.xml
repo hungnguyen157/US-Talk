@@ -73,12 +73,13 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.9" />
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/accept_btn"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:src="@drawable/ic_baseline_done_24"
-        android:background="@drawable/background_tick_button"
+        android:background="#58ED71"
+        app:shapeAppearanceOverlay="@style/circular_image"
         app:layout_constraintBottom_toBottomOf="@id/button_guidelinebottom"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
@@ -87,12 +88,13 @@
         app:layout_constraintTop_toTopOf="@id/button_guidelinetop"
         app:layout_constraintVertical_bias="0.0" />
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/reject_btn"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/background_x_button"
+        android:background="#EA4848"
         android:src="@drawable/ic_round_close_24"
+        app:shapeAppearanceOverlay="@style/circular_image"
         app:layout_constraintBottom_toBottomOf="@id/button_guidelinebottom"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"

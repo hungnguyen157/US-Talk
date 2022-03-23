@@ -36,7 +36,7 @@ public class SignInActivity extends Activity implements View.OnClickListener {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.sign_in);
+        setContentView(R.layout.activity_sign_in);
 //        signinBinding = SignInBinding.inflate(getLayoutInflater());
 //        setContentView(signinBinding.getRoot());
 //        setListen();
