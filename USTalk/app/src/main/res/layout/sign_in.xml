@@ -53,7 +53,7 @@
             android:inputType="textPassword"
             android:background="@color/white"/>
         <Button
-            android:id="@+id/BtnSignin"
+            android:id="@+id/btnSignIn"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -78,6 +78,13 @@
             android:textColor="@color/purple_500"
             android:layout_gravity="center"
             android:textStyle="bold" />
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/progressBar"
+            android:layout_gravity="center"
+            />
 
     </LinearLayout>
 

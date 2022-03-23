@@ -9,6 +9,8 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -17,12 +19,12 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.regex.Pattern;
-
 public class SignUpActivity extends AppCompatActivity {
     EditText editEmail, editPassword, editRepeatPassword;
     Button btnSignUp;
     FirebaseAuth mAuth;
+    TextView signIn;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,50 +34,66 @@ public class SignUpActivity extends AppCompatActivity {
         editPassword = (EditText) findViewById(R.id.editPassword);
         editRepeatPassword = (EditText) findViewById(R.id.editRepeatPassword);
         btnSignUp = (Button) findViewById(R.id.BtnSignup);
+        signIn = (TextView) findViewById(R.id.signIn);
         mAuth = FirebaseAuth.getInstance();
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
+
+        signIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), SignInActivity.class));
+            }
+        });
 
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String email = editEmail.getText().toString().trim();
                 String password = editPassword.getText().toString().trim();
-                if (email.isEmpty())
-                    Toast.makeText(SignUpActivity.this, "Please input email", Toast.LENGTH_SHORT).show();
-                else if(!Patterns.EMAIL_ADDRESS.matcher(editEmail.getText().toString()).matches())
-                    Toast.makeText(SignUpActivity.this, "Enter valid email", Toast.LENGTH_SHORT).show();
-                else if (editPassword.getText().toString().trim().isEmpty())
-                    Toast.makeText(SignUpActivity.this, "Please input password", Toast.LENGTH_SHORT).show();
-                else if (editRepeatPassword.getText().toString().trim().isEmpty())
-                    Toast.makeText(SignUpActivity.this, "Please input confirm password", Toast.LENGTH_SHORT).show();
-                else if (!editPassword.getText().toString().equals(editRepeatPassword.getText().toString()))
-                    Toast.makeText(SignUpActivity.this, "Password and confirm password are not match", Toast.LENGTH_SHORT).show();
+                String password2 = editRepeatPassword.getText().toString().trim();
+
+                if (email.isEmpty()) makeToast("Please input email");
+                else if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()) makeToast("Enter valid email");
+                else if (password.isEmpty()) makeToast("Please input password");
+                else if (password.length() > 6) makeToast("Password is too short");
+                else if (password2.isEmpty()) makeToast("Please input confirm password");
+                else if (!password.equals(password2)) makeToast("Password and confirm password are not match");
                 else{
                     // pass validation
+                    progressBar.setVisibility(View.VISIBLE);
                     mAuth.createUserWithEmailAndPassword(email,password)
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
-                                        User user = new User("Thông","18",email);
+                                        User user = new User("New User","-1", email);
                                         FirebaseDatabase.getInstance("https://us-talk-default-rtdb.asia-southeast1.firebasedatabase.app").getReference("Users")
                                                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                                 .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 if (task.isSuccessful()){
-                                                    Toast.makeText(SignUpActivity.this, "Sign up successfully", Toast.LENGTH_SHORT).show();
+                                                    progressBar.setVisibility(View.GONE);
+                                                    makeToast("Sign up successfully");
                                                     startActivity(new Intent(SignUpActivity.this, SignInActivity.class));
                                                 } else {
-                                                    Toast.makeText(SignUpActivity.this, "Something wrong", Toast.LENGTH_SHORT).show();
+                                                    progressBar.setVisibility(View.GONE);
+                                                    makeToast("Something wrong");
                                                 }
                                             }
                                         });
                                     } else {
-                                        Toast.makeText(SignUpActivity.this, "Something wrong", Toast.LENGTH_SHORT).show();
+                                        progressBar.setVisibility(View.GONE);
+                                        makeToast("Something wrong");
                                     }
                                 }
                             });
                 }
+            }
+
+            private void makeToast(String message) {
+                Toast.makeText(SignUpActivity.this, message, Toast.LENGTH_SHORT).show();
             }
         });
     }
