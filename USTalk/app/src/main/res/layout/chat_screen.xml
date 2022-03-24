@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:id="@+id/chat_view">
 
 <!--    Header-->
     <TableLayout
@@ -71,17 +72,19 @@
                     />
                 <EditText
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"/>
+                    android:layout_height="match_parent"
+                    android:id="@+id/txtMessage"/>
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:src="@drawable/ic_baseline_insert_emoticon"
-                    android:layout_marginRight="15dp"/>
+                    android:layout_marginRight="15dp"
+                    android:id="@+id/btnEmoji"/>
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:src="@drawable/ic_baseline_send"
-                    />
+                    android:id="@+id/btnSend"/>
             </TableRow>
 
         </TableLayout>
