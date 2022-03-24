@@ -33,11 +33,10 @@ public class SignInActivity extends Activity implements View.OnClickListener {
     private FirebaseAuth mAuth;
 //    private SignInBinding signinBinding;
 
-    TextView signup;
+    TextView signup, txt_label;
     EditText editEmail, editPassword;
     Button btnSignIn;
     ProgressBar progressBar;
-    TextView txt_label;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,19 +54,19 @@ public class SignInActivity extends Activity implements View.OnClickListener {
         progressBar.setVisibility(View.INVISIBLE);
         signup = (TextView) findViewById(R.id.signup);
         signup.setOnClickListener(this);
-        txt_label = (TextView) findViewById(R.id.txt_label);
 
-//        Make the label become gradient
-//        TextPaint txt_paint = txt_label.getPaint();
-//        float txt_width = txt_paint.measureText(txt_label.getText().toString());
-//        Shader txt_shader = new LinearGradient(0, 0, txt_width, txt_label.getTextSize(),
-//                new int[]{
-//                        Color.parseColor("#F89B29"),
-//                        Color.parseColor("#F89B29"),
-//                        Color.parseColor("#E12B4F"),
-//                        Color.parseColor("#FF0F7B"),
-//                }, null, Shader.TileMode.CLAMP);
-//        txt_label.getPaint().setShader(txt_shader);
+        //Make the label become gradient
+        txt_label = (TextView) findViewById(R.id.txt_label);
+        TextPaint txt_paint = txt_label.getPaint();
+        float txt_width = txt_paint.measureText(txt_label.getText().toString());
+        Shader txt_shader = new LinearGradient(0, 0, txt_width, txt_label.getTextSize(),
+                new int[]{
+                        Color.parseColor("#F89B29"),
+                        Color.parseColor("#F89B29"),
+                        Color.parseColor("#E12B4F"),
+                        Color.parseColor("#FF0F7B"),
+                }, null, Shader.TileMode.CLAMP);
+        txt_label.getPaint().setShader(txt_shader);
     }
 
     @Override
@@ -82,20 +81,22 @@ public class SignInActivity extends Activity implements View.OnClickListener {
                 else if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()) makeToast("Enter valid email");
                 else if (password.isEmpty()) makeToast("Please input password");
 
-                progressBar.setVisibility(View.VISIBLE);
-                mAuth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
-                                    progressBar.setVisibility(View.GONE);
-                                } else {
-                                    progressBar.setVisibility(View.GONE);
-                                    makeToast("Sign In failed! Check your credentials");
+                else{
+                    progressBar.setVisibility(View.VISIBLE);
+                    mAuth.signInWithEmailAndPassword(email, password)
+                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+                                        progressBar.setVisibility(View.GONE);
+                                    } else {
+                                        progressBar.setVisibility(View.GONE);
+                                        makeToast("Sign In failed! Check your credentials");
+                                    }
                                 }
-                            }
-                        });
+                            });
+                }
                 break;
             case R.id.signup:
                 startActivity(new Intent(getApplicationContext(), SignUpActivity.class));

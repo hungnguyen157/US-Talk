@@ -4,7 +4,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.LinearGradient;
+import android.graphics.Shader;
 import android.os.Bundle;
+import android.text.TextPaint;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -23,32 +27,32 @@ public class SignUpActivity extends AppCompatActivity {
     EditText editEmail, editPassword, editRepeatPassword;
     Button btnSignUp;
     FirebaseAuth mAuth;
-    TextView signIn;
+    TextView signIn, txt_label;
     ProgressBar progressBar;
-    TextView txt_label;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.sign_up);
+        setContentView(R.layout.activity_sign_up);
         editEmail = (EditText) findViewById(R.id.editEmail);
         editPassword = (EditText) findViewById(R.id.editPassword);
         editRepeatPassword = (EditText) findViewById(R.id.editRepeatPassword);
-        btnSignUp = (Button) findViewById(R.id.BtnSignup);
+        btnSignUp = (Button) findViewById(R.id.btnSignUp);
         signIn = (TextView) findViewById(R.id.signIn);
         mAuth = FirebaseAuth.getInstance();
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
 
-//        Make the label become gradient
-//        TextPaint txt_paint = txt_label.getPaint();
-//        float txt_width = txt_paint.measureText(txt_label.getText().toString());
-//        Shader txt_shader = new LinearGradient(0, 0, txt_width, txt_label.getTextSize(),
-//                new int[]{
-//                        Color.parseColor("#40C9FF"),
-//                        Color.parseColor("#E81CFF"),
-//                }, null, Shader.TileMode.CLAMP);
-//        txt_label.getPaint().setShader(txt_shader);
+        //Make the label become gradient
+        txt_label = (TextView) findViewById(R.id.txt_label);
+        TextPaint txt_paint = txt_label.getPaint();
+        float txt_width = txt_paint.measureText(txt_label.getText().toString());
+        Shader txt_shader = new LinearGradient(0, 0, txt_width, txt_label.getTextSize(),
+                new int[]{
+                        Color.parseColor("#40C9FF"),
+                        Color.parseColor("#E81CFF"),
+                }, null, Shader.TileMode.CLAMP);
+        txt_label.getPaint().setShader(txt_shader);
 
         signIn.setOnClickListener(new View.OnClickListener() {
             @Override

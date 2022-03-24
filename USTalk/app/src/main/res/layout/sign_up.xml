@@ -63,7 +63,7 @@
             android:inputType="textPassword"
             android:background="@color/white"/>
         <Button
-            android:id="@+id/BtnSignup"
+            android:id="@+id/BtnSignUp"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
