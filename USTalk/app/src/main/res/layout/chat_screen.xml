@@ -43,12 +43,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/layRelative">
+
         <ListView
+            android:id="@+id/listMessages"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/listMessages"
-            android:layout_marginBottom="64dp"
-            />
+            android:layout_marginBottom="64dp" />
         <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -71,13 +71,16 @@
                     />
                 <EditText
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    />
-                <Button
+                    android:layout_height="match_parent"/>
+                <ImageView
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Send"
-                    android:backgroundTint="@color/teal_200"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_baseline_insert_emoticon"
+                    android:layout_marginRight="15dp"/>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_baseline_send"
                     />
             </TableRow>
 
