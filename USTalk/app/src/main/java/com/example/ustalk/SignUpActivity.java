@@ -61,7 +61,7 @@ public class SignUpActivity extends AppCompatActivity {
         signIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), SignInActivity.class));
+                onBackPressed();
             }
         });
 

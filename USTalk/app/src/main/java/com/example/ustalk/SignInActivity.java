@@ -12,6 +12,7 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +35,7 @@ public class SignInActivity extends Activity implements View.OnClickListener {
 //    private SignInBinding signinBinding;
 
     TextView signup, txt_label;
+    ImageView logo;
     EditText editEmail, editPassword;
     Button btnSignIn;
     ProgressBar progressBar;
@@ -67,6 +69,10 @@ public class SignInActivity extends Activity implements View.OnClickListener {
                         Color.parseColor("#FF0F7B"),
                 }, null, Shader.TileMode.CLAMP);
         txt_label.getPaint().setShader(txt_shader);
+
+        //Resize logo
+        logo = (ImageView) findViewById(R.id.logo);
+        logo.getLayoutParams().width = (int)(txt_width * 0.714285714);
     }
 
     @Override

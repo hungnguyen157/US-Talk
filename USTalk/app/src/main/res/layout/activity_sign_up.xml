@@ -106,10 +106,10 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="25dp"
+            android:weightSum="3"
             app:layout_constraintEnd_toEndOf="@+id/editRepeatPassword"
             app:layout_constraintStart_toStartOf="@+id/editRepeatPassword"
             app:layout_constraintTop_toBottomOf="@+id/editRepeatPassword">
-
             <RadioButton
                 android:id="@+id/rbtn_male"
                 android:layout_width="wrap_content"
@@ -118,9 +118,14 @@
                 android:layoutDirection="rtl"
                 android:text="@string/sex_male"
                 android:textSize="20sp"
-                android:layout_marginStart="30dp"
                 android:background="@drawable/custom_radio_button"
-                android:paddingStart="37dp"/>
+                android:layout_weight="1"
+                android:paddingStart="15dp"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
 
             <RadioButton
                 android:id="@+id/rbtn_female"
@@ -130,7 +135,8 @@
                 android:layoutDirection="rtl"
                 android:text="@string/sex_female"
                 android:textSize="20sp"
-                android:background="@drawable/custom_radio_button"/>
+                android:background="@drawable/custom_radio_button"
+                android:layout_weight="1"/>
         </RadioGroup>
 
         <android.widget.Button
@@ -146,6 +152,15 @@
             app:layout_constraintEnd_toEndOf="@+id/rbtngr"
             app:layout_constraintStart_toStartOf="@+id/rbtngr"
             app:layout_constraintTop_toBottomOf="@+id/rbtngr"/>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="@+id/btnSignUp"
+            app:layout_constraintStart_toStartOf="@+id/btnSignUp"
+            app:layout_constraintTop_toTopOf="@+id/btnSignUp"
+            android:translationZ="10dp"/>
 
         <LinearLayout
             android:id="@+id/linearLayout2"
@@ -176,15 +191,5 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
         </LinearLayout>
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:paddingBottom="10dp"
-            app:layout_constraintEnd_toEndOf="@+id/btnSignUp"
-            app:layout_constraintStart_toStartOf="@+id/btnSignUp"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout2"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
