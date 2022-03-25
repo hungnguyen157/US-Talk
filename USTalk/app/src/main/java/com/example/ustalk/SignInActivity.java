@@ -89,6 +89,9 @@ public class SignInActivity extends Activity implements View.OnClickListener {
 
                 else{
                     progressBar.setVisibility(View.VISIBLE);
+                    btnSignIn.setEnabled(false);
+                    String btnText = btnSignIn.getText().toString();
+                    btnSignIn.setText("");
                     mAuth.signInWithEmailAndPassword(email, password)
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                 @Override
@@ -100,6 +103,8 @@ public class SignInActivity extends Activity implements View.OnClickListener {
                                         progressBar.setVisibility(View.GONE);
                                         makeToast("Sign In failed! Check your credentials");
                                     }
+                                    btnSignIn.setEnabled(true);
+                                    btnSignIn.setText(btnText);
                                 }
                             });
                 }

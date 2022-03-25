@@ -84,31 +84,35 @@ public class SignUpActivity extends AppCompatActivity {
                 else{
                     // pass validation
                     progressBar.setVisibility(View.VISIBLE);
+                    btnSignUp.setEnabled(false);
+                    String btnText = btnSignUp.getText().toString();
+                    btnSignUp.setText("");
                     mAuth.createUserWithEmailAndPassword(email,password)
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
-                                        User user = new User("New User","-1", email);
+                                        User user = new User(name,"-1", email);
                                         FirebaseDatabase.getInstance("https://us-talk-default-rtdb.asia-southeast1.firebasedatabase.app").getReference("Users")
                                                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                                 .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 if (task.isSuccessful()){
-                                                    progressBar.setVisibility(View.GONE);
                                                     makeToast("Sign up successfully");
-                                                    startActivity(new Intent(SignUpActivity.this, SignInActivity.class));
+                                                    onBackPressed();
                                                 } else {
-                                                    progressBar.setVisibility(View.GONE);
                                                     makeToast("Something wrong");
                                                 }
+                                                progressBar.setVisibility(View.GONE);
+                                                btnSignUp.setEnabled(true);
+                                                btnSignUp.setText(btnText);
                                             }
                                         });
                                     } else {
-                                        progressBar.setVisibility(View.GONE);
                                         makeToast("Something wrong");
                                     }
+
                                 }
                             });
                 }
