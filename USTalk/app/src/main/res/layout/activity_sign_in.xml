@@ -112,7 +112,8 @@
             app:layout_constraintEnd_toEndOf="@+id/btnSignIn"
             app:layout_constraintStart_toStartOf="@+id/btnSignIn"
             app:layout_constraintTop_toTopOf="@+id/btnSignIn"
-            android:translationZ="10dp"/>
+            android:translationZ="10dp"
+            android:indeterminateTint="@color/white"/>
 
         <LinearLayout
             android:id="@+id/linearLayout"
