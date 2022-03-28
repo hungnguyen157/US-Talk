@@ -108,7 +108,7 @@ public class SignUpActivity extends AppCompatActivity {
                                         {
                                             sex = "Female";
                                         }
-                                        User user = new User(name, sex, email);
+                                        User user = new User(name, email, sex);
                                         FirebaseDatabase.getInstance("https://us-talk-default-rtdb.asia-southeast1.firebasedatabase.app").getReference("Users")
                                                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                                 .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
