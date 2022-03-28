@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,6 +23,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class SignUpActivity extends AppCompatActivity {
@@ -31,6 +33,7 @@ public class SignUpActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     TextView signIn, txt_label;
     ProgressBar progressBar;
+    RadioButton rbtnMale, rbtnFemale;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +49,10 @@ public class SignUpActivity extends AppCompatActivity {
         progressBar.setVisibility(View.INVISIBLE);
         editName = (EditText) findViewById(R.id.editName);
         radioGroup = (RadioGroup) findViewById(R.id.rbtngr);
+        rbtnFemale = (RadioButton) findViewById(R.id.rbtn_female);
+        rbtnMale = (RadioButton) findViewById(R.id.rbtn_male);
+
+        DatabaseReference data = FirebaseDatabase.getInstance("https://us-talk-default-rtdb.asia-southeast1.firebasedatabase.app").getReference().child("Users");
 
         //Make the label become gradient
         txt_label = (TextView) findViewById(R.id.txt_label);
@@ -92,7 +99,16 @@ public class SignUpActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
-                                        User user = new User(name,"-1", email);
+                                        String sex ;
+                                        if(rbtnMale.isChecked() == true)
+                                        {
+                                            sex = "Male";
+                                        }
+                                        else
+                                        {
+                                            sex = "Female";
+                                        }
+                                        User user = new User(name, sex, email);
                                         FirebaseDatabase.getInstance("https://us-talk-default-rtdb.asia-southeast1.firebasedatabase.app").getReference("Users")
                                                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                                 .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
