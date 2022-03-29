@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:paddingTop="5dp"
     android:paddingBottom="5dp">
@@ -17,6 +17,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
+        android:layout_weight="2"
         android:layout_height="96dp"
         android:gravity="center|left"
         android:orientation="vertical"
@@ -38,4 +39,11 @@
             android:text="TextView"
             android:textSize="16sp"/>
     </LinearLayout>
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/seen"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginRight="10dp"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_baseline_check_circle"/>
 </LinearLayout>

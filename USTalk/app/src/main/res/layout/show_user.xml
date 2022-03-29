@@ -40,11 +40,11 @@
             android:hint="@string/search"
             android:padding="6dp"
             android:textSize="18sp"
-            android:background="@drawable/custom_edittext_cold_border"/>
+            android:background="@drawable/custom_edittext_no_border"/>
     </RelativeLayout>
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="0dp"
         android:background="@color/dark_gray"
         android:layout_below="@id/search_input"
         android:id="@+id/line_break"/>
