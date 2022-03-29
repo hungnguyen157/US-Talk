@@ -30,6 +30,7 @@ public class ChatHistoryActivity extends Activity {
 
     }
 
+
     private void loadUsersFromDatabase() {
         FirebaseDatabase database = FirebaseDatabase.getInstance("https://us-talk-default-rtdb.asia-southeast1.firebasedatabase.app");
         DatabaseReference ref = database.getReference("Users");
