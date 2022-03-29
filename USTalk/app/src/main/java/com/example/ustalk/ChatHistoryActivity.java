@@ -6,6 +6,7 @@ import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 
+import com.example.ustalk.models.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;

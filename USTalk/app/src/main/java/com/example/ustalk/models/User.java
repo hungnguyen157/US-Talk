@@ -1,4 +1,4 @@
-package com.example.ustalk;
+package com.example.ustalk.models;
 
 import java.util.ArrayList;
 

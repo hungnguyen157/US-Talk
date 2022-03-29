@@ -36,8 +36,7 @@
             app:layout_constraintEnd_toStartOf="@+id/end_vertical_guideline"
             app:layout_constraintStart_toStartOf="@+id/start_vertical_guideline"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="50dp"
-            android:src="@drawable/thongdeptrai"/>
+            android:layout_marginTop="50dp" />
 
         <ImageButton
             android:layout_width="wrap_content"
