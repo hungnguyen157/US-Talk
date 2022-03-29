@@ -2,22 +2,40 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/received_image"
+    android:layout_height="wrap_content">
+    <!--    Guideline-->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/end_guideline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:src="@drawable/ustalk_logo_white_background_cropped"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.75" />
 
-    <TextView
-        android:id="@+id/time_received"
-        android:layout_width="wrap_content"
+    <!--    Items-->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="this is received time"
-        android:textSize="15sp"
-        app:layout_constraintStart_toStartOf="@+id/received_image"
-        app:layout_constraintTop_toBottomOf="@+id/received_image"/>
+        android:layout_marginStart="20dp"
+        app:layout_constraintEnd_toEndOf="@+id/end_guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/received_image"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ustalk_logo_white_background_cropped"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/time_received"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="this is received time"
+            android:textSize="15sp"
+            android:paddingTop="3dp"
+            app:layout_constraintStart_toStartOf="@+id/received_image"
+            app:layout_constraintTop_toBottomOf="@+id/received_image"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
