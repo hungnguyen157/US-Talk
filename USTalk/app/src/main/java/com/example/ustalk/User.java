@@ -1,11 +1,11 @@
 package com.example.ustalk;
 
-public class User {
-    public String uid, email, name, sex;
+import java.util.ArrayList;
 
 public class User {
-    public String email, sex, name,uid;
+    public String email, sex, name;
     public ArrayList<String> Friends;
+
     public User() {
     }
 
@@ -13,10 +13,6 @@ public class User {
         this.email = email;
         this.name = name;
         this.sex = sex;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
     }
 
     public void setEmail(String email) {
@@ -34,8 +30,7 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "uid='" + uid + '\'' +
-                ", email='" + email + '\'' +
+                " email='" + email + '\'' +
                 ", name='" + name + '\'' +
                 ", sex='" + sex + '\'' +
                 '}';
