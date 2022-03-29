@@ -9,19 +9,23 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class CustomRowAdapter extends ArrayAdapter<String> {
+public class CustomRowAdapter extends ArrayAdapter<User> {
     Context context;
     String[] userName,lastMsg;
     Integer[] avatars;
+    ArrayList<User> users;
 
-    CustomRowAdapter(Context context, int layoutToBeInflated, String[] userName, Integer[] avatars,String []lastMsg){
-        super(context, layoutToBeInflated, userName);
+    CustomRowAdapter(Context context, int layoutToBeInflated, ArrayList<User> users){
+        super(context, layoutToBeInflated, users);
         this.context = context;
-        this.userName = userName;
-        this.avatars = avatars;
-        this.lastMsg = lastMsg;
+        this.users = users;
+//        this.userName = userName;
+//        this.avatars = avatars;
+//        this.lastMsg = lastMsg;
     }
 
     @Override
@@ -32,9 +36,9 @@ public class CustomRowAdapter extends ArrayAdapter<String> {
         CircleImageView avatar = (CircleImageView) row.findViewById(R.id.profile_image);
         TextView txtLastMsg = (TextView) row.findViewById(R.id.lastMsg);
 
-        txtUserName.setText(userName[position]);
-        avatar.setImageResource(avatars[position]);
-        txtLastMsg.setText(lastMsg[position]);
+        txtUserName.setText(users.get(position).name);
+        avatar.setImageResource(R.drawable.person_icon);
+        txtLastMsg.setText("Deez nuts");
 //        if (position == selected_pos){
 //            row.setBackground(context.getResources().
 //                    getDrawable(R.drawable.custom_list_selector, context.getTheme()));

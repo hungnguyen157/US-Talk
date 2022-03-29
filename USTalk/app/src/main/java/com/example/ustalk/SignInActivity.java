@@ -51,25 +51,6 @@ public class SignInActivity extends Activity implements View.OnClickListener {
 //        setContentView(signinBinding.getRoot());
 //        setListen();
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference ref = database.getReference("Users");
-
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot ds : snapshot.getChildren()) {
-                    System.out.println(ds.getKey());
-                    User user = ds.getValue(User.class);
-                    System.out.println(user);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                System.out.println("Read failed: " + error.getCode());
-            }
-        });
-
         mAuth = FirebaseAuth.getInstance();
         btnSignIn = (Button) findViewById(R.id.btnSignIn);
         btnSignIn.setOnClickListener(this);
