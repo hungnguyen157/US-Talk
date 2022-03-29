@@ -17,4 +17,6 @@
     <string name="sex_female">Nữ</string>
     <string name="bottom_tab_1">Home</string>
     <string name="bottom_tab_2">Contact</string>
+    <string name="save">Lưu</string>
+    <string name="back">Quay về</string>
 </resources>
