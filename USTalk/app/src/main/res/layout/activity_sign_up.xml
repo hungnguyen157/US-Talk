@@ -118,7 +118,7 @@
                 android:layoutDirection="rtl"
                 android:text="@string/sex_male"
                 android:textSize="20sp"
-                android:background="@drawable/custom_radio_button"
+                android:background="@drawable/custom_rounded_lightgray_background"
                 android:layout_weight="1"/>
 
             <LinearLayout
@@ -134,7 +134,7 @@
                 android:layoutDirection="rtl"
                 android:text="@string/sex_female"
                 android:textSize="20sp"
-                android:background="@drawable/custom_radio_button"
+                android:background="@drawable/custom_rounded_lightgray_background"
                 android:layout_weight="1"
                 android:paddingStart="20dp"/>
         </RadioGroup>

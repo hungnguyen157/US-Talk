@@ -21,4 +21,13 @@
     <string name="back">Quay về</string>
     <string name="change_password">Đổi mật khẩu</string>
     <string name="chat_hint">Aa</string>
+    <string name="settings">Cài đặt</string>
+    <string name="setting_profile">Hồ sơ</string>
+    <string name="setting_password">Đổi mật khẩu</string>
+    <string name="setting_notification">Thông báo</string>
+    <string name="profile_tip">Xem và chỉnh sửa các thông tin cơ bản về bạn</string>
+    <string name="password_tip">Đổi mật khẩu định kỳ sẽ giúp bảo vệ tài khoản của bạn tốt hơn</string>
+    <string name="notification_tip">Cài đặt thông báo thông minh có thể giúp bạn tập trung hơn trong công việc của mình</string>
+    <string name="logout">Đăng xuất</string>
+    <string name="profile">Hồ sơ</string>
 </resources>
