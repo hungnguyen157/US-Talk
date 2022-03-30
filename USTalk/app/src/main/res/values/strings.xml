@@ -20,4 +20,5 @@
     <string name="save">Lưu</string>
     <string name="back">Quay về</string>
     <string name="change_password">Đổi mật khẩu</string>
+    <string name="chat_hint">Aa</string>
 </resources>
