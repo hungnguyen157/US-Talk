@@ -4,7 +4,7 @@
     <string name="email_hint">Email</string>
     <string name="password_hint">Mật khẩu</string>
     <string name="confirm_password_hint">Xác nhận mật khẩu</string>
-    <string name="name_hint">Tên</string>
+    <string name="name_hint">Tên người dùng</string>
     <string name="welcome">Chào mừng tới</string>
     <string name="dont_have_account">Không có tài khoản?</string>
     <string name="already_have_account">Đã có tài khoản?</string>
@@ -19,4 +19,5 @@
     <string name="bottom_tab_2">Contact</string>
     <string name="save">Lưu</string>
     <string name="back">Quay về</string>
+    <string name="change_password">Đổi mật khẩu</string>
 </resources>
