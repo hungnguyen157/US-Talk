@@ -2,11 +2,15 @@ package com.example.ustalk;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -14,8 +18,12 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.Objects;
 
 public class ProfileActivity extends Activity implements View.OnClickListener {
 //    ImageButton btnBack;
@@ -46,6 +54,7 @@ public class ProfileActivity extends Activity implements View.OnClickListener {
     RadioGroup sex_field;
     RadioButton rbtn_male, rbtn_female;
     Button btnEdit, btnSave, btnCancel;
+    private BottomSheetDialog bottomsheet;
 
     //data variables
     String current_name = "Nguyễn Quốc Thông";
@@ -102,6 +111,7 @@ public class ProfileActivity extends Activity implements View.OnClickListener {
             }
             case (R.id.fab):{
                 //choose and change profile image
+                showBottomSheetPick();
                 break;
             }
             case (R.id.btnEdit):{
@@ -135,5 +145,33 @@ public class ProfileActivity extends Activity implements View.OnClickListener {
                 break;
             }
         }
+    }
+
+    private void showBottomSheetPick() {
+        @SuppressLint("InflateParams") View v  = getLayoutInflater().inflate(R.layout.bottom_sheet_pick,null);
+        bottomsheet = new BottomSheetDialog(this);
+        bottomsheet.setContentView(v);
+        ((View) v.findViewById(R.id.btnGallery)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //openGallery();
+                bottomsheet.dismiss();
+            }
+        });
+        ((View) v.findViewById(R.id.btnGallery)).setOnClickListener((view) -> {
+            Toast.makeText(getApplicationContext(), "Camera", Toast.LENGTH_SHORT).show();
+            bottomsheet.dismiss();
+        });
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+            Objects.requireNonNull(bottomsheet.getWindow()).addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
+        bottomsheet.setOnDismissListener(new DialogInterface.OnDismissListener(){
+
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                bottomsheet=null;
+            }
+        });
+        bottomsheet.show();
     }
 }
