@@ -361,7 +361,7 @@
                 android:text="Nguyễn Quốc Thông"
                 android:textColor="@color/black"
                 android:textSize="16sp"
-                android:maxLines="1"
+                android:inputType="text"
                 android:background="@android:color/transparent"/>
         </LinearLayout>
     </LinearLayout>
