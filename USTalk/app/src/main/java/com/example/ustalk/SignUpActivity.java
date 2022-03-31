@@ -8,6 +8,7 @@ import android.graphics.LinearGradient;
 import android.graphics.Shader;
 import android.os.Bundle;
 import android.text.TextPaint;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -20,11 +21,15 @@ import android.widget.Toast;
 
 import com.example.ustalk.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class SignUpActivity extends AppCompatActivity {
     EditText editEmail, editPassword, editRepeatPassword, editName;
@@ -34,6 +39,8 @@ public class SignUpActivity extends AppCompatActivity {
     TextView signIn, txt_label;
     ProgressBar progressBar;
     RadioButton rbtnMale, rbtnFemale;
+
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,32 +106,51 @@ public class SignUpActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
-                                        String sex ;
-                                        if(rbtnMale.isChecked() == true)
-                                        {
-                                            sex = "Male";
-                                        }
-                                        else
-                                        {
-                                            sex = "Female";
-                                        }
+                                        String sex = (rbtnMale.isChecked() == true) ? "Male" : "Female";
                                         User user = new User(name, email, sex);
-                                        FirebaseDatabase.getInstance("https://us-talk-default-rtdb.asia-southeast1.firebasedatabase.app").getReference("Users")
-                                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                                .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                if (task.isSuccessful()){
-                                                    makeToast("Sign up successfully");
-                                                    onBackPressed();
-                                                } else {
-                                                    makeToast("Something wrong");
-                                                }
-                                                progressBar.setVisibility(View.GONE);
-                                                btnSignUp.setEnabled(true);
-                                                btnSignUp.setText(btnText);
-                                            }
-                                        });
+                                        String uid = mAuth.getCurrentUser().getUid();
+
+                                        db.collection("users").document(uid).set(user)
+                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        progressBar.setVisibility(View.GONE);
+                                                        btnSignUp.setEnabled(true);
+                                                        btnSignUp.setText(btnText);
+                                                    }
+                                                })
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void unused) {
+                                                        Log.d("signup", "DocumentSnapshot added");
+                                                        makeToast("Sign up successfully");
+                                                        onBackPressed();
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.w("signup", "Error adding doc", e);
+                                                        makeToast("Something wrong");
+                                                    }
+                                                });
+
+//                                        FirebaseDatabase.getInstance("https://us-talk-default-rtdb.asia-southeast1.firebasedatabase.app").getReference("Users")
+//                                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+//                                                .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                            @Override
+//                                            public void onComplete(@NonNull Task<Void> task) {
+//                                                if (task.isSuccessful()){
+//                                                    makeToast("Sign up successfully");
+//                                                    onBackPressed();
+//                                                } else {
+//                                                    makeToast("Something wrong");
+//                                                }
+//                                                progressBar.setVisibility(View.GONE);
+//                                                btnSignUp.setEnabled(true);
+//                                                btnSignUp.setText(btnText);
+//                                            }
+//                                        });
                                     } else {
                                         makeToast("Something wrong");
                                     }

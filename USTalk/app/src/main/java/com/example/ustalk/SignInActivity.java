@@ -2,6 +2,7 @@ package com.example.ustalk;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Shader;
@@ -20,6 +21,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.ustalk.models.User;
+import com.example.ustalk.utilities.CurrentUserDetails;
+import com.example.ustalk.utilities.PreferenceManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -30,12 +34,14 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 
 public class SignInActivity extends Activity implements View.OnClickListener {
     private FirebaseAuth mAuth;
+    FirebaseFirestore db;
 //    private SignInBinding signinBinding;
 
     TextView signup, txt_label;
@@ -43,26 +49,26 @@ public class SignInActivity extends Activity implements View.OnClickListener {
     EditText editEmail, editPassword;
     Button btnSignIn;
     ProgressBar progressBar;
+    PreferenceManager prefManager;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
+
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+
+        signInFromSession();
+
 //        signinBinding = SignInBinding.inflate(getLayoutInflater());
 //        setContentView(signinBinding.getRoot());
 //        setListen();
 
-        mAuth = FirebaseAuth.getInstance();
-        btnSignIn = (Button) findViewById(R.id.btnSignIn);
+        getViewRef();
         btnSignIn.setOnClickListener(this);
-        editEmail = (EditText) findViewById(R.id.editEmail);
-        editPassword = (EditText) findViewById(R.id.editPassword);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.INVISIBLE);
-        signup = (TextView) findViewById(R.id.signup);
         signup.setOnClickListener(this);
 
         //Make the label become gradient
-        txt_label = (TextView) findViewById(R.id.txt_label);
         TextPaint txt_paint = txt_label.getPaint();
         float txt_width = txt_paint.measureText(txt_label.getText().toString());
         Shader txt_shader = new LinearGradient(0, 0, txt_width, txt_label.getTextSize(),
@@ -75,8 +81,38 @@ public class SignInActivity extends Activity implements View.OnClickListener {
         txt_label.getPaint().setShader(txt_shader);
 
         //Resize logo
-        logo = (ImageView) findViewById(R.id.logo);
         logo.getLayoutParams().width = (int)(txt_width * 0.714285714);
+    }
+
+    private void getViewRef() {
+        btnSignIn = (Button) findViewById(R.id.btnSignIn);
+        editEmail = (EditText) findViewById(R.id.editEmail);
+        editPassword = (EditText) findViewById(R.id.editPassword);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
+        signup = (TextView) findViewById(R.id.signup);
+        txt_label = (TextView) findViewById(R.id.txt_label);
+        logo = (ImageView) findViewById(R.id.logo);
+    }
+
+    private void signInFromSession() {
+        prefManager = new PreferenceManager(this);
+        String uid = prefManager.getString("UID");
+        if (uid != null) {
+            db.collection("users").document(uid).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        User user = task.getResult().toObject(User.class);
+                        CurrentUserDetails.getInstance().setUser(user);
+                        transition();
+                    }
+                    else {
+                        Log.w("signin", "Error getting document.", task.getException());
+                    }
+                }
+            });
+        }
     }
 
     @Override
@@ -101,8 +137,9 @@ public class SignInActivity extends Activity implements View.OnClickListener {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
-                                        startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+                                        transition();
                                         progressBar.setVisibility(View.GONE);
+                                        prefManager.putString("UID", mAuth.getCurrentUser().getUid());
                                     } else {
                                         progressBar.setVisibility(View.GONE);
                                         makeToast("Sign In failed! Check your credentials");
@@ -117,6 +154,10 @@ public class SignInActivity extends Activity implements View.OnClickListener {
                 startActivity(new Intent(getApplicationContext(), SignUpActivity.class));
                 break;
         }
+    }
+
+    private void transition() {
+        startActivity(new Intent(getApplicationContext(), ChatHistoryActivity.class));
     }
 
     private void makeToast(String message) {

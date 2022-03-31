@@ -1,7 +1,9 @@
 package com.example.ustalk;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
@@ -15,10 +17,13 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class ChatHistoryActivity extends Activity {
+import de.hdodenhof.circleimageview.CircleImageView;
+
+public class ChatHistoryActivity extends Activity implements View.OnClickListener {
 
     ListView userList;
     ArrayList<User> users = new ArrayList<>();
+    CircleImageView profileImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,11 +31,16 @@ public class ChatHistoryActivity extends Activity {
         setContentView(R.layout.show_user);
 
         loadUsersFromDatabase();
+        getViewRef();
 
-        userList = (ListView) findViewById(R.id.user_list);
-
+        profileImage.setImageResource(R.drawable.person_icon);
+        profileImage.setOnClickListener(this);
     }
 
+    private void getViewRef() {
+        userList = (ListView) findViewById(R.id.user_list);
+        profileImage = (CircleImageView) findViewById(R.id.profile_image);
+    }
 
     private void loadUsersFromDatabase() {
         FirebaseDatabase database = FirebaseDatabase.getInstance("https://us-talk-default-rtdb.asia-southeast1.firebasedatabase.app");
@@ -53,5 +63,15 @@ public class ChatHistoryActivity extends Activity {
                 System.out.println("Read failed: " + error.getCode());
             }
         });
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId())
+        {
+            case R.id.profile_image:
+                startActivity(new Intent(ChatHistoryActivity.this, ProfileActivity.class));
+                break;
+        }
     }
 }
