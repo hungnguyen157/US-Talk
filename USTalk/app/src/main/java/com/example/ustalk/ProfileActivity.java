@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -105,8 +106,11 @@ public class ProfileActivity extends Activity implements View.OnClickListener {
             }
             case (R.id.btnEdit):{
                 editName.setEnabled(true);
+                editName.requestFocus(current_name.length()-1);
                 rbtn_male.setEnabled(true);
+                rbtn_male.setButtonTintList(ColorStateList.valueOf(getColor(R.color.orange)));
                 rbtn_female.setEnabled(true);
+                rbtn_female.setButtonTintList(ColorStateList.valueOf(getColor(R.color.orange)));
                 btnEdit.setVisibility(View.GONE);
                 btnSave.setVisibility(View.VISIBLE);
                 btnCancel.setVisibility(View.VISIBLE);
@@ -122,7 +126,9 @@ public class ProfileActivity extends Activity implements View.OnClickListener {
             case (R.id.btnCancel):{
                 editName.setEnabled(false);
                 rbtn_male.setEnabled(false);
+                rbtn_male.setButtonTintList(ColorStateList.valueOf(getColor(R.color.dark_gray)));
                 rbtn_female.setEnabled(false);
+                rbtn_female.setButtonTintList(ColorStateList.valueOf(getColor(R.color.dark_gray)));
                 btnEdit.setVisibility(View.VISIBLE);
                 btnSave.setVisibility(View.GONE);
                 btnCancel.setVisibility(View.GONE);
