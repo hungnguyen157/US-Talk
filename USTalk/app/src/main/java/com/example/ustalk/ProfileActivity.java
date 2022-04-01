@@ -7,8 +7,11 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -55,7 +58,7 @@ public class ProfileActivity extends Activity implements View.OnClickListener {
     RadioButton rbtn_male, rbtn_female;
     Button btnEdit, btnSave, btnCancel;
     private BottomSheetDialog bottomsheet;
-
+    private int IMAGE_GALLERY_REQUEST = 3;
     //data variables
     String current_name = "Nguyễn Quốc Thông";
     int current_sex = R.id.rbtn_male;
@@ -111,7 +114,7 @@ public class ProfileActivity extends Activity implements View.OnClickListener {
             }
             case (R.id.fab):{
                 //choose and change profile image
-                showBottomSheetPick();
+                openGallery();
                 break;
             }
             case (R.id.btnEdit):{
@@ -147,31 +150,19 @@ public class ProfileActivity extends Activity implements View.OnClickListener {
         }
     }
 
-    private void showBottomSheetPick() {
-        @SuppressLint("InflateParams") View v  = getLayoutInflater().inflate(R.layout.bottom_sheet_pick,null);
-        bottomsheet = new BottomSheetDialog(this);
-        bottomsheet.setContentView(v);
-        ((View) v.findViewById(R.id.btnGallery)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //openGallery();
-                bottomsheet.dismiss();
-            }
-        });
-        ((View) v.findViewById(R.id.btnGallery)).setOnClickListener((view) -> {
-            Toast.makeText(getApplicationContext(), "Camera", Toast.LENGTH_SHORT).show();
-            bottomsheet.dismiss();
-        });
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
-            Objects.requireNonNull(bottomsheet.getWindow()).addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+    private void openGallery(){
+        Intent intent = new Intent(Intent.ACTION_PICK,MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+//        intent.setType("image/*");
+//        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intent,IMAGE_GALLERY_REQUEST);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode==RESULT_OK&&data!=null){
+            ImageView profile_image = (ImageView) findViewById(R.id.profile_image);
+            Uri imageUri = data.getData();
+            profile_image.setImageURI(imageUri);
         }
-        bottomsheet.setOnDismissListener(new DialogInterface.OnDismissListener(){
-
-            @Override
-            public void onDismiss(DialogInterface dialogInterface) {
-                bottomsheet=null;
-            }
-        });
-        bottomsheet.show();
     }
 }
