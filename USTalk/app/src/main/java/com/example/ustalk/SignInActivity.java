@@ -58,7 +58,7 @@ public class SignInActivity extends Activity implements View.OnClickListener {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        signInFromSession();
+        //signInFromSession();
 
 //        signinBinding = SignInBinding.inflate(getLayoutInflater());
 //        setContentView(signinBinding.getRoot());

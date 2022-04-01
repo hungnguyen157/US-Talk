@@ -92,7 +92,7 @@ public class ChatHistoryActivity extends Activity implements View.OnClickListene
         switch (view.getId())
         {
             case R.id.profile_image:
-                startActivity(new Intent(ChatHistoryActivity.this, ProfileActivity.class));
+                startActivity(new Intent(ChatHistoryActivity.this, SettingActivity.class));
                 break;
         }
     }
