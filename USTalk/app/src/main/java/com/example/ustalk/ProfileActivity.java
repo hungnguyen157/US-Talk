@@ -96,6 +96,7 @@ public class ProfileActivity extends Activity implements View.OnClickListener {
         //set invisible for "Save" and "Cancel" button
         btnSave.setVisibility(View.INVISIBLE);
         btnCancel.setVisibility(View.INVISIBLE);
+        fab.setVisibility(View.INVISIBLE);
 
         //set OnClickListener for buttons
         btnBack.setOnClickListener(this);
@@ -127,6 +128,7 @@ public class ProfileActivity extends Activity implements View.OnClickListener {
                 btnEdit.setVisibility(View.GONE);
                 btnSave.setVisibility(View.VISIBLE);
                 btnCancel.setVisibility(View.VISIBLE);
+                fab.setVisibility(View.VISIBLE);
                 break;
             }
             case (R.id.btnSave):{
@@ -145,6 +147,7 @@ public class ProfileActivity extends Activity implements View.OnClickListener {
                 btnEdit.setVisibility(View.VISIBLE);
                 btnSave.setVisibility(View.GONE);
                 btnCancel.setVisibility(View.GONE);
+                fab.setVisibility(View.GONE);
                 break;
             }
         }
@@ -152,15 +155,12 @@ public class ProfileActivity extends Activity implements View.OnClickListener {
 
     private void openGallery(){
         Intent intent = new Intent(Intent.ACTION_PICK,MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-//        intent.setType("image/*");
-//        intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(intent,IMAGE_GALLERY_REQUEST);
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode==RESULT_OK&&data!=null){
-            ImageView profile_image = (ImageView) findViewById(R.id.profile_image);
             Uri imageUri = data.getData();
             profile_image.setImageURI(imageUri);
         }
