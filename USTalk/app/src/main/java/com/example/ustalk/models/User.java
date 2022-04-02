@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class User {
     public String email, sex, name;
     public ArrayList<String> Friends;
+    public boolean online;
 
     public User() {
     }

@@ -42,7 +42,6 @@ import java.util.HashMap;
 public class SignInActivity extends Activity implements View.OnClickListener {
     private FirebaseAuth mAuth;
     FirebaseFirestore db;
-//    private SignInBinding signinBinding;
 
     TextView signup, txt_label;
     ImageView logo;
@@ -57,14 +56,11 @@ public class SignInActivity extends Activity implements View.OnClickListener {
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        prefManager = new PreferenceManager(this);
 
-        //signInFromSession();
-
-//        signinBinding = SignInBinding.inflate(getLayoutInflater());
-//        setContentView(signinBinding.getRoot());
-//        setListen();
-
+        signInFromSession();
         getViewRef();
+
         btnSignIn.setOnClickListener(this);
         signup.setOnClickListener(this);
 
@@ -85,34 +81,35 @@ public class SignInActivity extends Activity implements View.OnClickListener {
     }
 
     private void getViewRef() {
-        btnSignIn = (Button) findViewById(R.id.btnSignIn);
-        editEmail = (EditText) findViewById(R.id.editEmail);
-        editPassword = (EditText) findViewById(R.id.editPassword);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        btnSignIn = findViewById(R.id.btnSignIn);
+        editEmail = findViewById(R.id.editEmail);
+        editPassword = findViewById(R.id.editPassword);
+        progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
-        signup = (TextView) findViewById(R.id.signup);
-        txt_label = (TextView) findViewById(R.id.txt_label);
-        logo = (ImageView) findViewById(R.id.logo);
+        signup = findViewById(R.id.signup);
+        txt_label = findViewById(R.id.txt_label);
+        logo = findViewById(R.id.logo);
     }
 
     private void signInFromSession() {
-        prefManager = new PreferenceManager(this);
         String uid = prefManager.getString("UID");
         if (uid != null) {
-            db.collection("users").document(uid).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        User user = task.getResult().toObject(User.class);
-                        CurrentUserDetails.getInstance().setUser(user);
-                        transition();
-                    }
-                    else {
-                        Log.w("signin", "Error getting document.", task.getException());
-                    }
-                }
-            });
+            loadUserFromDBAndTransition(uid);
         }
+    }
+
+    private void loadUserFromDBAndTransition(String uid) {
+        db.collection("users").document(uid).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                User user = task.getResult().toObject(User.class);
+                user.online = true;
+                CurrentUserDetails storage = CurrentUserDetails.getInstance();
+                storage.setUser(user);
+                storage.setUid(uid);
+                transition();
+            }
+            else Log.w("signin", "Error getting document.", task.getException());
+        });
     }
 
     @Override
@@ -120,35 +117,7 @@ public class SignInActivity extends Activity implements View.OnClickListener {
         switch (view.getId())
         {
             case R.id.btnSignIn:
-                String email = editEmail.getText().toString().trim();
-                String password = editPassword.getText().toString().trim();
-
-                if (email.isEmpty()) makeToast("Please input email");
-                else if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()) makeToast("Enter valid email");
-                else if (password.isEmpty()) makeToast("Please input password");
-
-                else{
-                    progressBar.setVisibility(View.VISIBLE);
-                    btnSignIn.setEnabled(false);
-                    String btnText = btnSignIn.getText().toString();
-                    btnSignIn.setText("");
-                    mAuth.signInWithEmailAndPassword(email, password)
-                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if (task.isSuccessful()) {
-                                        transition();
-                                        progressBar.setVisibility(View.GONE);
-                                        prefManager.putString("UID", mAuth.getCurrentUser().getUid());
-                                    } else {
-                                        progressBar.setVisibility(View.GONE);
-                                        makeToast("Sign In failed! Check your credentials");
-                                    }
-                                    btnSignIn.setEnabled(true);
-                                    btnSignIn.setText(btnText);
-                                }
-                            });
-                }
+                signIn();
                 break;
             case R.id.signup:
                 startActivity(new Intent(getApplicationContext(), SignUpActivity.class));
@@ -156,33 +125,54 @@ public class SignInActivity extends Activity implements View.OnClickListener {
         }
     }
 
+    private void signIn() {
+        String email = editEmail.getText().toString().trim();
+        String password = editPassword.getText().toString().trim();
+
+        if (email.isEmpty()) makeToast("Please input email");
+        else if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()) makeToast("Enter valid email");
+        else if (password.isEmpty()) makeToast("Please input password");
+
+        else{
+            progressBar.setVisibility(View.VISIBLE);
+            btnSignIn.setEnabled(false);
+            String btnText = btnSignIn.getText().toString();
+            btnSignIn.setText("");
+
+            mAuth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            progressBar.setVisibility(View.GONE);
+                            String uid = mAuth.getCurrentUser().getUid();
+                            prefManager.putString("UID", uid);
+                            loadUserFromDBAndTransition(uid);
+                        } else {
+                            progressBar.setVisibility(View.GONE);
+                            makeToast("Sign In failed! Check your credentials");
+                        }
+                        btnSignIn.setEnabled(true);
+                        btnSignIn.setText(btnText);
+                    });
+        }
+    }
+
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        Log.d("online", "Sign in onPause");
+//    }
+//
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        Log.d("online", "Sign in onResume");
+//    }
+
     private void transition() {
-        startActivity(new Intent(getApplicationContext(), ChatHistoryActivity.class));
+        startActivity(new Intent(getApplicationContext(), ChatHistoryActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
     }
 
     private void makeToast(String message) {
         Toast.makeText(SignInActivity.this, message, Toast.LENGTH_SHORT).show();
     }
-
-//    private void setListen(){
-//        signinBinding.signup.setOnClickListener(view -> {
-//            startActivity(new Intent(getApplicationContext(), SignUpActivity.class));
-//        });
-//        signinBinding.BtnSignin.setOnClickListener(view -> addDatatoFirebase());
-//    }
-//
-//    private void addDatatoFirebase(){
-//        Toast.makeText(getApplicationContext(), "Signin Running....", Toast.LENGTH_LONG).show();
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//        HashMap<String, Object> data = new HashMap<>();
-//        data.put("email", "abc@gmail.com");
-//        db.collection("users")
-//                .add(data)
-//                .addOnSuccessListener(documentReference ->{
-//                    Toast.makeText(getApplicationContext(), "Inserted", Toast.LENGTH_LONG).show();
-//                        })
-//                .addOnFailureListener(exception -> {
-//                    Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
-//                        });
-//    }
 }

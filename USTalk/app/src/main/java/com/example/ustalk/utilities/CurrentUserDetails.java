@@ -6,6 +6,7 @@ public class CurrentUserDetails {
 
     public static CurrentUserDetails instance;
     User user;
+    private String uid;
 
     public User getUser() {
         return user;
@@ -18,5 +19,13 @@ public class CurrentUserDetails {
     public static CurrentUserDetails getInstance() {
         if (instance == null) instance = new CurrentUserDetails();
         return instance;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public String getUid() {
+        return uid;
     }
 }
