@@ -165,6 +165,7 @@ public class ProfileActivity extends Activity implements View.OnClickListener {
                 btnSave.setVisibility(View.GONE);
                 btnCancel.setVisibility(View.GONE);
                 fab.setVisibility(View.GONE);
+                flag = 0;
                 showInfo();
                 break;
             }
