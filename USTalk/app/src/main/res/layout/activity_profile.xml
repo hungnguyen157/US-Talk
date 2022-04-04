@@ -316,7 +316,6 @@
                 android:id="@+id/editEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="yubicubin@yahoo.com"
                 android:textColor="@color/black"
                 android:textSize="16sp"/>
         </LinearLayout>
@@ -358,7 +357,6 @@
                 android:id="@+id/editName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Nguyễn Quốc Thông"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:inputType="text"
