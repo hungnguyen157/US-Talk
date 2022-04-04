@@ -16,6 +16,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -67,31 +69,24 @@ public class ChangePasswordActivity extends AppCompatActivity {
                     makeToast("Xin hãy xác nhận lại mật khẩu mới");
                 }
                 else{
-                    //get current password from database
-                    String currentPassFromDB = "";
+                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-                    if (!currentPass.equals(currentPassFromDB)){
-                        makeToast("Vui lòng nhập chính xác mật khẩu hiện tại của bạn");
-                    }
-                    else{
-                        //set new password to database
-                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                        user.updatePassword(newPass)
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()){
-                                            makeToast("Đổi mật khẩu thành công");
-                                            onBackPressed();
-                                        }
-                                        else{
-                                            makeToast("Đã có lỗi xảy ra khi chúng tôi cố " +
-                                                    "đổi mật khẩu cho bạn\n" +
-                                                    "Xin hãy kiểm tra lại đường truyền mạng hoặc thử lại sau");
-                                        }
+                    //get auth credentials from the user for re-authentication
+                    AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), currentPass);
+
+                    //prompt the user to re-provide their sign-in credentials
+                    //(to confirm that the true owner of the account is trying to change its password)
+                    user.reauthenticate(credential)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        updatePasswordFromDB(user, newPass);
+                                    } else {
+                                        makeToast("Mật khẩu hiện tại không đúng.");
                                     }
-                                });
-                    }
+                                }
+                            });
                 }
             }
         });
@@ -105,5 +100,23 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
     private void makeToast(String message) {
         Toast.makeText(ChangePasswordActivity.this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void updatePasswordFromDB(FirebaseUser user, String newPass){
+        user.updatePassword(newPass)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            makeToast("Đổi mật khẩu thành công");
+                            onBackPressed();
+                        }
+                        else{
+                            makeToast("Đã có lỗi xảy ra khi chúng tôi cố " +
+                                    "đổi mật khẩu cho bạn\n" +
+                                    "Xin hãy kiểm tra lại đường truyền mạng hoặc thử lại sau");
+                        }
+                    }
+                });
     }
 }
