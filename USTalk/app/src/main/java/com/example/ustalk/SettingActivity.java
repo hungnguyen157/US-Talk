@@ -30,7 +30,7 @@ public class SettingActivity extends Activity implements View.OnClickListener {
         }
         else if(view.getId() == Password.getId())
         {
-
+            startActivity(new Intent(getApplicationContext(),ChangePasswordActivity.class));
         }
         else if(view.getId() == Notifiation.getId())
         {

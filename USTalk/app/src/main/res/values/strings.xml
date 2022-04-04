@@ -30,4 +30,5 @@
     <string name="notification_tip">Cài đặt thông báo thông minh có thể giúp bạn tập trung hơn trong công việc của mình</string>
     <string name="logout">Đăng xuất</string>
     <string name="profile">Hồ sơ</string>
+    <string name="reset_password">Đặt lại mật khẩu</string>
 </resources>
