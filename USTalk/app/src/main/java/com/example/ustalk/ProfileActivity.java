@@ -106,16 +106,6 @@ public class ProfileActivity extends Activity implements View.OnClickListener {
         btnEdit = (Button) findViewById(R.id.btnEdit);
         btnSave = (Button) findViewById(R.id.btnSave);
         btnCancel = (Button) findViewById(R.id.btnCancel);
-//        User user =CurrentUserDetails.getInstance().getUser();
-//        CurrentUserDetails.getInstance().updateUser(user);
-//        String sex = user.sex;
-//        editEmail.setText(user.email);
-//        editName.setText(user.name);
-//        if(sex.equals("Nam"))
-//            rbtn_male.setChecked(true);
-//        else
-//            rbtn_female.setChecked(true);
-//        Glide.with(ProfileActivity.this).load(user.imageProfile).into(profile_image);
         showInfo();
         progressDialog = new ProgressDialog(this);
 
@@ -181,16 +171,6 @@ public class ProfileActivity extends Activity implements View.OnClickListener {
         }
     }
     private void showInfo(){
-//        User user =CurrentUserDetails.getInstance().getUser();
-//        CurrentUserDetails.getInstance().updateUser(user);
-//        String sex = user.sex;
-//        editEmail.setText(user.email);
-//        editName.setText(user.name);
-//        if(sex.equals("Nam"))
-//            rbtn_male.setChecked(true);
-//        else
-//            rbtn_female.setChecked(true);
-//        Glide.with(ProfileActivity.this).load(user.imageProfile).into(profile_image);
         fireStore.collection("users").document(CurrentUserDetails.getInstance().getUid()).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
@@ -228,18 +208,8 @@ public class ProfileActivity extends Activity implements View.OnClickListener {
     private void uploadToFirebase(){
         int selectedID = sex_field.getCheckedRadioButtonId();
         RadioButton selectRadio = (RadioButton) findViewById(selectedID);
-//        DocumentReference mountainRef = fireStore.collection("users").document(CurrentUserDetails.getInstance().getUid());
-//        mountainRef.update("name",editName.getText().toString(),"sex",selectRadio.getText().toString())
-//            .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                @Override
-//                public void onSuccess(Void unused) {
-//                    flag1++;
-//                }
-//            });
         HashMap<String,Object> hashmapName =new HashMap<>();
         hashmapName.put("name",editName.getText().toString());
-//        fireStore.collection("users").document(CurrentUserDetails.getInstance().getUid()).update(hashmapName);
-//        HashMap<String, Object> hashmapSex =new HashMap<>();
         hashmapName.put("sex",selectRadio.getText().toString());
         fireStore.collection("users").document(CurrentUserDetails.getInstance().getUid()).update(hashmapName);
         if(imageUri!=null&&flag==1){
