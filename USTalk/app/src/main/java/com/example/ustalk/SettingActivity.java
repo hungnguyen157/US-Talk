@@ -24,6 +24,7 @@ public class SettingActivity extends Activity implements View.OnClickListener {
     FirebaseFirestore db;
     TextView txtName;
     CircleImageView profileImage;
+    ImageView btn_back;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

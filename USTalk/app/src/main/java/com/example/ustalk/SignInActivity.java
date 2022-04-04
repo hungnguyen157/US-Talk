@@ -58,7 +58,7 @@ public class SignInActivity extends Activity implements View.OnClickListener {
         db = FirebaseFirestore.getInstance();
         prefManager = new PreferenceManager(this);
 
-        signInFromSession();
+        //signInFromSession();
         getViewRef();
 
         btnSignIn.setOnClickListener(this);

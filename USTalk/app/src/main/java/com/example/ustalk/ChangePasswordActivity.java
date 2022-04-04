@@ -68,6 +68,10 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 else if (confirmNewPass.isEmpty()){
                     makeToast("Xin hãy xác nhận lại mật khẩu mới");
                 }
+                else if (newPass != confirmNewPass)
+                {
+                    makeToast("Mật Khẩu Nhập Lại Không Đúng");
+                }
                 else{
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -80,10 +84,16 @@ public class ChangePasswordActivity extends AppCompatActivity {
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
-                                        updatePasswordFromDB(user, newPass);
-                                    } else {
-                                        makeToast("Mật khẩu hiện tại không đúng.");
+                                    if (currentPass == newPass)
+                                    {
+                                        makeToast("Mật Khẩu Mới Phải Khác Mật khẩu Cũ");
+                                    }
+                                    else {
+                                        if (task.isSuccessful()) {
+                                            updatePasswordFromDB(user, newPass);
+                                        } else {
+                                            makeToast("Mật khẩu hiện tại không đúng.");
+                                        }
                                     }
                                 }
                             });
