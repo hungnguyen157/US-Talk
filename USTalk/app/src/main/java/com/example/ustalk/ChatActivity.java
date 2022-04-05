@@ -52,6 +52,8 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     String receiveID;
     String receiveimage;
     String receivename;
+    EmojiPopup popup;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,7 +85,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         contact_info.setOnClickListener(this);
 
         //set Userlisteners
-//        EmojiPopup popup = EmojiPopup.Builder.fromRootView(findViewById(R.id.chat_view)).build(edit_chat);
+        popup = EmojiPopup.Builder.fromRootView(findViewById(R.id.chat_view)).build(edit_chat);
 //        btn_emoji.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
@@ -201,7 +203,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             }
             case (R.id.btn_emoji):{
-                EmojiPopup.Builder.fromRootView(findViewById(R.id.chat_view)).build(edit_chat).toggle();
+                popup.toggle();
                 break;
             }
             case (R.id.btn_send):{
