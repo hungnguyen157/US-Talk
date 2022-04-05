@@ -4,12 +4,15 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.ustalk.utilities.CurrentUserDetails;
+import com.example.ustalk.utilities.PreferenceManager;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -25,6 +28,8 @@ public class SettingActivity extends Activity implements View.OnClickListener {
     TextView txtName;
     CircleImageView profileImage;
     ImageView btn_back;
+    Button btnSignOut;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,10 +41,12 @@ public class SettingActivity extends Activity implements View.OnClickListener {
         btnBack =(ImageView) findViewById(R.id.btn_back);
         txtName = (TextView) findViewById(R.id.name);
         profileImage = (CircleImageView) findViewById(R.id.profile_image);
+        btnSignOut = findViewById(R.id.appCompatButton);
         Profile.setOnClickListener(this);
         Password.setOnClickListener(this);
         Notifiation.setOnClickListener(this);
         btnBack.setOnClickListener(this);
+        btnSignOut.setOnClickListener(this);
         showInfo();
     }
     private void showInfo(){
@@ -68,6 +75,14 @@ public class SettingActivity extends Activity implements View.OnClickListener {
         else if(view.getId() == Notifiation.getId())
         {
 
+        }
+        else if(view.getId() == btnSignOut.getId())
+        {
+            PreferenceManager preferenceManager = new PreferenceManager(getApplicationContext());
+            preferenceManager.remove("UID");
+            Toast.makeText(getApplicationContext(), "You have signed out", Toast.LENGTH_LONG).show();
+            finish();
+            startActivity(new Intent(getApplicationContext(),SignInActivity.class));
         }
         else if (view.getId()==btnBack.getId())
             onBackPressed();
