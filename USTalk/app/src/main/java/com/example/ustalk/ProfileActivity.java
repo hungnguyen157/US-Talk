@@ -143,9 +143,9 @@ public class ProfileActivity extends Activity implements View.OnClickListener {
                 editName.setEnabled(true);
                 editName.requestFocus(editName.getText().toString().length()-1);
                 rbtn_male.setEnabled(true);
-                rbtn_male.setButtonTintList(ColorStateList.valueOf(getColor(R.color.orange)));
+                rbtn_male.setButtonTintList(ColorStateList.valueOf(getColor(R.color.blue_purple)));
                 rbtn_female.setEnabled(true);
-                rbtn_female.setButtonTintList(ColorStateList.valueOf(getColor(R.color.orange)));
+                rbtn_female.setButtonTintList(ColorStateList.valueOf(getColor(R.color.blue_purple)));
                 btnEdit.setVisibility(View.GONE);
                 btnSave.setVisibility(View.VISIBLE);
                 btnCancel.setVisibility(View.VISIBLE);
