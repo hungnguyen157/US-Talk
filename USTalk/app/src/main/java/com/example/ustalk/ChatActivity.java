@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -26,6 +27,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.vanniktech.emoji.EmojiPopup;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,6 +48,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     TextView name;
     EditText edit_chat;
     RecyclerView recycler_view_message;
+    LinearLayout contact_info;
     String receiveID;
     String receiveimage;
     String receivename;
@@ -65,16 +69,29 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         btn_send = (ImageView) findViewById(R.id.btn_send);
         edit_chat = (EditText) findViewById(R.id.edit_chat);
         recycler_view_message = (RecyclerView) findViewById(R.id.recycler_view_message);
+        contact_info = (LinearLayout) findViewById(R.id.contact_info);
         btn_back.setOnClickListener(this);
+
+        //set OnclickListener for buttons
+        btn_back.setOnClickListener(this);
+        btn_call.setOnClickListener(this);
+        btn_video_call.setOnClickListener(this);
+        btn_image.setOnClickListener(this);
+        btn_micro.setOnClickListener(this);
+        btn_emoji.setOnClickListener(this);
+        btn_send.setOnClickListener(this);
+        contact_info.setOnClickListener(this);
+
         //set Userlisteners
-        EmojiPopup popup = EmojiPopup.Builder.fromRootView(findViewById(R.id.chat_view)).build(edit_chat);
-        btn_emoji.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                popup.toggle();
-            }
-        });
-        btn_send.setOnClickListener(v->SendMes());
+//        EmojiPopup popup = EmojiPopup.Builder.fromRootView(findViewById(R.id.chat_view)).build(edit_chat);
+//        btn_emoji.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                popup.toggle();
+//            }
+//        });
+        //btn_send.setOnClickListener(v->SendMes());
+
         loadReceiverDetails();
         init();
         ListenMes();
@@ -149,13 +166,51 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             recycler_view_message.setVisibility(View.VISIBLE);
         }
     };
+
     @Override
     public void onClick(View view) {
-        if(view.getId() == btn_back.getId())
-        {
-            startActivity(new Intent(getApplicationContext(),ChatHistoryActivity.class));
+        switch (view.getId()){
+            case (R.id.btn_back):{
+                onBackPressed();
+                //tartActivity(new Intent(getApplicationContext(),ChatHistoryActivity.class));
+                break;
+            }
+            case (R.id.contact_info):{
+                //view contact_info
+                break;
+            }
+            case (R.id.btn_call):{
+                //call contact
+                break;
+            }
+            case (R.id.btn_video_call):{
+                try {
+                    URL serverURL = new URL("https://meet.jit.si");
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+
+                break;
+            }
+            case (R.id.btn_image):{
+                //choose image to send
+                break;
+            }
+            case (R.id.btn_micro):{
+                //send image by voice
+                break;
+            }
+            case (R.id.btn_emoji):{
+                EmojiPopup.Builder.fromRootView(findViewById(R.id.chat_view)).build(edit_chat).toggle();
+                break;
+            }
+            case (R.id.btn_send):{
+                SendMes();
+                break;
+            }
         }
     }
+
     private String getReadableDateTime(Date date)
     {
         return new SimpleDateFormat("MMMM dd,yyyy - hh:mm a", Locale.getDefault()).format(date);
