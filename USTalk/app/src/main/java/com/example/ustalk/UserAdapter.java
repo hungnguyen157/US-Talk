@@ -2,25 +2,30 @@ package com.example.ustalk;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.ViewTarget;
+import com.example.ustalk.listeners.Userlisteners;
 import com.example.ustalk.models.User;
 
 import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class CustomRowAdapter extends ArrayAdapter<User> {
+public class UserAdapter extends ArrayAdapter<User> {
     Context context;
     String[] userName,lastMsg;
     Integer[] avatars;
     ArrayList<User> users;
-
-    CustomRowAdapter(Context context, int layoutToBeInflated, ArrayList<User> users){
+    //private final Userlisteners userlisteners;
+    UserAdapter(Context context, int layoutToBeInflated, ArrayList<User> users){
         super(context, layoutToBeInflated, users);
         this.context = context;
         this.users = users;
@@ -38,15 +43,9 @@ public class CustomRowAdapter extends ArrayAdapter<User> {
         TextView txtLastMsg = (TextView) row.findViewById(R.id.lastMsg);
 
         txtUserName.setText(users.get(position).name);
-        avatar.setImageResource(R.drawable.person_icon);
+        Glide.with(getContext()).load(users.get(position).image).into(avatar);
         txtLastMsg.setText("Deez nuts");
-//        if (position == selected_pos){
-//            row.setBackground(context.getResources().
-//                    getDrawable(R.drawable.custom_list_selector, context.getTheme()));
-//        }
-//        else{
-//            row.setBackgroundColor(Color.TRANSPARENT);
-//        }
+
 
         return (row);
     }

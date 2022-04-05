@@ -2,13 +2,12 @@ package com.example.ustalk;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -16,17 +15,11 @@ import com.example.ustalk.models.User;
 import com.example.ustalk.utilities.CurrentUserDetails;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.lang.reflect.Array;
-import java.util.AbstractCollection;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -38,7 +31,8 @@ public class ChatHistoryActivity extends Activity implements View.OnClickListene
     ArrayList<User> users = new ArrayList<>();
     CircleImageView profileImage;
     private ArrayList<String> uids = new ArrayList<>();
-
+    private ArrayList<String> name = new ArrayList<>();
+    private ArrayList<String> image = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,7 +40,6 @@ public class ChatHistoryActivity extends Activity implements View.OnClickListene
 
         getViewRef();
         loadUsersFromDatabase();
-
         profileImage.setImageResource(R.drawable.person_icon);
         profileImage.setOnClickListener(this);
     }
@@ -65,21 +58,29 @@ public class ChatHistoryActivity extends Activity implements View.OnClickListene
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         User user = document.toObject(User.class);
                         uids.add(document.getId());
+                        name.add(user.name);
+                        if(user.image == null)
+                        {
+                            image.add("https://firebasestorage.googleapis.com/v0/b/us-talk.appspot.com/o/Avatar%2F164905463799677ci49SJ4JOzmqC7lzPwVW9Axh42?alt=media&token=6e779a68-2e10-414b-b8e6-ff6d2851f34b");
+                        }
+                        else
+                        {
+                            image.add(user.image);
+                        }
                         users.add(user);
                     }
-                    userList.setAdapter(new CustomRowAdapter(ChatHistoryActivity.this, R.layout.custom_user_row, users));
+                    userList.setAdapter(new UserAdapter(ChatHistoryActivity.this, R.layout.custom_user_row, users));
                     userList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                             String myUid = CurrentUserDetails.getInstance().getUid();
                             String theirUid = uids.get(i);
-                            String memberIds[] = new String[]{myUid, theirUid};
-                            Arrays.sort(memberIds);
-                            String roomID = String.join(" ", memberIds);
-                            db.collection("rooms").document(roomID).set(new ChatRoom(memberIds));
-
+                            String image1 = image.get(i);
+                            String name1 = name.get(i);
                             Intent intent = new Intent(ChatHistoryActivity.this, ChatActivity.class);
-                            intent.putExtra("ids", theirUid);
+                            intent.putExtra("image", image1);
+                            intent.putExtra("name",name1);
+                            intent.putExtra("receiveID",theirUid);
                             startActivity(intent);
                         }
                     });
@@ -100,7 +101,7 @@ public class ChatHistoryActivity extends Activity implements View.OnClickListene
 //                    User user = ds.getValue(User.class);
 //                    users.add(user);
 //                }
-//                userList.setAdapter(new CustomRowAdapter(ChatHistoryActivity.this, R.layout.custom_user_row, users));
+//                userList.setAdapter(new UserAdapter(ChatHistoryActivity.this, R.layout.custom_user_row, users));
 //            }
 //
 //            @Override

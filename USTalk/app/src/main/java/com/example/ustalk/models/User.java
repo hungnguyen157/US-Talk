@@ -3,10 +3,9 @@ package com.example.ustalk.models;
 import java.util.ArrayList;
 
 public class User {
-    public String email, sex, name;
+    public String email, sex, name,image,id;
     public ArrayList<String> Friends;
     public boolean online;
-
     public User() {
     }
 
@@ -28,6 +27,7 @@ public class User {
         this.sex = sex;
     }
 
+    public void setImage(String image){this.image = image;}
     @Override
     public String toString() {
         return "User{" +
