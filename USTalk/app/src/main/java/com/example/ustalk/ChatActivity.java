@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.EditText;
@@ -242,6 +244,13 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void cloneMessengerChatBox(){
+        //set image for main_background and prevent effect of adjustResize on it
+        chat_background.setImageResource(R.drawable.chat_background);
+        Display display = getWindowManager().getDefaultDisplay();
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        display.getRealMetrics(displayMetrics);
+        chat_background.getLayoutParams().height = displayMetrics.heightPixels;
+
         //set tint color for all button on toolbar
         changeImageViewTintColor(
                 getApplicationContext(), toolbarListView, R.color.purple_200);

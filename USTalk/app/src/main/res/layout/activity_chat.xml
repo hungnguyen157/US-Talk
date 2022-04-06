@@ -31,7 +31,7 @@
             android:src="@drawable/ic_baseline_arrow_back_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <LinearLayout
             android:id="@+id/contact_info"
@@ -51,7 +51,7 @@
                 android:layout_height="@dimen/person_icon_size"
                 android:background="@color/purple_200"
                 android:src="@drawable/ustalk_logo_transparent_background_cropped"
-                app:shapeAppearanceOverlay="@style/circular_image" />
+                app:shapeAppearanceOverlay="@style/circular_image"/>
 
             <TextView
                 android:id="@+id/name"
@@ -60,7 +60,7 @@
                 android:layout_marginStart="10dp"
                 android:textColor="@color/black"
                 android:textSize="25sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"/>
         </LinearLayout>
 
         <ImageView
@@ -71,7 +71,7 @@
             android:src="@drawable/call_icon"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btn_video_call"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <ImageView
             android:id="@+id/btn_video_call"
@@ -81,7 +81,7 @@
             android:src="@drawable/video_icon"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ScrollView
@@ -107,7 +107,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:stackFromEnd="true" />
+                app:stackFromEnd="true"/>
         </com.example.ustalk.BackgroundAwareLayout>
     </ScrollView>
 
