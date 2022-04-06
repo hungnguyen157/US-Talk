@@ -46,7 +46,7 @@
             android:paddingTop="3dp"
             android:text="this is sent time"
             android:textSize="15sp"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/sent_text"
             app:layout_constraintTop_toBottomOf="@+id/sent_text" />
     </com.example.ustalk.BackgroundAwareLayout>
 </com.example.ustalk.BackgroundAwareLayout>
