@@ -110,36 +110,6 @@
                 app:stackFromEnd="true" />
         </com.example.ustalk.BackgroundAwareLayout>
     </ScrollView>
-<!--    <com.example.ustalk.BackgroundAwareLayout-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="0dp"-->
-<!--        app:child_id="@id/recycler_view_message"-->
-<!--        android:background="@color/white"-->
-<!--        app:layout_constraintBottom_toTopOf="@+id/make_message_field"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/toolbar">-->
-<!--        <androidx.recyclerview.widget.RecyclerView-->
-<!--            android:id="@+id/recycler_view_message"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:background="@android:color/transparent"-->
-<!--            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:stackFromEnd="true" />-->
-<!--    </com.example.ustalk.BackgroundAwareLayout>-->
-<!--    <androidx.recyclerview.widget.RecyclerView-->
-<!--        android:id="@+id/recycler_view_message"-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="0dp"-->
-<!--        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
-<!--        app:layout_constraintBottom_toTopOf="@+id/make_message_field"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/toolbar"-->
-<!--        app:stackFromEnd="true"/>-->
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/make_message_field"

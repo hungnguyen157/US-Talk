@@ -14,46 +14,35 @@
         android:theme="@style/Theme.USTalk">
         <activity
             android:name=".ChangePasswordActivity"
-            android:exported="true"/>
-
+            android:exported="true" />
         <activity
             android:name=".ForgotPasswordActivity"
-            android:exported="true"/>
-
+            android:exported="true" />
         <activity
             android:name=".ProfileActivity"
-            android:exported="true">
-
-        </activity>
-
+            android:exported="true"/>
         <activity
             android:name=".MainActivity"
             android:exported="true" />
-
         <activity
             android:name=".SignInActivity"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ChatHistoryActivity"
             android:exported="true" />
-
         <activity
             android:name=".ChatActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize" />
-
         <activity
             android:name=".SignUpActivity"
             android:exported="true" />
-
         <activity
             android:name=".SettingActivity"
             android:exported="true" />

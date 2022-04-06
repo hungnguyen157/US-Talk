@@ -1,37 +1,25 @@
 package com.example.ustalk;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Paint;
 import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.graphics.Xfermode;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.EditText;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.ustalk.models.ChatMessage;
-import com.example.ustalk.models.User;
 import com.example.ustalk.utilities.PreferenceManager;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -41,13 +29,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.logging.SimpleFormatter;
 
 public class ChatActivity extends AppCompatActivity implements View.OnClickListener,EventListener {
     private ArrayList<ChatMessage> Message;
@@ -294,12 +280,12 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
-                        chat_box_scrollview.post(new Runnable() {
+                        chat_box_scrollview.postDelayed(new Runnable() {
                             @Override
                             public void run() {
                                 chat_box_scrollview.smoothScrollTo(0, last_child.getBottom());
                             }
-                        });
+                        }, 150);
                     }
                 });
     }
