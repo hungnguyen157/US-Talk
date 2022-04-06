@@ -101,7 +101,6 @@ public class SettingActivity extends Activity implements View.OnClickListener {
             Toast.makeText(getApplicationContext(), "You have signed out", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(getApplicationContext(),SignInActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            finish();
             startActivity(intent);
         }
         else if (view.getId()==btnBack.getId())
