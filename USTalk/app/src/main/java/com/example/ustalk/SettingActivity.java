@@ -10,12 +10,23 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.bumptech.glide.Glide;
 import com.example.ustalk.utilities.CurrentUserDetails;
 import com.example.ustalk.utilities.PreferenceManager;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -29,7 +40,6 @@ public class SettingActivity extends Activity implements View.OnClickListener {
     CircleImageView profileImage;
     ImageView btn_back;
     Button btnSignOut;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,25 +51,33 @@ public class SettingActivity extends Activity implements View.OnClickListener {
         btnBack =(ImageView) findViewById(R.id.btn_back);
         txtName = (TextView) findViewById(R.id.name);
         profileImage = (CircleImageView) findViewById(R.id.profile_image);
-        btnSignOut = findViewById(R.id.appCompatButton);
+        btnSignOut = findViewById(R.id.btnSignout);
         Profile.setOnClickListener(this);
         Password.setOnClickListener(this);
         Notifiation.setOnClickListener(this);
         btnBack.setOnClickListener(this);
         btnSignOut.setOnClickListener(this);
+
         showInfo();
     }
     private void showInfo(){
-        db.collection("users").document(CurrentUserDetails.getInstance().getUid()).get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        String name = documentSnapshot.getString("name");
-                        String imageProfile = documentSnapshot.getString("imageProfile");
-                        txtName.setText(name);
-                        Glide.with(SettingActivity.this).load(imageProfile).into(profileImage);
-                    }
-                });
+        DocumentReference documentReference = db.collection("users").document(CurrentUserDetails.getInstance().getUid());
+        documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if(error!=null){
+                    System.err.println("Listen failed: " + error);
+                }
+                if (value!= null && value.exists()) {
+                    String name = value.getString("name");
+                    String imageProfile = value.getString("imageProfile");
+                    txtName.setText(name);
+                    Glide.with(SettingActivity.this).load(imageProfile).into(profileImage);
+                } else {
+                    System.out.print("Current data: null");
+                }
+            }
+        });
     }
 
     @Override

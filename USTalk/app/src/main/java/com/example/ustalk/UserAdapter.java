@@ -24,6 +24,7 @@ public class UserAdapter extends ArrayAdapter<User> {
     String[] userName,lastMsg;
     Integer[] avatars;
     ArrayList<User> users;
+
     //private final Userlisteners userlisteners;
     UserAdapter(Context context, int layoutToBeInflated, ArrayList<User> users){
         super(context, layoutToBeInflated, users);
@@ -43,7 +44,7 @@ public class UserAdapter extends ArrayAdapter<User> {
         TextView txtLastMsg = (TextView) row.findViewById(R.id.lastMsg);
 
         txtUserName.setText(users.get(position).name);
-        Glide.with(getContext()).load(users.get(position).image).into(avatar);
+        Glide.with(getContext()).load(users.get(position).imageProfile).into(avatar);
         txtLastMsg.setText("Deez nuts");
 
 

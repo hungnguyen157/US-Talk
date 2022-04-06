@@ -10,12 +10,18 @@ import android.widget.ImageView;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
+import com.bumptech.glide.Glide;
 import com.example.ustalk.models.User;
 import com.example.ustalk.utilities.CurrentUserDetails;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -33,14 +39,16 @@ public class ChatHistoryActivity extends Activity implements View.OnClickListene
     private ArrayList<String> uids = new ArrayList<>();
     private ArrayList<String> name = new ArrayList<>();
     private ArrayList<String> image = new ArrayList<>();
+    FirebaseFirestore db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.show_user);
 
+        db = FirebaseFirestore.getInstance();
         getViewRef();
         loadUsersFromDatabase();
-        profileImage.setImageResource(R.drawable.person_icon);
+        showInfo();
         profileImage.setOnClickListener(this);
     }
 
@@ -48,9 +56,25 @@ public class ChatHistoryActivity extends Activity implements View.OnClickListene
         userList = (ListView) findViewById(R.id.user_list);
         profileImage = (CircleImageView) findViewById(R.id.profile_image);
     }
+    private void showInfo(){
+        DocumentReference documentReference = db.collection("users").document(CurrentUserDetails.getInstance().getUid());
+        documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if(error!=null){
+                    System.err.println("Listen failed: " + error);
+                }
+                if (value!= null && value.exists()) {
+                    String imageProfile = value.getString("imageProfile");
+                    Glide.with(ChatHistoryActivity.this).load(imageProfile).into(profileImage);
+                } else {
+                    System.out.print("Current data: null");
+                }
+            }
+        });
+    }
 
     private void loadUsersFromDatabase() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -59,13 +83,13 @@ public class ChatHistoryActivity extends Activity implements View.OnClickListene
                         User user = document.toObject(User.class);
                         uids.add(document.getId());
                         name.add(user.name);
-                        if(user.image == null)
+                        if(user.imageProfile == null)
                         {
-                            image.add("https://firebasestorage.googleapis.com/v0/b/us-talk.appspot.com/o/Avatar%2F164905463799677ci49SJ4JOzmqC7lzPwVW9Axh42?alt=media&token=6e779a68-2e10-414b-b8e6-ff6d2851f34b");
+                            user.setImage("https://firebasestorage.googleapis.com/v0/b/us-talk.appspot.com/o/Avatar%2F164905463799677ci49SJ4JOzmqC7lzPwVW9Axh42?alt=media&token=6e779a68-2e10-414b-b8e6-ff6d2851f34b");
                         }
                         else
                         {
-                            image.add(user.image);
+                            image.add(user.imageProfile);
                         }
                         users.add(user);
                     }
@@ -78,7 +102,7 @@ public class ChatHistoryActivity extends Activity implements View.OnClickListene
                             String image1 = image.get(i);
                             String name1 = name.get(i);
                             Intent intent = new Intent(ChatHistoryActivity.this, ChatActivity.class);
-                            intent.putExtra("image", image1);
+                            intent.putExtra("imageProfile", image1);
                             intent.putExtra("name",name1);
                             intent.putExtra("receiveID",theirUid);
                             startActivity(intent);
