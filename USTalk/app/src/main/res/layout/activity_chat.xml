@@ -6,15 +6,23 @@
     android:layout_height="match_parent"
     tools:context=".ChatActivity"
     android:id="@+id/chat_view">
+    <ImageView
+        android:id="@+id/chat_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/chat_background"/>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/toolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="@color/white"
         android:elevation="6dp"
         android:paddingVertical="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
         <ImageView
             android:id="@+id/btn_back"
             android:layout_width="40dp"
@@ -23,7 +31,7 @@
             android:src="@drawable/ic_baseline_arrow_back_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
             android:id="@+id/contact_info"
@@ -36,13 +44,14 @@
             app:layout_constraintEnd_toStartOf="@+id/btn_call"
             app:layout_constraintStart_toEndOf="@+id/btn_back"
             app:layout_constraintTop_toTopOf="parent">
+
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/avatar"
                 android:layout_width="@dimen/person_icon_size"
                 android:layout_height="@dimen/person_icon_size"
                 android:background="@color/purple_200"
                 android:src="@drawable/ustalk_logo_transparent_background_cropped"
-                app:shapeAppearanceOverlay="@style/circular_image"/>
+                app:shapeAppearanceOverlay="@style/circular_image" />
 
             <TextView
                 android:id="@+id/name"
@@ -51,7 +60,7 @@
                 android:layout_marginStart="10dp"
                 android:textColor="@color/black"
                 android:textSize="25sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
         </LinearLayout>
 
         <ImageView
@@ -62,7 +71,7 @@
             android:src="@drawable/call_icon"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btn_video_call"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/btn_video_call"
@@ -72,28 +81,77 @@
             android:src="@drawable/video_icon"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view_message"
+    <ScrollView
+        android:id="@+id/chat_box_scrollview"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:fillViewport="true"
         app:layout_constraintBottom_toTopOf="@+id/make_message_field"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:stackFromEnd="true"/>
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+        <com.example.ustalk.BackgroundAwareLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:child_id="@id/recycler_view_message"
+            android:background="@color/white">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_message"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:stackFromEnd="true" />
+        </com.example.ustalk.BackgroundAwareLayout>
+    </ScrollView>
+<!--    <com.example.ustalk.BackgroundAwareLayout-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="0dp"-->
+<!--        app:child_id="@id/recycler_view_message"-->
+<!--        android:background="@color/white"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/make_message_field"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/toolbar">-->
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/recycler_view_message"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="@android:color/transparent"-->
+<!--            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:stackFromEnd="true" />-->
+<!--    </com.example.ustalk.BackgroundAwareLayout>-->
+<!--    <androidx.recyclerview.widget.RecyclerView-->
+<!--        android:id="@+id/recycler_view_message"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="0dp"-->
+<!--        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/make_message_field"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/toolbar"-->
+<!--        app:stackFromEnd="true"/>-->
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/make_message_field"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:elevation="6dp"
         android:paddingVertical="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
+
         <ImageView
             android:id="@+id/btn_image"
             android:layout_width="@dimen/chat_icon"
@@ -102,7 +160,7 @@
             android:src="@drawable/image_icon"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/btn_micro"
@@ -112,30 +170,30 @@
             android:src="@drawable/voice_icon"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/btn_image"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
             android:id="@+id/edit_chat"
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_marginEnd="5dp"
+            android:background="@drawable/custom_edittext_no_border"
+            android:hint="@string/chat_hint"
+            android:inputType="textMultiLine"
             android:paddingVertical="2dp"
             android:paddingStart="15dp"
             android:paddingEnd="45dp"
-            android:inputType="textMultiLine"
-            android:hint="@string/chat_hint"
-            android:background="@drawable/custom_edittext_no_border"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btn_send"
             app:layout_constraintStart_toEndOf="@+id/btn_micro"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/btn_emoji"
             android:layout_width="@dimen/chat_icon"
             android:layout_height="@dimen/chat_icon"
-            android:layout_marginBottom="5dp"
             android:layout_marginEnd="3dp"
+            android:layout_marginBottom="5dp"
             android:src="@drawable/ic_baseline_emoji_emotions_24"
             app:layout_constraintBottom_toBottomOf="@+id/edit_chat"
             app:layout_constraintEnd_toEndOf="@+id/edit_chat" />
@@ -148,6 +206,6 @@
             android:src="@drawable/ic_round_send_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

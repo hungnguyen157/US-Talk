@@ -3,4 +3,5 @@
     <dimen name="person_icon_size">50dp</dimen>
     <dimen name="main_margin">10dp</dimen>
     <dimen name="chat_icon">40dp</dimen>
+    <dimen name="onboarding_bubble_radius">16dp</dimen>
 </resources>

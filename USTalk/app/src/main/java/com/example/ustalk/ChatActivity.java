@@ -1,18 +1,28 @@
 package com.example.ustalk;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.Xfermode;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -53,6 +63,11 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     String receiveimage;
     String receivename;
     EmojiPopup popup;
+    ImageView chat_background;
+    ImageView[] toolbarListView, make_message_fieldListView;
+    boolean isKeyboardShowing;
+    ConstraintLayout chat_view;
+    ScrollView chat_box_scrollview;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -72,7 +87,9 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         edit_chat = (EditText) findViewById(R.id.edit_chat);
         recycler_view_message = (RecyclerView) findViewById(R.id.recycler_view_message);
         contact_info = (LinearLayout) findViewById(R.id.contact_info);
-        btn_back.setOnClickListener(this);
+        chat_background = (ImageView) findViewById(R.id.chat_background);
+        chat_view = (ConstraintLayout) findViewById(R.id.chat_view);
+        chat_box_scrollview = (ScrollView) findViewById(R.id.chat_box_scrollview);
 
         //set OnclickListener for buttons
         btn_back.setOnClickListener(this);
@@ -97,6 +114,20 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         loadReceiverDetails();
         init();
         ListenMes();
+
+        //add Views to 2 list Views
+        toolbarListView = new ImageView[3];
+        toolbarListView[0] = btn_back;
+        toolbarListView[1] = btn_call;
+        toolbarListView[2] = btn_video_call;
+
+        make_message_fieldListView = new ImageView[4];
+        make_message_fieldListView[0] = btn_image;
+        make_message_fieldListView[1] = btn_micro;
+        make_message_fieldListView[2] = btn_emoji;
+        make_message_fieldListView[3] = btn_send;
+
+        cloneMessengerChatBox();
     }
     private void init()
     {
@@ -216,5 +247,60 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private String getReadableDateTime(Date date)
     {
         return new SimpleDateFormat("MMMM dd,yyyy - hh:mm a", Locale.getDefault()).format(date);
+    }
+
+    public void changeImageViewTintColor(Context context, ImageView[] listView, int color){
+        for (ImageView imageView : listView) {
+            imageView.setColorFilter(context.getColor(color), PorterDuff.Mode.MULTIPLY);
+        }
+    }
+
+    public void cloneMessengerChatBox(){
+        //set tint color for all button on toolbar
+        changeImageViewTintColor(
+                getApplicationContext(), toolbarListView, R.color.purple_200);
+
+        //set tint color for all button on make_message_field when size of layout changed
+        isKeyboardShowing = false;
+        chat_view.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        Rect rect = new Rect();
+                        chat_view.getWindowVisibleDisplayFrame(rect);
+                        int screenHeight = chat_view.getRootView().getHeight();
+                        int keypadHeight = screenHeight - rect.bottom;
+                        int color = R.color.purple_500;
+                        if (keypadHeight > screenHeight * 0.15){
+                            if (!isKeyboardShowing){
+                                isKeyboardShowing = true;
+                                color = R.color.purple_500;
+                            }
+                        }
+                        else{
+                            if (isKeyboardShowing){
+                                isKeyboardShowing = false;
+                                color = R.color.purple_500;
+                            }
+                        }
+                        changeImageViewTintColor(
+                                getApplicationContext(), make_message_fieldListView, color);
+                    }
+                });
+
+        //handle chat box behaviour when keyboard appears
+        View last_child = chat_box_scrollview.getChildAt(chat_box_scrollview.getChildCount() - 1);
+        chat_box_scrollview.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        chat_box_scrollview.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                chat_box_scrollview.smoothScrollTo(0, last_child.getBottom());
+                            }
+                        });
+                    }
+                });
     }
 }
