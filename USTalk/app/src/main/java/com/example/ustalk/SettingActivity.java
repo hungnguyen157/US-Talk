@@ -99,8 +99,10 @@ public class SettingActivity extends Activity implements View.OnClickListener {
             PreferenceManager preferenceManager = new PreferenceManager(getApplicationContext());
             preferenceManager.remove("UID");
             Toast.makeText(getApplicationContext(), "You have signed out", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(getApplicationContext(),SignInActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             finish();
-            startActivity(new Intent(getApplicationContext(),SignInActivity.class));
+            startActivity(intent);
         }
         else if (view.getId()==btnBack.getId())
             onBackPressed();
