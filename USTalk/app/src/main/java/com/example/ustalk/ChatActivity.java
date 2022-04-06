@@ -1,9 +1,14 @@
 package com.example.ustalk;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.View;
@@ -27,10 +32,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.vanniktech.emoji.EmojiPopup;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EventListener;
@@ -56,7 +65,9 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     boolean isKeyboardShowing;
     ConstraintLayout chat_view;
     ScrollView chat_box_scrollview;
-
+    private int IMAGE_GALLERY_REQUEST = 3;
+    private Uri imageUri;
+    String getReceiveimage;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -135,14 +146,15 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     }
     public void SendMes()
     {
-        HashMap<String,Object> mes = new HashMap<>();
-        mes.put("senderID",preferenceManager.getString("UID"));
-        mes.put("RecceiveID",receiveID);
-        mes.put("Message",edit_chat.getText().toString());
-        mes.put("Time",new Date());
-        database.collection("chat").add(mes);
-        edit_chat.setText(null);
-        System.out.println(preferenceManager.getString("UID"));
+            HashMap<String, Object> mes = new HashMap<>();
+            mes.put("senderID", preferenceManager.getString("UID"));
+            mes.put("RecceiveID", receiveID);
+            mes.put("Message", edit_chat.getText().toString());
+            mes.put("Time", new Date());
+            mes.put("sendimage",false);
+            database.collection("chat").add(mes);
+            edit_chat.setText(null);
+            System.out.println(preferenceManager.getString("UID"));
     }
     private void ListenMes()
     {
@@ -172,6 +184,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                     chatMessage.message = documentChange.getDocument().getString("Message");
                     chatMessage.time = documentChange.getDocument().getDate("Time");
                     chatMessage.dateObject = documentChange.getDocument().getDate("Time");
+                    chatMessage.sendimage = documentChange.getDocument().getBoolean("sendimage");
                     Message.add(chatMessage);
                 }
             }
@@ -187,7 +200,42 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             recycler_view_message.setVisibility(View.VISIBLE);
         }
     };
-
+    private void openGallery(){
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent,IMAGE_GALLERY_REQUEST);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode==RESULT_OK&&data!=null){
+            imageUri = data.getData();
+            try {
+                InputStream is = getContentResolver().openInputStream(imageUri);
+                Bitmap bitmap = BitmapFactory.decodeStream(is);
+                getReceiveimage = encodeImage(bitmap);
+                ChatMessage chatMessage = new ChatMessage();
+                HashMap<String, Object> mes = new HashMap<>();
+                mes.put("senderID", preferenceManager.getString("UID"));
+                mes.put("RecceiveID", receiveID);
+                mes.put("Message", getReceiveimage);
+                mes.put("Time", new Date());
+                mes.put("sendimage",true);
+                database.collection("chat").add(mes);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private String encodeImage(Bitmap bitmap)
+    {
+        int previewWidth = 350;
+        int previewHeight = bitmap.getHeight() *previewWidth / bitmap.getWidth();
+        Bitmap previewBitmap = Bitmap.createScaledBitmap(bitmap,previewWidth,previewHeight,false);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        previewBitmap.compress(Bitmap.CompressFormat.PNG,100,byteArrayOutputStream);
+        byte[] bytes = byteArrayOutputStream.toByteArray();
+        return Base64.getEncoder().encodeToString(bytes);
+    }
     @Override
     public void onClick(View view) {
         switch (view.getId()){
@@ -214,7 +262,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             }
             case (R.id.btn_image):{
-                //choose image to send
+                openGallery();
                 break;
             }
             case (R.id.btn_micro):{
@@ -234,7 +282,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
     private String getReadableDateTime(Date date)
     {
-        return new SimpleDateFormat("MMMM dd,yyyy - hh:mm a", Locale.getDefault()).format(date);
+        return new SimpleDateFormat("hh:mm", Locale.getDefault()).format(date);
     }
 
     public void changeImageViewTintColor(Context context, ImageView[] listView, int color){
