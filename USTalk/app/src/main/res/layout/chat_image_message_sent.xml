@@ -23,12 +23,11 @@
         app:layout_constraintTop_toTopOf="parent">
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/sent_image"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ustalk_logo_white_background_cropped"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
             android:id="@+id/time_sent"
