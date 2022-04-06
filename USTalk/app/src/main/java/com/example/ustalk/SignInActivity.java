@@ -17,9 +17,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.example.ustalk.models.User;
 import com.example.ustalk.utilities.CurrentUserDetails;
 import com.example.ustalk.utilities.PreferenceManager;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -91,9 +96,24 @@ public class SignInActivity extends Activity implements View.OnClickListener {
                 storage.setUser(user);
                 storage.setUid(uid);
                 transition();
+                updateUserToken(uid);
             }
             else Log.w("signin", "Error getting document.", task.getException());
         });
+    }
+
+    private void updateUserToken(String uid) {
+        String token = prefManager.getString("token");
+        if (token != null) {
+            db.collection("users").document(uid).update("token", token)
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e("token", e.getMessage());
+                        }
+                    });
+            prefManager.remove("token");
+        }
     }
 
     @Override
