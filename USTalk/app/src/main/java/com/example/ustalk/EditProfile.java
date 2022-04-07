@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.os.Bundle;
 
-public class EditProfile extends Activity  {
+public class EditProfile extends OnlineActivity  {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

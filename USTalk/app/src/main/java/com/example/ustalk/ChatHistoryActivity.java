@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
 import com.example.ustalk.models.User;
 import com.example.ustalk.utilities.CurrentUserDetails;
+import com.example.ustalk.utilities.PreferenceManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -25,10 +26,11 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class ChatHistoryActivity extends Activity implements View.OnClickListener {
+public class ChatHistoryActivity extends OnlineActivity implements View.OnClickListener {
 
     ListView userList;
     ArrayList<User> users = new ArrayList<>();
@@ -45,8 +47,25 @@ public class ChatHistoryActivity extends Activity implements View.OnClickListene
         db = FirebaseFirestore.getInstance();
         getViewRef();
         loadUsersFromDatabase();
-        showInfo();
+        loadCurrentUserFromDatabase();
         profileImage.setOnClickListener(this);
+    }
+
+    private void loadCurrentUserFromDatabase() {
+        Log.d("repeat", "repeat" + new Random().nextInt());
+        String uid = new PreferenceManager(getApplicationContext()).getString("UID");
+        DocumentReference ref = db.collection("users").document(uid);
+        ref.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                User user = task.getResult().toObject(User.class);
+                CurrentUserDetails storage = CurrentUserDetails.getInstance();
+                storage.setUser(user);
+                storage.setUid(uid);
+                showInfo();
+            }
+            else Log.w("signin", "Error getting document.", task.getException());
+        });
+        ref.update("online", true).addOnFailureListener(e -> Log.e("online", e.getMessage()));
     }
 
     private void getViewRef() {
@@ -110,27 +129,6 @@ public class ChatHistoryActivity extends Activity implements View.OnClickListene
                 else Log.w("users", "Error getting documents.", task.getException());
             }
         });
-
-//        FirebaseDatabase database = FirebaseDatabase.getInstance("https://us-talk-default-rtdb.asia-southeast1.firebasedatabase.app");
-//        DatabaseReference ref = database.getReference("Users");
-//
-//        ref.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                users.clear();
-//                for(DataSnapshot ds : snapshot.getChildren()) {
-////                  String uid = ds.getKey();
-//                    User user = ds.getValue(User.class);
-//                    users.add(user);
-//                }
-//                userList.setAdapter(new UserAdapter(ChatHistoryActivity.this, R.layout.custom_user_row, users));
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                System.out.println("Read failed: " + error.getCode());
-//            }
-//        });
     }
 
     @Override

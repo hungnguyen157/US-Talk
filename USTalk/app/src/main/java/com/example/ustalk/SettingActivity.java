@@ -3,6 +3,7 @@ package com.example.ustalk;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -23,7 +24,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class SettingActivity extends Activity implements View.OnClickListener {
+public class SettingActivity extends OnlineActivity implements View.OnClickListener {
     LinearLayout Profile;
     LinearLayout Password;
     LinearLayout Notifiation;
@@ -90,8 +91,12 @@ public class SettingActivity extends Activity implements View.OnClickListener {
         else if(view.getId() == btnSignOut.getId())
         {
             PreferenceManager preferenceManager = new PreferenceManager(getApplicationContext());
+            String uid = preferenceManager.getString("UID");
+            db.collection("users").document(uid).update("online", false)
+                    .addOnFailureListener(e -> Log.e("online", e.getMessage()));
             preferenceManager.remove("UID");
-            Toast.makeText(getApplicationContext(), "You have signed out", Toast.LENGTH_LONG).show();
+
+            Toast.makeText(getApplicationContext(), "Bạn đã đăng xuất", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(getApplicationContext(),SignInActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);

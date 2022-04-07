@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -28,7 +29,9 @@ import com.bumptech.glide.Glide;
 import com.example.ustalk.models.ChatMessage;
 import com.example.ustalk.utilities.PreferenceManager;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.vanniktech.emoji.EmojiPopup;
 
@@ -46,13 +49,13 @@ import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Locale;
 
-public class ChatActivity extends AppCompatActivity implements View.OnClickListener,EventListener {
+public class ChatActivity extends OnlineActivity implements View.OnClickListener,EventListener {
     private ArrayList<ChatMessage> Message;
     private ChatAdapter chatAdapter;
     private PreferenceManager preferenceManager;
     private FirebaseFirestore database;
     ImageView avatar, btn_back, btn_call, btn_video_call, btn_image, btn_micro, btn_emoji, btn_send;
-    TextView name;
+    TextView name, online;
     EditText edit_chat;
     RecyclerView recycler_view_message;
     LinearLayout contact_info;
@@ -89,6 +92,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         chat_background = (ImageView) findViewById(R.id.chat_background);
         chat_view = (ConstraintLayout) findViewById(R.id.chat_view);
         chat_box_scrollview = (ScrollView) findViewById(R.id.chat_box_scrollview);
+        online = findViewById(R.id.online);
 
         //set OnclickListener for buttons
         btn_back.setOnClickListener(this);
@@ -110,8 +114,8 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 //        });
         //btn_send.setOnClickListener(v->SendMes());
 
-        loadReceiverDetails();
         init();
+        loadReceiverDetails();
         ListenMes();
 
         //add Views to 2 list Views
@@ -143,6 +147,21 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         receiveimage=getIntent().getStringExtra("imageProfile");
         name.setText(receivename);
         Glide.with(ChatActivity.this).load(receiveimage).into(avatar);
+
+        database.collection("users").document(receiveID).addSnapshotListener(new com.google.firebase.firestore.EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.e("online", error.getMessage());
+                    return;
+                }
+                if (value != null && value.exists()) {
+                    boolean status = value.getBoolean("online");
+                    online.setEnabled(status);
+                }
+                else Log.e("online", "NULL value");
+            }
+        });
     }
     public void SendMes()
     {

@@ -78,22 +78,8 @@ public class SignInActivity extends Activity implements View.OnClickListener {
     private void signInFromSession() {
         String uid = prefManager.getString("UID");
         if (uid != null) {
-            loadUserFromDBAndTransition(uid);
+            transition();
         }
-    }
-
-    private void loadUserFromDBAndTransition(String uid) {
-        db.collection("users").document(uid).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                User user = task.getResult().toObject(User.class);
-                user.online = true;
-                CurrentUserDetails storage = CurrentUserDetails.getInstance();
-                storage.setUser(user);
-                storage.setUid(uid);
-                transition();
-            }
-            else Log.w("signin", "Error getting document.", task.getException());
-        });
     }
 
     @Override
@@ -129,7 +115,7 @@ public class SignInActivity extends Activity implements View.OnClickListener {
                             progressBar.setVisibility(View.GONE);
                             String uid = mAuth.getCurrentUser().getUid();
                             prefManager.putString("UID", uid);
-                            loadUserFromDBAndTransition(uid);
+                            transition();
                         } else {
                             progressBar.setVisibility(View.GONE);
                             makeToast("Sign In failed! Check your credentials");

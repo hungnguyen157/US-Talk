@@ -54,7 +54,7 @@ import com.google.firebase.storage.UploadTask;
 import java.util.HashMap;
 import java.util.Objects;
 
-public class ProfileActivity extends Activity implements View.OnClickListener {
+public class ProfileActivity extends OnlineActivity implements View.OnClickListener {
 //    ImageButton btnBack;
 //    Button btnEdit;
 //    @Override
