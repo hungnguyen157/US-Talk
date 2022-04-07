@@ -140,7 +140,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     {
         receiveID = getIntent().getStringExtra("receiveID");
         receivename = getIntent().getStringExtra("name");
-        receiveimage=getIntent().getStringExtra("image");
+        receiveimage=getIntent().getStringExtra("imageProfile");
         name.setText(receivename);
         Glide.with(ChatActivity.this).load(receiveimage).into(avatar);
     }
