@@ -24,6 +24,7 @@ import com.example.ustalk.utilities.CurrentUserDetails;
 import com.example.ustalk.utilities.PreferenceManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -105,14 +106,9 @@ public class SignInActivity extends Activity implements View.OnClickListener {
 
     private void updateUserToken(User user, String uid) {
         if (user.token == null) {
-            FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    String token = task.getResult();
-                    updateToken(uid, token);
-                    return;
-                }
-                Log.e("updateToken", "Fail");
-            });
+            FirebaseMessaging.getInstance().getToken()
+                    .addOnSuccessListener(token -> updateToken(uid, token))
+                    .addOnFailureListener(e -> Log.e("updateToken", e.getMessage()));
         }
         else {
             String token = prefManager.getString("token");
