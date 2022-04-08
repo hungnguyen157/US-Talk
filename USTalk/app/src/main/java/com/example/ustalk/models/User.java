@@ -3,7 +3,7 @@ package com.example.ustalk.models;
 import java.util.ArrayList;
 
 public class User {
-    public String email, sex, name,imageProfile,id;
+    public String email, sex, name,imageProfile,id, token;
     public ArrayList<String> Friends;
     public boolean online;
     public User() {

@@ -17,11 +17,18 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.example.ustalk.models.User;
 import com.example.ustalk.utilities.CurrentUserDetails;
 import com.example.ustalk.utilities.PreferenceManager;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class SignInActivity extends Activity implements View.OnClickListener {
     private FirebaseAuth mAuth;
@@ -79,7 +86,27 @@ public class SignInActivity extends Activity implements View.OnClickListener {
         String uid = prefManager.getString("UID");
         if (uid != null) {
             transition();
+        updateUserToken(user, uid);}
+    }
+
+    private void updateUserToken(User user, String uid) {
+        if (user.token == null) {
+            FirebaseMessaging.getInstance().getToken()
+                    .addOnSuccessListener(token -> updateToken(uid, token))
+                    .addOnFailureListener(e -> Log.e("updateToken", e.getMessage()));
         }
+        else {
+            String token = prefManager.getString("token");
+            if (token != null) {
+                updateToken(uid, token);
+                prefManager.remove("token");
+            }
+        }
+    }
+
+    private void updateToken(String uid, String token) {
+        db.collection("users").document(uid).update("token", token)
+                .addOnFailureListener(e -> Log.e("token", e.getMessage()));
     }
 
     @Override

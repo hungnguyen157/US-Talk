@@ -25,7 +25,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.ustalk.models.ChatMessage;
+import com.example.ustalk.models.User;
+import com.example.ustalk.network.ApiClient;
+import com.example.ustalk.network.ApiService;
+import com.example.ustalk.utilities.CurrentUserDetails;
 import com.example.ustalk.utilities.PreferenceManager;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -36,6 +41,10 @@ import com.vanniktech.emoji.EmojiPopup;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -47,11 +56,16 @@ import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Locale;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class ChatActivity extends OnlineActivity implements View.OnClickListener,EventListener {
     private ArrayList<ChatMessage> Message;
     private ChatAdapter chatAdapter;
     private PreferenceManager preferenceManager;
     private FirebaseFirestore database;
+    HashMap<String, String> headers = new HashMap<>();
     ImageView avatar, btn_back, btn_call, btn_video_call, btn_image, btn_micro, btn_emoji, btn_send;
     TextView name;
     EditText edit_chat;
@@ -67,6 +81,8 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
     private Uri imageUri;
     String getReceiveimage;
     BackgroundAwareLayout chat_box_parent;
+    private String receiveToken;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,12 +154,16 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         chatAdapter = new ChatAdapter(this,Message,preferenceManager.getString("UID"));
         recycler_view_message.setAdapter(chatAdapter);
         database = FirebaseFirestore.getInstance();
+        headers.put("Authorization", "key=AAAAfFAKHSg:APA91bFihyTKsgfLDvBAymYxZbZvsLb4Rax7iEx7imaxejEFcefc36Q9PSTSUa2KuzO_LOe12XBo09CmAZnGfVuK0SegeWcdVx0gahWyiq8MM3G_wd-lXAtqJEfpgUlKgYsNtDxWKqEb");
+        headers.put("Content-Type", "application/json");
+        //"registration_ids"
     }
     private void loadReceiverDetails()
     {
         receiveID = getIntent().getStringExtra("receiveID");
         receivename = getIntent().getStringExtra("name");
         receiveimage=getIntent().getStringExtra("imageProfile");
+        receiveToken = getIntent().getStringExtra("token");
         name.setText(receivename);
         Glide.with(getApplicationContext()).load(receiveimage).into(avatar);
 
@@ -169,16 +189,66 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
     }
     public void SendMes()
     {
-            HashMap<String, Object> mes = new HashMap<>();
+            String message = edit_chat.getText().toString();HashMap<String, Object> mes = new HashMap<>();
             mes.put("senderID", preferenceManager.getString("UID"));
             mes.put("RecceiveID", receiveID);
-            mes.put("Message", edit_chat.getText().toString());
+            mes.put("Message", message);
             mes.put("Time", new Date());
             mes.put("sendimage",false);
             database.collection("chat").add(mes);
             edit_chat.setText(null);
-            System.out.println(preferenceManager.getString("UID"));
+            System.out.println(preferenceManager.getString("UID"));sendNotification(message);
     }
+
+    private void sendNotification(String message) {
+        try {
+            JSONArray tokens = new JSONArray();
+            tokens.put(receiveToken);
+
+            User me = CurrentUserDetails.getInstance().getUser();
+            JSONObject data = new JSONObject();
+            data.put("uid", preferenceManager.getString("UID"));
+            data.put("message", message);
+
+            JSONObject body = new JSONObject();
+            body.put("data", data);
+            body.put("registration_ids", tokens);
+
+            String jsonString = body.toString();
+            ApiClient.getClient().create(ApiService.class)
+                    .sendMessage(headers, jsonString).enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    if (!response.isSuccessful()) {
+                        Log.e("notification", String.valueOf(response.code()));
+                        return;
+                    }
+                    String resBody = response.body();
+                    if (resBody != null) {
+                        try {
+                            JSONObject resJson = new JSONObject(resBody);
+                            if (resJson.getInt("failure") == 1) {
+                                JSONArray results = resJson.getJSONArray("results");
+                                JSONObject err = (JSONObject) results.get(0);
+                                Log.e("notification", err.getString("error"));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+                    Log.e("notification", call.toString());
+                }
+            });
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void ListenMes()
     {
         database.collection("chat")

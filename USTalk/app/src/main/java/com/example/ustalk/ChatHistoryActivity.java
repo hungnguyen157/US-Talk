@@ -27,6 +27,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -39,6 +40,8 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
     private ArrayList<String> name = new ArrayList<>();
     private ArrayList<String> image = new ArrayList<>();
     FirebaseFirestore db;
+    private ArrayList<String> tokens = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,6 +102,7 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
                         User user = document.toObject(User.class);
                         uids.add(document.getId());
                         name.add(user.name);
+                        tokens.add(user.token);
                         if(user.imageProfile == null)
                         {
                             user.setImage("https://firebasestorage.googleapis.com/v0/b/us-talk.appspot.com/o/Avatar%2F164905463799677ci49SJ4JOzmqC7lzPwVW9Axh42?alt=media&token=6e779a68-2e10-414b-b8e6-ff6d2851f34b");
@@ -122,6 +126,7 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
                             intent.putExtra("imageProfile", image1);
                             intent.putExtra("name",name1);
                             intent.putExtra("receiveID",theirUid);
+                            intent.putExtra("token", tokens.get(i));
                             startActivity(intent);
                         }
                     });
