@@ -61,11 +61,12 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
     ImageView chat_background, online_signal;
     ImageView[] toolbarListView, make_message_fieldListView;
     boolean isKeyboardShowing;
-    ConstraintLayout contact_info, chat_view;
+    ConstraintLayout contact_info, chat_view, toolbar, make_message_field;
     ScrollView chat_box_scrollview;
     private int IMAGE_GALLERY_REQUEST = 3;
     private Uri imageUri;
     String getReceiveimage;
+    BackgroundAwareLayout chat_box_parent;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,8 +87,11 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         contact_info = (ConstraintLayout) findViewById(R.id.contact_info);
         chat_background = (ImageView) findViewById(R.id.chat_background);
         chat_view = (ConstraintLayout) findViewById(R.id.chat_view);
+        toolbar = (ConstraintLayout) findViewById(R.id.toolbar);
+        make_message_field = (ConstraintLayout) findViewById(R.id.make_message_field);
         chat_box_scrollview = (ScrollView) findViewById(R.id.chat_box_scrollview);
         online_signal = findViewById(R.id.online_signal);
+        chat_box_parent = findViewById(R.id.chat_box_parent);
 
         //set OnclickListener for buttons
         btn_back.setOnClickListener(this);
@@ -260,7 +264,6 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         switch (view.getId()){
             case (R.id.btn_back):{
                 onBackPressed();
-                //tartActivity(new Intent(getApplicationContext(),ChatHistoryActivity.class));
                 break;
             }
             case (R.id.contact_info):{
@@ -351,17 +354,33 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 });
 
         //handle chat box behaviour when keyboard appears
+        recycler_view_message.setFocusable(false);
+        recycler_view_message.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                System.out.println(recycler_view_message.getHeight());
+                System.out.println(make_message_field.getTop() - toolbar.getBottom());
+
+                int height = make_message_field.getTop() - toolbar.getBottom();
+                if (recycler_view_message.getHeight() >= height && !isKeyboardShowing){
+                    recycler_view_message.getLayoutParams().height = height;
+                    recycler_view_message.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+            }
+        });
+
         View last_child = chat_box_scrollview.getChildAt(chat_box_scrollview.getChildCount() - 1);
         chat_box_scrollview.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
+                        System.out.println(recycler_view_message.getHeight());
                         chat_box_scrollview.postDelayed(new Runnable() {
                             @Override
                             public void run() {
                                 chat_box_scrollview.smoothScrollTo(0, last_child.getBottom());
                             }
-                        }, 150);
+                        }, 50);
                     }
                 });
     }
