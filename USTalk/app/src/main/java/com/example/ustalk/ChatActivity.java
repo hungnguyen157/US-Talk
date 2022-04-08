@@ -16,12 +16,10 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -55,18 +53,15 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
     private PreferenceManager preferenceManager;
     private FirebaseFirestore database;
     ImageView avatar, btn_back, btn_call, btn_video_call, btn_image, btn_micro, btn_emoji, btn_send;
-    TextView name, online;
+    TextView name;
     EditText edit_chat;
     RecyclerView recycler_view_message;
-    LinearLayout contact_info;
-    String receiveID;
-    String receiveimage;
-    String receivename;
+    String receiveID, receiveimage, receivename;
     EmojiPopup popup;
-    ImageView chat_background;
+    ImageView chat_background, online_signal;
     ImageView[] toolbarListView, make_message_fieldListView;
     boolean isKeyboardShowing;
-    ConstraintLayout chat_view;
+    ConstraintLayout contact_info, chat_view;
     ScrollView chat_box_scrollview;
     private int IMAGE_GALLERY_REQUEST = 3;
     private Uri imageUri;
@@ -88,11 +83,11 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         btn_send = (ImageView) findViewById(R.id.btn_send);
         edit_chat = (EditText) findViewById(R.id.edit_chat);
         recycler_view_message = (RecyclerView) findViewById(R.id.recycler_view_message);
-        contact_info = (LinearLayout) findViewById(R.id.contact_info);
+        contact_info = (ConstraintLayout) findViewById(R.id.contact_info);
         chat_background = (ImageView) findViewById(R.id.chat_background);
         chat_view = (ConstraintLayout) findViewById(R.id.chat_view);
         chat_box_scrollview = (ScrollView) findViewById(R.id.chat_box_scrollview);
-        online = findViewById(R.id.online);
+        online_signal = findViewById(R.id.online_signal);
 
         //set OnclickListener for buttons
         btn_back.setOnClickListener(this);
@@ -105,7 +100,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         contact_info.setOnClickListener(this);
 
         //set Userlisteners
-        popup = EmojiPopup.Builder.fromRootView(findViewById(R.id.chat_view)).build(edit_chat);
+        popup = EmojiPopup.Builder.fromRootView(chat_view).build(edit_chat);
 //        btn_emoji.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
@@ -157,7 +152,12 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 }
                 if (value != null && value.exists()) {
                     boolean status = value.getBoolean("online");
-                    online.setEnabled(status);
+                    if (status) {
+                        online_signal.setVisibility(View.VISIBLE);
+                    }
+                    else{
+                        online_signal.setVisibility(View.INVISIBLE);
+                    }
                 }
                 else Log.e("online", "NULL value");
             }

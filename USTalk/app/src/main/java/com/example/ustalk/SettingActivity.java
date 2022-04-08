@@ -66,7 +66,7 @@ public class SettingActivity extends OnlineActivity implements View.OnClickListe
                     String name = value.getString("name");
                     String imageProfile = value.getString("imageProfile");
                     txtName.setText(name);
-                    Glide.with(SettingActivity.this).load(imageProfile).into(profileImage);
+                    Glide.with(getApplicationContext()).load(imageProfile).into(profileImage);
                 } else {
                     System.out.print("Current data: null");
                 }
