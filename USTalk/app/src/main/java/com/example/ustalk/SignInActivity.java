@@ -27,6 +27,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class SignInActivity extends Activity implements View.OnClickListener {
     private FirebaseAuth mAuth;
@@ -96,24 +97,35 @@ public class SignInActivity extends Activity implements View.OnClickListener {
                 storage.setUser(user);
                 storage.setUid(uid);
                 transition();
-                updateUserToken(uid);
+                updateUserToken(user, uid);
             }
             else Log.w("signin", "Error getting document.", task.getException());
         });
     }
 
-    private void updateUserToken(String uid) {
-        String token = prefManager.getString("token");
-        if (token != null) {
-            db.collection("users").document(uid).update("token", token)
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.e("token", e.getMessage());
-                        }
-                    });
-            prefManager.remove("token");
+    private void updateUserToken(User user, String uid) {
+        if (user.token == null) {
+            FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    String token = task.getResult();
+                    updateToken(uid, token);
+                    return;
+                }
+                Log.e("updateToken", "Fail");
+            });
         }
+        else {
+            String token = prefManager.getString("token");
+            if (token != null) {
+                updateToken(uid, token);
+                prefManager.remove("token");
+            }
+        }
+    }
+
+    private void updateToken(String uid, String token) {
+        db.collection("users").document(uid).update("token", token)
+                .addOnFailureListener(e -> Log.e("token", e.getMessage()));
     }
 
     @Override
