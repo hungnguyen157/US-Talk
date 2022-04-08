@@ -42,7 +42,7 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
     private ArrayList<String> image = new ArrayList<>();
     private ArrayList<String> tokens = new ArrayList<>();
     FirebaseFirestore db;
-    PreferenceManager prefManager = new PreferenceManager(getApplicationContext());
+    PreferenceManager prefManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +50,7 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
         setContentView(R.layout.show_user);
 
         db = FirebaseFirestore.getInstance();
+        prefManager = new PreferenceManager(getApplicationContext());
         getViewRef();
         loadUsersFromDatabase();
         loadCurrentUserFromDatabase();
