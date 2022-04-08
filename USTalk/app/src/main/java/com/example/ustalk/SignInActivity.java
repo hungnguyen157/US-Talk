@@ -86,27 +86,7 @@ public class SignInActivity extends Activity implements View.OnClickListener {
         String uid = prefManager.getString("UID");
         if (uid != null) {
             transition();
-        updateUserToken(user, uid);}
-    }
-
-    private void updateUserToken(User user, String uid) {
-        if (user.token == null) {
-            FirebaseMessaging.getInstance().getToken()
-                    .addOnSuccessListener(token -> updateToken(uid, token))
-                    .addOnFailureListener(e -> Log.e("updateToken", e.getMessage()));
         }
-        else {
-            String token = prefManager.getString("token");
-            if (token != null) {
-                updateToken(uid, token);
-                prefManager.remove("token");
-            }
-        }
-    }
-
-    private void updateToken(String uid, String token) {
-        db.collection("users").document(uid).update("token", token)
-                .addOnFailureListener(e -> Log.e("token", e.getMessage()));
     }
 
     @Override
@@ -152,18 +132,6 @@ public class SignInActivity extends Activity implements View.OnClickListener {
                     });
         }
     }
-
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//        Log.d("online", "Sign in onPause");
-//    }
-//
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        Log.d("online", "Sign in onResume");
-//    }
 
     private void transition() {
         startActivity(new Intent(getApplicationContext(), ChatHistoryActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));

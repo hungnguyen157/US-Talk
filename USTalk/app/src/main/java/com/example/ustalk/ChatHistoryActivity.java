@@ -24,6 +24,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -39,8 +40,9 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
     private ArrayList<String> uids = new ArrayList<>();
     private ArrayList<String> name = new ArrayList<>();
     private ArrayList<String> image = new ArrayList<>();
-    FirebaseFirestore db;
     private ArrayList<String> tokens = new ArrayList<>();
+    FirebaseFirestore db;
+    PreferenceManager prefManager = new PreferenceManager(getApplicationContext());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,12 +57,12 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
     }
 
     private void loadCurrentUserFromDatabase() {
-        Log.d("repeat", "repeat" + new Random().nextInt());
-        String uid = new PreferenceManager(getApplicationContext()).getString("UID");
+        String uid = prefManager.getString("UID");
         DocumentReference ref = db.collection("users").document(uid);
         ref.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 User user = task.getResult().toObject(User.class);
+                updateUserToken(user, uid);
                 CurrentUserDetails storage = CurrentUserDetails.getInstance();
                 storage.setUser(user);
                 storage.setUid(uid);
@@ -69,6 +71,26 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
             else Log.w("signin", "Error getting document.", task.getException());
         });
         ref.update("online", true).addOnFailureListener(e -> Log.e("online", e.getMessage()));
+    }
+
+    private void updateUserToken(User user, String uid) {
+        if (user.token == null) {
+            FirebaseMessaging.getInstance().getToken()
+                    .addOnSuccessListener(token -> updateToken(uid, token))
+                    .addOnFailureListener(e -> Log.e("updateToken", e.getMessage()));
+        }
+        else {
+            String token = prefManager.getString("token");
+            if (token != null) {
+                updateToken(uid, token);
+                prefManager.remove("token");
+            }
+        }
+    }
+
+    private void updateToken(String uid, String token) {
+        db.collection("users").document(uid).update("token", token)
+                .addOnFailureListener(e -> Log.e("token", e.getMessage()));
     }
 
     private void getViewRef() {
