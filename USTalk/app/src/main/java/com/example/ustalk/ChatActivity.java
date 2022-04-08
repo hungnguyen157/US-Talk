@@ -71,6 +71,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     boolean isKeyboardShowing;
     ConstraintLayout chat_view;
     ScrollView chat_box_scrollview;
+    private String receiveToken;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -140,7 +141,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         recycler_view_message.setAdapter(chatAdapter);
         database = FirebaseFirestore.getInstance();
         headers.put("Authorization", "key=AAAAfFAKHSg:APA91bFihyTKsgfLDvBAymYxZbZvsLb4Rax7iEx7imaxejEFcefc36Q9PSTSUa2KuzO_LOe12XBo09CmAZnGfVuK0SegeWcdVx0gahWyiq8MM3G_wd-lXAtqJEfpgUlKgYsNtDxWKqEb");
-        headers.put("Content-Type", "application-json");
+        headers.put("Content-Type", "application/json");
         //"registration_ids"
     }
     private void loadReceiverDetails()
@@ -148,6 +149,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         receiveID = getIntent().getStringExtra("receiveID");
         receivename = getIntent().getStringExtra("name");
         receiveimage=getIntent().getStringExtra("image");
+        receiveToken = getIntent().getStringExtra("token");
         name.setText(receivename);
         Glide.with(ChatActivity.this).load(receiveimage).into(avatar);
     }
@@ -168,7 +170,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private void sendNotification(String message) {
         try {
             JSONArray tokens = new JSONArray();
-            //tokens.put(); receiver token
+            tokens.put(receiveToken);
 
             User me = CurrentUserDetails.getInstance().getUser();
             JSONObject data = new JSONObject();
@@ -179,7 +181,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
             JSONObject body = new JSONObject();
             body.put("data", data);
-            body.put("token", tokens);
+            body.put("registration_ids", tokens);
 
             String jsonString = body.toString();
             ApiClient.getClient().create(ApiService.class)
