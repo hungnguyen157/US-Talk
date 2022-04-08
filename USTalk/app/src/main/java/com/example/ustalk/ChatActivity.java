@@ -175,8 +175,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             User me = CurrentUserDetails.getInstance().getUser();
             JSONObject data = new JSONObject();
             data.put("uid", preferenceManager.getString("UID"));
-            data.put("name", me.name);
-            data.put("token", me.token);
             data.put("message", message);
 
             JSONObject body = new JSONObject();
