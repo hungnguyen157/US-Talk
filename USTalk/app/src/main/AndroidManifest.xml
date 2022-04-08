@@ -13,6 +13,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.USTalk">
         <activity
+            android:name=".ViewImageFullSizeActivity"
+            android:exported="false" />
+        <activity
             android:name=".ChangePasswordActivity"
             android:exported="true" />
         <activity
@@ -20,7 +23,7 @@
             android:exported="true" />
         <activity
             android:name=".ProfileActivity"
-            android:exported="true"/>
+            android:exported="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true" />

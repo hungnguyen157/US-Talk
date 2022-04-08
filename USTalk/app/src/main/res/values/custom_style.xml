@@ -3,4 +3,7 @@
     <style name="circular_image">
         <item name="cornerSize">50%</item>
     </style>
+    <style name="round_image">
+        <item name="cornerSize">15%</item>
+    </style>
 </resources>

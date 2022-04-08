@@ -82,7 +82,7 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
                 }
                 if (value!= null && value.exists()) {
                     String imageProfile = value.getString("imageProfile");
-                    Glide.with(ChatHistoryActivity.this).load(imageProfile).into(profileImage);
+                    Glide.with(getApplicationContext()).load(imageProfile).into(profileImage);
                 } else {
                     System.out.print("Current data: null");
                 }

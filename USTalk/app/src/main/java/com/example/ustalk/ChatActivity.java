@@ -141,7 +141,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         receivename = getIntent().getStringExtra("name");
         receiveimage=getIntent().getStringExtra("imageProfile");
         name.setText(receivename);
-        Glide.with(ChatActivity.this).load(receiveimage).into(avatar);
+        Glide.with(getApplicationContext()).load(receiveimage).into(avatar);
 
         database.collection("users").document(receiveID).addSnapshotListener(new com.google.firebase.firestore.EventListener<DocumentSnapshot>() {
             @Override
