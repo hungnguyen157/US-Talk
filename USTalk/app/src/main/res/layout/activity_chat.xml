@@ -45,7 +45,7 @@
             app:layout_constraintStart_toEndOf="@+id/btn_back"
             app:layout_constraintTop_toTopOf="parent">
 
-            <com.google.android.material.imageview.ShapeableImageView
+            <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/avatar"
                 android:layout_width="@dimen/person_icon_size"
                 android:layout_height="@dimen/person_icon_size"
@@ -53,8 +53,7 @@
                 android:src="@drawable/ustalk_logo_transparent_background_cropped"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:shapeAppearanceOverlay="@style/circular_image" />
+                app:layout_constraintTop_toTopOf="parent"/>
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/online_signal"

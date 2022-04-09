@@ -54,6 +54,8 @@ import com.google.firebase.storage.UploadTask;
 import java.util.HashMap;
 import java.util.Objects;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class ProfileActivity extends OnlineActivity implements View.OnClickListener {
 //    ImageButton btnBack;
 //    Button btnEdit;
@@ -77,7 +79,8 @@ public class ProfileActivity extends OnlineActivity implements View.OnClickListe
 //        }
 //    }
 //widget variables
-    ImageView btnBack, profile_image;
+    ImageView btnBack;
+    CircleImageView profile_image;
     FloatingActionButton fab;
     EditText editName;
     RadioGroup sex_field;
@@ -97,7 +100,7 @@ public class ProfileActivity extends OnlineActivity implements View.OnClickListe
         //get widgets
         editEmail = (TextView) findViewById(R.id.editEmail);
         btnBack = (ImageView) findViewById(R.id.btnBack);
-        profile_image = (ImageView) findViewById(R.id.profile_image);
+        profile_image = (CircleImageView) findViewById(R.id.profile_image);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         editName = (EditText) findViewById(R.id.editName);
         sex_field = (RadioGroup) findViewById(R.id.sex_field);

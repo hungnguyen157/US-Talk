@@ -31,7 +31,6 @@ import com.example.ustalk.network.ApiClient;
 import com.example.ustalk.network.ApiService;
 import com.example.ustalk.utilities.CurrentUserDetails;
 import com.example.ustalk.utilities.PreferenceManager;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -46,8 +45,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -57,6 +54,7 @@ import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Locale;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -67,7 +65,8 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
     private PreferenceManager preferenceManager;
     private FirebaseFirestore database;
     HashMap<String, String> headers = new HashMap<>();
-    ImageView avatar, btn_back, btn_call, btn_video_call, btn_image, btn_micro, btn_emoji, btn_send;
+    CircleImageView avatar;
+    ImageView btn_back, btn_call, btn_video_call, btn_image, btn_micro, btn_emoji, btn_send;
     TextView name;
     EditText edit_chat;
     RecyclerView recycler_view_message;
@@ -91,7 +90,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
 
         //get widgets
         name = (TextView) findViewById(R.id.name);
-        avatar = (ImageView) findViewById(R.id.avatar);
+        avatar = (CircleImageView) findViewById(R.id.avatar);
         btn_back = (ImageView) findViewById(R.id.btn_back);
         btn_call = (ImageView) findViewById(R.id.btn_call);
         btn_video_call = (ImageView) findViewById(R.id.btn_video_call);
@@ -355,9 +354,13 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                             Toast.LENGTH_SHORT).show();
                 }
                 else{
-                    Toast.makeText(getApplicationContext(),
-                            "Waiting for response from " + receivename,
-                            Toast.LENGTH_SHORT).show();
+                    Intent intentAudioCall = new Intent(getApplicationContext(), OutcommingCallActivity.class);
+                    intentAudioCall.putExtra("uid", receiveID);
+                    intentAudioCall.putExtra("name", receivename);
+                    intentAudioCall.putExtra("image", receiveimage);
+                    intentAudioCall.putExtra("token", receiveToken);
+                    intentAudioCall.putExtra("type", "audio");
+                    startActivity(intentAudioCall);
                 }
                 break;
             }
@@ -373,9 +376,13 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                             Toast.LENGTH_SHORT).show();
                 }
                 else{
-                    Toast.makeText(getApplicationContext(),
-                            "Waiting for response from " + receivename,
-                            Toast.LENGTH_SHORT).show();
+                    Intent intentVideoCall = new Intent(getApplicationContext(), OutcommingCallActivity.class);
+                    intentVideoCall.putExtra("uid", receiveID);
+                    intentVideoCall.putExtra("name", receivename);
+                    intentVideoCall.putExtra("avatar", receiveimage);
+                    intentVideoCall.putExtra("token", receiveToken);
+                    intentVideoCall.putExtra("type", "video");
+                    startActivity(intentVideoCall);
                 }
                 break;
             }

@@ -5,48 +5,85 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
+    <!--    Guideline helpers-->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/message_guidelinetop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.19"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/message_guidelinebottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.29"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/avatar_guidelinetop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.2" />
+        app:layout_constraintGuide_percent="0.3" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/avatar_guidelinebottom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.35" />
-
-    <com.google.android.material.imageview.ShapeableImageView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/avatar_guidelinetop"
-        app:layout_constraintBottom_toBottomOf="@id/avatar_guidelinebottom"
-        android:src="@drawable/ic_launcher_foreground"
-        android:background="@drawable/ic_launcher_background"
-        app:shapeAppearanceOverlay="@style/circular_image"/>
+        app:layout_constraintGuide_percent="0.45" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/name_guidelinetop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.35" />
+        app:layout_constraintGuide_percent="0.45" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/name_guidelinebottom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.45" />
+        app:layout_constraintGuide_percent="0.55" />
+
+    <!--    Items-->
+    <ImageView
+        android:id="@+id/callImageType"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/message_guidelinetop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
+        android:id="@+id/textView2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:paddingBottom="10dp"
+        android:text="Cuộc gọi từ"
+        android:textSize="50sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/message_guidelinebottom"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/message_guidelinetop" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/avatar"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/avatar_guidelinetop"
+        app:layout_constraintBottom_toBottomOf="@id/avatar_guidelinebottom"/>
+
+    <TextView
+        android:id="@+id/name"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="center"
@@ -74,7 +111,7 @@
         app:layout_constraintGuide_percent="0.9" />
 
     <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/accept_btn"
+        android:id="@+id/btn_accept"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:src="@drawable/ic_baseline_done_24"
@@ -89,7 +126,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/reject_btn"
+        android:id="@+id/btn_reject"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@color/fresh_red"

@@ -49,6 +49,12 @@
         <activity
             android:name=".SettingActivity"
             android:exported="true" />
+        <activity
+            android:name=".OutcommingCallActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".IncommingCallActivity"
+            android:screenOrientation="portrait"/>
 
         <service
             android:name=".Firebase.MessagingService"

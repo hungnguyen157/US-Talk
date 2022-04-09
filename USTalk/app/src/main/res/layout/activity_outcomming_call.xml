@@ -6,57 +6,94 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <!--    Guidelines helpers-->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/message_guidelinetop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.19"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/message_guidelinebottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.29"/>
+
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/avatar_guidelinetop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.2" />
+        app:layout_constraintGuide_percent="0.3" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/avatar_guidelinebottom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.35" />
-
-    <com.google.android.material.imageview.ShapeableImageView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/avatar_guidelinetop"
-        app:layout_constraintBottom_toBottomOf="@id/avatar_guidelinebottom"
-        android:src="@drawable/ic_launcher_foreground"
-        android:background="@drawable/ic_launcher_background"
-        app:shapeAppearanceOverlay="@style/circular_image"/>
+        app:layout_constraintGuide_percent="0.45" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/name_guidelinetop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.35" />
+        app:layout_constraintGuide_percent="0.45" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/name_guidelinebottom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.45" />
+        app:layout_constraintGuide_percent="0.55" />
+
+    <!--    Items-->
+    <ImageView
+        android:id="@+id/callImageType"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/message_guidelinetop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <TextView
+        android:id="@+id/textView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="center"
-        app:layout_constraintStart_toStartOf="parent"
+        android:text="Đang gọi tới"
+        android:textSize="50sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/message_guidelinebottom"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/name_guidelinetop"
-        app:layout_constraintBottom_toBottomOf="@id/name_guidelinebottom"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/message_guidelinetop" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/avatar"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/avatar_guidelinebottom"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/avatar_guidelinetop"/>
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
         android:text="Hung Nguyen"
         android:textSize="50sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/name_guidelinebottom"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/name_guidelinetop" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/button_guidelinetop"
@@ -73,16 +110,16 @@
         app:layout_constraintGuide_percent="0.9" />
 
     <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/reject_btn"
+        android:id="@+id/btn_cancel"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@color/fresh_red"
         android:src="@drawable/ic_round_close_24"
-        app:shapeAppearanceOverlay="@style/circular_image"
         app:layout_constraintBottom_toBottomOf="@id/button_guidelinebottom"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/button_guidelinetop"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0"
+        app:shapeAppearanceOverlay="@style/circular_image" />
 </androidx.constraintlayout.widget.ConstraintLayout>
