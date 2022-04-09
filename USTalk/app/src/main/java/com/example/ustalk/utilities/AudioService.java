@@ -39,6 +39,8 @@ public class AudioService {
             mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
+                    isPlaying = false;
+                    currentPosition = 0;
                     mp.release();
                     onPlayCallBack.onFinished();
                 }
