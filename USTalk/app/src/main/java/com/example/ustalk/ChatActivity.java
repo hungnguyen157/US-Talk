@@ -168,6 +168,13 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         name.setText(receivename);
         Glide.with(getApplicationContext()).load(receiveimage).into(avatar);
 
+        if (receiveID.equals(preferenceManager.getString("UID"))){
+            btn_call.setVisibility(View.INVISIBLE);
+            btn_call.setClickable(false);
+            btn_video_call.setVisibility(View.INVISIBLE);
+            btn_video_call.setClickable(false);
+        }
+
         database.collection("users").document(receiveID).addSnapshotListener(new com.google.firebase.firestore.EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
