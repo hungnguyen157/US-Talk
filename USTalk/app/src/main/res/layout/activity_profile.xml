@@ -269,7 +269,6 @@
                 android:id="@+id/profile_image"
                 android:layout_width="150dp"
                 android:layout_height="150dp"
-                android:background="@color/black"
                 android:src="@drawable/ustalk_logo_transparent_background_cropped"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

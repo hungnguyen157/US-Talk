@@ -357,7 +357,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                     Intent intentAudioCall = new Intent(getApplicationContext(), OutcommingCallActivity.class);
                     intentAudioCall.putExtra("uid", receiveID);
                     intentAudioCall.putExtra("name", receivename);
-                    intentAudioCall.putExtra("image", receiveimage);
+                    intentAudioCall.putExtra("avatar", receiveimage);
                     intentAudioCall.putExtra("token", receiveToken);
                     intentAudioCall.putExtra("type", "audio");
                     startActivity(intentAudioCall);
