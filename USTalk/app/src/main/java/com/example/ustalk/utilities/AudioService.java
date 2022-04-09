@@ -10,7 +10,6 @@ public class AudioService {
     private MediaPlayer mediaPlayer;
     private boolean isPlaying;
     private int currentPosition;
-    private OnPlayCallBack onPlayCallBack;
 
     public AudioService(Context context){
         this.context = context;
@@ -20,33 +19,31 @@ public class AudioService {
     }
 
     public void playAudioFromURL(String URL, OnPlayCallBack onPlayCallBack){
-        this.onPlayCallBack = onPlayCallBack;
-
-        try{
-            if (currentPosition == 0){
-                if (mediaPlayer != null){
-                    mediaPlayer.stop();
-                    mediaPlayer.release();
+        if (mediaPlayer != null){
+            try{
+                if (currentPosition == 0) {
+                    if (mediaPlayer.isPlaying()){
+                        mediaPlayer.stop();
+                        mediaPlayer.release();
+                    }
+                    mediaPlayer.setDataSource(URL);
+                    mediaPlayer.prepare();
                 }
-                mediaPlayer.setDataSource(URL);
-                mediaPlayer.prepare();
-            }
-            else{
                 mediaPlayer.seekTo(currentPosition);
+                mediaPlayer.start();
+                isPlaying = true;
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            mediaPlayer.start();
-            isPlaying = true;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-             @Override
-             public void onCompletion(MediaPlayer mp) {
-                 mp.release();
-                 onPlayCallBack.onFinished();
-             }
-         });
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    mp.release();
+                    onPlayCallBack.onFinished();
+                }
+            });
+        }
     }
 
     public void pauseAudio(){
