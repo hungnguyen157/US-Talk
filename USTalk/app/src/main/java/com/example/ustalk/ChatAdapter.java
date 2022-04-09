@@ -18,7 +18,10 @@ import com.example.ustalk.databinding.ChatImageMessageReceivedBinding;
 import com.example.ustalk.databinding.ChatImageMessageSentBinding;
 import com.example.ustalk.databinding.ChatTextMessageReceivedBinding;
 import com.example.ustalk.databinding.ChatTextMessageSentBinding;
+import com.example.ustalk.databinding.ChatVoiceMessageReceivedBinding;
+import com.example.ustalk.databinding.ChatVoiceMessageSentBinding;
 import com.example.ustalk.models.ChatMessage;
+import com.example.ustalk.utilities.AudioService;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,18 +32,23 @@ import java.util.Locale;
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private final ArrayList<ChatMessage> chatMessages;
     private final String senderID;
+    private AudioService audioService;
     public static final int VIEW_TYPE_SENT = 1;
     public static final int VIEW_TYPE_RECEIVED = 2;
-    public static final int VIEW_TYPE_SENT_IMAGE =3;
+    public static final int VIEW_TYPE_SENT_IMAGE = 3;
     public static final int VIEW_TYPE_RECEIVED_IMAGE = 4;
+    public static final int VIEW_TYPE_SENT_AUDIO = 5;
+    public static final int VIEW_TYPE_RECEIVED_AUDIO = 6;
 
     Context context;
     public ChatAdapter(Context context, ArrayList<ChatMessage> chatMessages, String senderID) {
         this.chatMessages = chatMessages;
         this.senderID = senderID;
         this.context = context;
+        audioService = new AudioService(context);
     }
 
+    //Needed Override functions
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -83,14 +91,12 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             ((SentImageViewHolder) holder).setData(chatMessages.get(position));
         }
     }
-    private String getReadableDateTime(Date date)
-    {
-        return new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(date);
-    }
+
     @Override
     public int getItemCount() {
         return chatMessages.size();
     }
+
     @Override
     public int getItemViewType(int position) {
         if (chatMessages.get(position).senderID.equals(senderID) && chatMessages.get(position).sendimage == false)
@@ -107,6 +113,19 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             return VIEW_TYPE_RECEIVED_IMAGE;
     }
 
+    //Other needed functions
+    private String getReadableDateTime(Date date)
+    {
+        return new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(date);
+    }
+
+    private void viewImageFullSize(byte[] bytes_bitmap){
+        Intent intent = new Intent(context, ViewImageFullSizeActivity.class);
+        intent.putExtra("bytes_bitmap", bytes_bitmap);
+        context.startActivity(intent);
+    }
+
+    //Needed ViewHolder classes
     private class SentMessageViewHolder extends RecyclerView.ViewHolder{
         TextView sendMes,Time;
         private final ChatTextMessageSentBinding biding;
@@ -120,6 +139,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             biding.timeSent.setText(getReadableDateTime(chatMessage.time));
         }
     }
+
     private class ReceivedMessageViewHolder extends RecyclerView.ViewHolder{
         private final ChatTextMessageReceivedBinding biding;
         public ReceivedMessageViewHolder(ChatTextMessageReceivedBinding chatTextMessageReceivedBinding) {
@@ -177,9 +197,48 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         }
     }
 
-    private void viewImageFullSize(byte[] bytes_bitmap){
-        Intent intent = new Intent(context, ViewImageFullSizeActivity.class);
-        intent.putExtra("bytes_bitmap", bytes_bitmap);
-        context.startActivity(intent);
+    private class SentVoiceViewHolder extends RecyclerView.ViewHolder{
+        public ChatVoiceMessageSentBinding binding;
+        public SentVoiceViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+        public void setData(ChatMessage chatMessage){
+            binding.btnPlayOrStop.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (audioService.isPlaying()){
+                        audioService.pauseAudio();
+                        binding.btnPlayOrStop.setImageResource(R.drawable.ic_round_play_arrow_24);
+
+                    }
+                    else{
+                        String url = "";
+                        audioService.playAudioFromURL(url, new AudioService.OnPlayCallBack() {
+                            @Override
+                            public void onFinished() {
+                                binding.btnPlayOrStop.setImageResource(R.drawable.ic_round_play_arrow_24);
+                            }
+                        });
+                        binding.btnPlayOrStop.setImageResource(R.drawable.ic_round_pause_24);
+
+                    }
+                }
+            });
+        }
+    }
+
+    private class ReceivedVoiceViewHolder extends RecyclerView.ViewHolder{
+        public ChatVoiceMessageReceivedBinding binding;
+        public ReceivedVoiceViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+        public void setData(ChatMessage chatMessage){
+            binding.btnPlayOrStop.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                }
+            });
+        }
     }
 }

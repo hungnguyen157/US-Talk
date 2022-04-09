@@ -59,7 +59,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
-        android:id="@+id/time_sent"
+        android:id="@+id/time_received"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingTop="3dp"
