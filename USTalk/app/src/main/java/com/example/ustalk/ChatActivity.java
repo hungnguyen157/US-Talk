@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -341,16 +342,34 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 break;
             }
             case (R.id.btn_call):{
-                //call contact
+                if (receiveToken == null || receiveToken.trim().isEmpty()){
+                    Toast.makeText(getApplicationContext(),
+                            receivename + " is not available to have an audio meeting with you at the moment",
+                            Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(getApplicationContext(),
+                            "Waiting for response from " + receivename,
+                            Toast.LENGTH_SHORT).show();
+                }
                 break;
             }
             case (R.id.btn_video_call):{
-                try {
-                    URL serverURL = new URL("https://meet.jit.si");
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
+//                try {
+//                    URL serverURL = new URL("https://meet.jit.si");
+//                } catch (MalformedURLException e) {
+//                    e.printStackTrace();
+//                }
+                if (receiveToken == null || receiveToken.trim().isEmpty()){
+                    Toast.makeText(getApplicationContext(),
+                            receivename + " is not available to have a video meeting with you at the moment",
+                            Toast.LENGTH_SHORT).show();
                 }
-
+                else{
+                    Toast.makeText(getApplicationContext(),
+                            "Waiting for response from " + receivename,
+                            Toast.LENGTH_SHORT).show();
+                }
                 break;
             }
             case (R.id.btn_image):{
@@ -358,7 +377,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 break;
             }
             case (R.id.btn_micro):{
-                //send image by voice
+                //send message by voice
                 break;
             }
             case (R.id.btn_emoji):{

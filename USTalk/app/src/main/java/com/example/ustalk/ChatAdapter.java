@@ -8,7 +8,10 @@ import android.renderscript.ScriptGroup;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Chronometer;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -45,7 +48,6 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         this.chatMessages = chatMessages;
         this.senderID = senderID;
         this.context = context;
-        audioService = new AudioService(context);
     }
 
     //Needed Override functions
@@ -123,6 +125,25 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         Intent intent = new Intent(context, ViewImageFullSizeActivity.class);
         intent.putExtra("bytes_bitmap", bytes_bitmap);
         context.startActivity(intent);
+    }
+
+    private void setPlayOrPauseAudio(ImageButton imgBtn, ProgressBar prgBar, Chronometer chronometer){
+        if (audioService.isPlaying()){
+            audioService.pauseAudio();
+            imgBtn.setImageResource(R.drawable.ic_round_play_arrow_24);
+
+        }
+        else{
+            String url = "";
+            audioService.playAudioFromURL(url, new AudioService.OnPlayCallBack() {
+                @Override
+                public void onFinished() {
+                    imgBtn.setImageResource(R.drawable.ic_round_play_arrow_24);
+                }
+            });
+            imgBtn.setImageResource(R.drawable.ic_round_pause_24);
+
+        }
     }
 
     //Needed ViewHolder classes
@@ -203,25 +224,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             super(itemView);
         }
         public void setData(ChatMessage chatMessage){
+            audioService = new AudioService(context);
             binding.btnPlayOrStop.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (audioService.isPlaying()){
-                        audioService.pauseAudio();
-                        binding.btnPlayOrStop.setImageResource(R.drawable.ic_round_play_arrow_24);
-
-                    }
-                    else{
-                        String url = "";
-                        audioService.playAudioFromURL(url, new AudioService.OnPlayCallBack() {
-                            @Override
-                            public void onFinished() {
-                                binding.btnPlayOrStop.setImageResource(R.drawable.ic_round_play_arrow_24);
-                            }
-                        });
-                        binding.btnPlayOrStop.setImageResource(R.drawable.ic_round_pause_24);
-
-                    }
+                    setPlayOrPauseAudio(binding.btnPlayOrStop, binding.soundProgressbar, binding.timeLast);
                 }
             });
         }
@@ -233,10 +240,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             super(itemView);
         }
         public void setData(ChatMessage chatMessage){
+            audioService = new AudioService(context);
             binding.btnPlayOrStop.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                    setPlayOrPauseAudio(binding.btnPlayOrStop, binding.soundProgressbar, binding.timeLast);
                 }
             });
         }

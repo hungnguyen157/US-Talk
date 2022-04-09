@@ -49,12 +49,12 @@
             android:indeterminateTint="@color/white"
             android:progressTint="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/chronometer2"
+            app:layout_constraintEnd_toStartOf="@+id/timeLast"
             app:layout_constraintStart_toEndOf="@+id/btn_play_or_stop"
             app:layout_constraintTop_toTopOf="parent"/>
 
         <Chronometer
-            android:id="@+id/chronometer2"
+            android:id="@+id/timeLast"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="15sp"
