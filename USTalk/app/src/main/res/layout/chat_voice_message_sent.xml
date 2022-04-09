@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.example.ustalk.BackgroundAwareLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:paddingVertical="10dp"
+    app:child_id="@id/voice_layout">
+    <!--    Guideline-->
+    <androidx.constraintlayout.widget.Guideline
+    android:id="@+id/start_guideline"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    app:layout_constraintGuide_percent="0.4"/>
+
+    <!--    Items-->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/voice_layout"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="20dp"
+        android:paddingVertical="10dp"
+        android:background="@drawable/custom_rounded_lightgray_background"
+        android:paddingHorizontal="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/start_guideline"
+        app:layout_constraintTop_toTopOf="parent">
+        <ImageButton
+            android:id="@+id/btn_play_or_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_round_play_arrow_24"/>
+
+        <ProgressBar
+            android:id="@+id/sound_progressbar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/chronometer2"
+            app:layout_constraintStart_toEndOf="@+id/btn_play_or_stop"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Chronometer
+            android:id="@+id/chronometer2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/time_sent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="3dp"
+        android:text="this is sent time"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="@+id/voice_layout"
+        app:layout_constraintTop_toBottomOf="@+id/voice_layout"/>
+</com.example.ustalk.BackgroundAwareLayout>

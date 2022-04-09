@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white"
-    android:paddingEnd="10dp"
     app:child_id="@id/child_layout">
     <!--    Guideline-->
     <androidx.constraintlayout.widget.Guideline
@@ -12,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.25" />
+        app:layout_constraintGuide_percent="0.25"/>
 
     <!--    Items-->
     <com.example.ustalk.BackgroundAwareLayout
@@ -21,6 +20,7 @@
         android:layout_height="wrap_content"
         app:child_id="@id/sent_text"
         android:background="@color/white"
+        android:layout_marginEnd="20dp"
         android:paddingVertical="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/start_guideline">
@@ -37,7 +37,7 @@
             android:textColor="@color/white"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
             android:id="@+id/time_sent"
@@ -47,6 +47,6 @@
             android:text="this is sent time"
             android:textSize="15sp"
             app:layout_constraintEnd_toEndOf="@+id/sent_text"
-            app:layout_constraintTop_toBottomOf="@+id/sent_text" />
+            app:layout_constraintTop_toBottomOf="@+id/sent_text"/>
     </com.example.ustalk.BackgroundAwareLayout>
 </com.example.ustalk.BackgroundAwareLayout>
