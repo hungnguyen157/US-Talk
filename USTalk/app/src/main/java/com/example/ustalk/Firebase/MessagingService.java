@@ -10,10 +10,13 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.ustalk.ChatActivity;
+import com.example.ustalk.IncommingCallActivity;
 import com.example.ustalk.R;
 import com.example.ustalk.models.User;
+import com.example.ustalk.utilities.Constants;
 import com.example.ustalk.utilities.CurrentUserDetails;
 import com.example.ustalk.utilities.PreferenceManager;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -82,5 +85,34 @@ public class MessagingService extends FirebaseMessagingService {
         })
             .addOnFailureListener(e -> Log.e("notification", e.getMessage()));
 
+        String type = data.get(Constants.KEY_MSG_TYPE);
+        if (type != null){
+            if (type.equals(Constants.KEY_MSG_INVITATION)){
+                Intent intent = new Intent(getApplicationContext(), IncommingCallActivity.class);
+                intent.putExtra(Constants.KEY_MSG_MEETING_TYPE,
+                                data.get(Constants.KEY_MSG_MEETING_TYPE)
+                );
+                intent.putExtra(Constants.KEY_USER_ID,
+                                data.get(Constants.KEY_USER_ID)
+                );
+                intent.putExtra(Constants.KEY_IMAGE,
+                                data.get(Constants.KEY_IMAGE)
+                );
+                intent.putExtra(Constants.KEY_NAME,
+                                data.get(Constants.KEY_NAME)
+                );
+                intent.putExtra(Constants.KEY_MSG_INVITER_TOKEN,
+                                data.get(Constants.KEY_MSG_INVITER_TOKEN)
+                );
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+            else if (type.equals(Constants.KEY_MSG_INVITATION_RESPONSE)){
+                Intent intent = new Intent(Constants.KEY_MSG_INVITATION_RESPONSE);
+                intent.putExtra(Constants.KEY_MSG_INVITATION_RESPONSE,
+                                data.get(Constants.KEY_MSG_INVITATION_RESPONSE));
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+            }
+        }
     }
 }
