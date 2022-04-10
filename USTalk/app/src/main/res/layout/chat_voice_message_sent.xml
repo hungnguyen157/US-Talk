@@ -39,14 +39,11 @@
             android:background="@android:color/transparent"
             android:src="@drawable/ic_round_play_arrow_24"/>
 
-        <ProgressBar
-            android:id="@+id/sound_progressbar"
+        <SeekBar
+            android:id="@+id/sound_seekbar"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="5dp"
-            android:indeterminate="false"
-            android:indeterminateTint="@color/white"
             android:progressTint="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/timeLast"
@@ -60,6 +57,7 @@
             android:textSize="15sp"
             android:textStyle="bold"
             android:textColor="@color/white"
+            android:countDown="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>

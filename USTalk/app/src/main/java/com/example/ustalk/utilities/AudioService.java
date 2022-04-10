@@ -58,6 +58,15 @@ public class AudioService {
         return isPlaying;
     }
 
+    public long getCurrentPostion(){ return currentPosition; }
+
+    public long getDuration(){ return mediaPlayer.getDuration(); }
+
+    public void seekTo(int position) {
+        currentPosition = position;
+        mediaPlayer.seekTo(currentPosition);
+    }
+
     public interface OnPlayCallBack{
         void onFinished();
     }

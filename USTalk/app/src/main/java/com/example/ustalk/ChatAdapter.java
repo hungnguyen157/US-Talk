@@ -1,18 +1,18 @@
 package com.example.ustalk;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.renderscript.ScriptGroup;
+import android.os.Handler;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -54,7 +54,6 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view;
         if(viewType == VIEW_TYPE_SENT)
         {
             return new SentMessageViewHolder(ChatTextMessageSentBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false));
@@ -101,15 +100,15 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     @Override
     public int getItemViewType(int position) {
-        if (chatMessages.get(position).senderID.equals(senderID) && chatMessages.get(position).sendimage == false)
+        if (chatMessages.get(position).senderID.equals(senderID) && !chatMessages.get(position).sendimage)
         {
             return VIEW_TYPE_SENT;
         }
-        else if (chatMessages.get(position).senderID.equals(senderID)== false && chatMessages.get(position).sendimage == false)
+        else if (!chatMessages.get(position).senderID.equals(senderID) && !chatMessages.get(position).sendimage)
         {
             return VIEW_TYPE_RECEIVED;
         }
-        else if (chatMessages.get(position).senderID.equals(senderID) && chatMessages.get(position).sendimage == true)
+        else if (chatMessages.get(position).senderID.equals(senderID) && chatMessages.get(position).sendimage)
             return VIEW_TYPE_SENT_IMAGE;
         else
             return VIEW_TYPE_RECEIVED_IMAGE;
@@ -127,28 +126,64 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         context.startActivity(intent);
     }
 
-    private void setPlayOrPauseAudio(ImageButton imgBtn, ProgressBar prgBar, Chronometer chronometer){
-        if (audioService.isPlaying()){
-            audioService.pauseAudio();
-            imgBtn.setImageResource(R.drawable.ic_round_play_arrow_24);
-
+    private void setPlayOrPauseAudio(ImageButton imgBtn, SeekBar seekBar, Chronometer chronometer,
+                                     Runnable updater, Handler handler){
+        if (audioService != null){
+            if (audioService.isPlaying()){
+                handler.removeCallbacks(updater);
+                chronometer.stop();
+                audioService.pauseAudio();
+                imgBtn.setImageResource(R.drawable.ic_round_play_arrow_24);
+            }
+            else{
+                String url = "";
+                audioService.playAudioFromURL(url, new AudioService.OnPlayCallBack() {
+                    @Override
+                    public void onFinished() {
+                        seekBar.setProgress(0);
+                        chronometer.setBase(audioService.getDuration());
+                        imgBtn.setImageResource(R.drawable.ic_round_play_arrow_24);
+                    }
+                });
+                imgBtn.setImageResource(R.drawable.ic_round_pause_24);
+                chronometer.setBase(audioService.getDuration() - audioService.getCurrentPostion());
+                chronometer.start();
+                updateSeekerBar(updater, seekBar, handler);
+            }
         }
-        else{
-            String url = "";
-            audioService.playAudioFromURL(url, new AudioService.OnPlayCallBack() {
-                @Override
-                public void onFinished() {
-                    imgBtn.setImageResource(R.drawable.ic_round_play_arrow_24);
-                }
-            });
-            imgBtn.setImageResource(R.drawable.ic_round_pause_24);
+    }
 
+//    private String milliSecondsToTimer(long milliSeconds){
+//        String timeString = "";
+//        String secondsString;
+//
+//        final int hoursToMilliSeconds = 1000 * 60 * 60;
+//        int hours = (int) (milliSeconds / hoursToMilliSeconds);
+//        int minutes = (int) ((milliSeconds % hoursToMilliSeconds) / (1000 * 60));
+//        int seconds = (int) (((milliSeconds % hoursToMilliSeconds) % (1000 * 60)) / 1000);
+//
+//        if (hours > 0){
+//            if (hours < 10) timeString = "0" + hours + ":";
+//            else timeString = hours + ":";
+//        }
+//        if (minutes < 10) timeString += "0";
+//        if (seconds < 10) secondsString = "0" + seconds;
+//        else secondsString = "" + seconds;
+//
+//        timeString = timeString + minutes + ":" + secondsString;
+//        return timeString;
+//    }
+
+    private void updateSeekerBar(Runnable updater, SeekBar seekBar, Handler handler){
+        if (audioService.isPlaying()){
+            seekBar.setProgress(
+                    (int)(((float) audioService.getCurrentPostion() / audioService.getDuration()) * 100));
+            handler.postDelayed(updater, 1000);
         }
     }
 
     //Needed ViewHolder classes
     private class SentMessageViewHolder extends RecyclerView.ViewHolder{
-        TextView sendMes,Time;
         private final ChatTextMessageSentBinding biding;
         public SentMessageViewHolder(ChatTextMessageSentBinding chatTextMessageSentBinding) {
             super(chatTextMessageSentBinding.getRoot());
@@ -220,15 +255,37 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private class SentVoiceViewHolder extends RecyclerView.ViewHolder{
         public ChatVoiceMessageSentBinding binding;
+        private Runnable updater = null;
+        private Handler handler = null;
         public SentVoiceViewHolder(@NonNull View itemView) {
             super(itemView);
         }
+        @SuppressLint("ClickableViewAccessibility")
         public void setData(ChatMessage chatMessage){
             audioService = new AudioService(context);
+            handler = new Handler();
+            updater = new Runnable() {
+                @Override
+                public void run() {
+                    updateSeekerBar(updater, binding.soundSeekbar, handler);
+                }
+            };
+            binding.soundSeekbar.setMax(100);
+            binding.soundSeekbar.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    SeekBar seekBar = (SeekBar) view;
+                    int playPosition = (int) ((audioService.getDuration() / 100) * seekBar.getProgress());
+                    audioService.seekTo(playPosition);
+                    binding.timeLast.setBase(audioService.getDuration() - audioService.getCurrentPostion());
+                    return false;
+                }
+            });
             binding.btnPlayOrStop.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    setPlayOrPauseAudio(binding.btnPlayOrStop, binding.soundProgressbar, binding.timeLast);
+                    setPlayOrPauseAudio(binding.btnPlayOrStop, binding.soundSeekbar, binding.timeLast,
+                            updater, handler);
                 }
             });
         }
@@ -236,15 +293,37 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private class ReceivedVoiceViewHolder extends RecyclerView.ViewHolder{
         public ChatVoiceMessageReceivedBinding binding;
+        private Runnable updater = null;
+        private Handler handler = null;
         public ReceivedVoiceViewHolder(@NonNull View itemView) {
             super(itemView);
         }
+        @SuppressLint("ClickableViewAccessibility")
         public void setData(ChatMessage chatMessage){
             audioService = new AudioService(context);
+            handler = new Handler();
+            updater = new Runnable() {
+                @Override
+                public void run() {
+                    updateSeekerBar(updater, binding.soundSeekbar, handler);
+                }
+            };
+            binding.soundSeekbar.setMax(100);
+            binding.soundSeekbar.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    SeekBar seekBar = (SeekBar) view;
+                    int playPosition = (int) ((audioService.getDuration() / 100) * seekBar.getProgress());
+                    audioService.seekTo(playPosition);
+                    binding.timeLast.setBase(audioService.getDuration() - audioService.getCurrentPostion());
+                    return false;
+                }
+            });
             binding.btnPlayOrStop.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    setPlayOrPauseAudio(binding.btnPlayOrStop, binding.soundProgressbar, binding.timeLast);
+                    setPlayOrPauseAudio(binding.btnPlayOrStop, binding.soundSeekbar, binding.timeLast,
+                            updater, handler);
                 }
             });
         }
