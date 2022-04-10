@@ -22,8 +22,13 @@ import com.example.ustalk.network.ApiService;
 import com.example.ustalk.utilities.Constants;
 import com.example.ustalk.utilities.CurrentUserDetails;
 
+import org.jitsi.meet.sdk.JitsiMeetActivity;
+import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
@@ -115,6 +120,26 @@ public class IncommingCallActivity extends AppCompatActivity {
                     if (type.equals(Constants.KEY_MSG_INVITATION_ACCEPTED)){
                         Toast.makeText(IncommingCallActivity.this,
                                 "Chấp nhận cuộc gọi", Toast.LENGTH_SHORT).show();
+
+                        //set up Jitsi meeting
+                        try {
+                            URL serverURL = new URL("https://meet.jit.si");
+                            JitsiMeetConferenceOptions.Builder builder = new JitsiMeetConferenceOptions.Builder();
+                            builder.setServerURL(serverURL);
+                            builder.setWelcomePageEnabled(false);
+                            builder.setRoom(getIntent().getStringExtra(Constants.KEY_MSG_MEETING_ROOM));
+                            builder.setVideoMuted(false);
+                            if (meetingType.equals("audio")){
+                                builder.setVideoMuted(true);
+                            }
+
+                            JitsiMeetConferenceOptions conferenceOptions = builder.build();
+                            JitsiMeetActivity.launch(IncommingCallActivity.this, conferenceOptions);
+                        } catch (MalformedURLException e) {
+                            e.printStackTrace();
+                        } finally {
+                            finish();
+                        }
                     }
                     else{
                         Toast.makeText(IncommingCallActivity.this,

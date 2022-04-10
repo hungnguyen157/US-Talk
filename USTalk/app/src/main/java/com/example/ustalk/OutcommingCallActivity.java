@@ -23,8 +23,13 @@ import com.example.ustalk.utilities.Constants;
 import com.example.ustalk.utilities.CurrentUserDetails;
 import com.example.ustalk.utilities.PreferenceManager;
 
+import org.jitsi.meet.sdk.JitsiMeetActivity;
+import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
@@ -38,7 +43,8 @@ public class OutcommingCallActivity extends AppCompatActivity {
     TextView name;
 
     //other variables
-    String meetingType, receiverUid, receiverToken, receiverName, receiverAvatar;
+    String meetingType, meetingRoom;
+    String receiverUid, receiverToken, receiverName, receiverAvatar;
     User inviter;
 
     @Override
@@ -86,6 +92,8 @@ public class OutcommingCallActivity extends AppCompatActivity {
 
     private void initiateMeeting(String meetingType, String receiverToken){
         try{
+            meetingRoom = inviter.id + "_" + receiverUid;
+
             JSONArray tokens = new JSONArray();
             tokens.put(receiverToken);
 
@@ -99,6 +107,7 @@ public class OutcommingCallActivity extends AppCompatActivity {
             data.put(Constants.KEY_IMAGE, inviter.imageProfile);
             data.put(Constants.KEY_NAME, inviter.name);
             data.put(Constants.KEY_MSG_INVITER_TOKEN, inviter.token);
+            data.put(Constants.KEY_MSG_MEETING_ROOM, meetingRoom);
 
             //insert data to body object
             body.put(Constants.KEY_MSG_DATA, data);
@@ -175,6 +184,26 @@ public class OutcommingCallActivity extends AppCompatActivity {
             if (type != null){
                 if (type.equals(Constants.KEY_MSG_INVITATION_ACCEPTED)){
                     Toast.makeText(context, "Cuộc gọi được chấp nhận", Toast.LENGTH_SHORT).show();
+
+                    //set up Jitsi meeting
+                    try {
+                        URL serverURL = new URL("https://meet.jit.si");
+                        JitsiMeetConferenceOptions.Builder builder = new JitsiMeetConferenceOptions.Builder();
+                        builder.setServerURL(serverURL);
+                        builder.setWelcomePageEnabled(false);
+                        builder.setRoom(meetingRoom);
+                        builder.setVideoMuted(false);
+                        if (meetingType.equals("audio")){
+                            builder.setVideoMuted(true);
+                        }
+
+                        JitsiMeetConferenceOptions conferenceOptions = builder.build();
+                        JitsiMeetActivity.launch(OutcommingCallActivity.this, conferenceOptions);
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    } finally {
+                        finish();
+                    }
                 }
                 else if (type.equals(Constants.KEY_MSG_INVITATION_REJECTED)){
                     Toast.makeText(context,"Cuộc gọi bị từ chối", Toast.LENGTH_SHORT).show();
