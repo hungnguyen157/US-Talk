@@ -81,10 +81,10 @@ public class IncommingCallActivity extends AppCompatActivity {
         });
     }
 
-    private void sendInvitationResponse(String type, String receiverToken){
+    private void sendInvitationResponse(String type, String inviterToken){
         try{
             JSONArray tokens = new JSONArray();
-            tokens.put(receiverToken);
+            tokens.put(inviterToken);
 
             //insert data to data object
             JSONObject body = new JSONObject();
@@ -114,11 +114,11 @@ public class IncommingCallActivity extends AppCompatActivity {
                 if (response.isSuccessful()){
                     if (type.equals(Constants.KEY_MSG_INVITATION_ACCEPTED)){
                         Toast.makeText(IncommingCallActivity.this,
-                                "Accept the invitation", Toast.LENGTH_SHORT).show();
+                                "Chấp nhận cuộc gọi", Toast.LENGTH_SHORT).show();
                     }
                     else{
                         Toast.makeText(IncommingCallActivity.this,
-                                "Reject the invitation", Toast.LENGTH_SHORT).show();
+                                "Từ chối cuộc gọi", Toast.LENGTH_SHORT).show();
                     }
                 }
                 else{

@@ -71,7 +71,9 @@ public class OutcommingCallActivity extends AppCompatActivity {
         btn_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                cancelInvitation(receiverToken);
+                if (receiverToken != null){
+                    cancelInvitation(receiverToken);
+                }
                 onBackPressed();
             }
         });
@@ -119,11 +121,11 @@ public class OutcommingCallActivity extends AppCompatActivity {
                 if (response.isSuccessful()){
                     if (type.equals(Constants.KEY_MSG_INVITATION)){
                         Toast.makeText(OutcommingCallActivity.this,
-                                "Invitation sent successfully", Toast.LENGTH_SHORT).show();
+                                "Gửi cuộc gọi thành công", Toast.LENGTH_SHORT).show();
                     }
                     else if (type.equals(Constants.KEY_MSG_INVITATION_RESPONSE)){
                         Toast.makeText(OutcommingCallActivity.this,
-                                "Invitation canceled", Toast.LENGTH_SHORT).show();
+                                "Đã hủy cuộc gọi", Toast.LENGTH_SHORT).show();
                         finish();
                     }
                 }
@@ -172,10 +174,10 @@ public class OutcommingCallActivity extends AppCompatActivity {
             String type = intent.getStringExtra(Constants.KEY_MSG_INVITATION_RESPONSE);
             if (type != null){
                 if (type.equals(Constants.KEY_MSG_INVITATION_ACCEPTED)){
-                    Toast.makeText(context, "Invitation accepted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Cuộc gọi được chấp nhận", Toast.LENGTH_SHORT).show();
                 }
                 else if (type.equals(Constants.KEY_MSG_INVITATION_REJECTED)){
-                    Toast.makeText(context,"Invitation rejected", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context,"Cuộc gọi bị từ chối", Toast.LENGTH_SHORT).show();
                     finish();
                 }
             }

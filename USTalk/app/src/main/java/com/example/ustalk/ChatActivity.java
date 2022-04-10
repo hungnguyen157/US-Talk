@@ -350,7 +350,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
             case (R.id.btn_call):{
                 if (receiveToken == null || receiveToken.trim().isEmpty()){
                     Toast.makeText(getApplicationContext(),
-                            receivename + " is not available to have an audio meeting with you at the moment",
+                            receivename + " không sẵn sàng cho cuộc gọi âm thanh vào lúc này",
                             Toast.LENGTH_SHORT).show();
                 }
                 else{
@@ -372,7 +372,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
 //                }
                 if (receiveToken == null || receiveToken.trim().isEmpty()){
                     Toast.makeText(getApplicationContext(),
-                            receivename + " is not available to have a video meeting with you at the moment",
+                            receivename + " không sẵn sàng cho cuộc gọi video vào lúc này",
                             Toast.LENGTH_SHORT).show();
                 }
                 else{
