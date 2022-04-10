@@ -102,60 +102,34 @@ public class SignUpActivity extends AppCompatActivity {
                     String btnText = btnSignUp.getText().toString();
                     btnSignUp.setText("");
                     mAuth.createUserWithEmailAndPassword(email,password)
-                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if (task.isSuccessful()) {
-                                        String sex = (rbtnMale.isChecked() == true) ? "Male" : "Female";
-                                        User user = new User(name, email, sex);
-                                        String uid = mAuth.getCurrentUser().getUid();
-
-                                        db.collection("users").document(uid).set(user)
-                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                        progressBar.setVisibility(View.GONE);
-                                                        btnSignUp.setEnabled(true);
-                                                        btnSignUp.setText(btnText);
-                                                    }
-                                                })
-                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void unused) {
-                                                        Log.d("signup", "DocumentSnapshot added");
-                                                        makeToast("Sign up successfully");
-                                                        onBackPressed();
-                                                    }
-                                                })
-                                                .addOnFailureListener(new OnFailureListener() {
-                                                    @Override
-                                                    public void onFailure(@NonNull Exception e) {
-                                                        Log.w("signup", "Error adding doc", e);
-                                                        makeToast("Something wrong");
-                                                    }
-                                                });
-
-//                                        FirebaseDatabase.getInstance("https://us-talk-default-rtdb.asia-southeast1.firebasedatabase.app").getReference("Users")
-//                                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-//                                                .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                            @Override
-//                                            public void onComplete(@NonNull Task<Void> task) {
-//                                                if (task.isSuccessful()){
-//                                                    makeToast("Sign up successfully");
-//                                                    onBackPressed();
-//                                                } else {
-//                                                    makeToast("Something wrong");
-//                                                }
-//                                                progressBar.setVisibility(View.GONE);
-//                                                btnSignUp.setEnabled(true);
-//                                                btnSignUp.setText(btnText);
-//                                            }
-//                                        });
-                                    } else {
-                                        makeToast("Something wrong");
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    String sex = "Female", imageProfile = "https://firebasestorage.googleapis.com/v0/b/us-talk.appspot.com/o/Avatar%2Fwoman.png?alt=media&token=c6651709-ed7f-4664-a06e-b20c6b8639fe";
+                                    if (rbtnMale.isChecked()) {
+                                        sex = "Male";
+                                        imageProfile = "https://firebasestorage.googleapis.com/v0/b/us-talk.appspot.com/o/Avatar%2Fman.png?alt=media&token=41d34fff-f4ea-4b0f-b22c-2037af74c9f6";
                                     }
+                                    User user = new User(name, email, sex, imageProfile);
+                                    String uid = mAuth.getCurrentUser().getUid();
 
+                                    db.collection("users").document(uid).set(user)
+                                            .addOnCompleteListener(task1 -> {
+                                                progressBar.setVisibility(View.GONE);
+                                                btnSignUp.setEnabled(true);
+                                                btnSignUp.setText(btnText);
+                                                if (task1.isSuccessful()) {
+                                                    makeToast("Đăng kí thành công");
+                                                    onBackPressed();
+                                                }
+                                                else makeToast("Đăng kí không thành công");
+                                            });
+                                } else {
+                                    makeToast(task.getException().getMessage());
+                                    progressBar.setVisibility(View.GONE);
+                                    btnSignUp.setEnabled(true);
+                                    btnSignUp.setText(btnText);
                                 }
+
                             });
                 }
             }

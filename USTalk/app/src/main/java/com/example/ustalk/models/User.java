@@ -15,6 +15,13 @@ public class User {
         this.sex = sex;
     }
 
+    public User(String name, String email, String sex, String imageProfile) {
+        this.email = email;
+        this.name = name;
+        this.sex = sex;
+        this.imageProfile = imageProfile;
+    }
+
     public void setEmail(String email) {
         this.email = email;
     }
