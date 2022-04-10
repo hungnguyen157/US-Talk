@@ -45,7 +45,20 @@ public class MessagingService extends FirebaseMessagingService {
     {
         super.onMessageReceived(remoteMessage);
 
+        System.out.println("Something");
+
         Map<String, String> data = remoteMessage.getData();
+        String type = data.get(Constants.KEY_MSG_TYPE);
+
+        if (type == null){
+            onNotificationMessageReceived(data);
+        }
+        else{
+            onCallingMessageReceived(data, type);
+        }
+    }
+
+    public void onNotificationMessageReceived(Map<String, String> data){
         String uid = data.get("uid");
         db.document("users/" + uid).get().addOnSuccessListener(documentSnapshot -> {
             User user = documentSnapshot.toObject(User.class);
@@ -83,36 +96,35 @@ public class MessagingService extends FirebaseMessagingService {
             NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(getApplicationContext());
             notificationManagerCompat.notify(new Random().nextInt(),builder.build());
         })
-            .addOnFailureListener(e -> Log.e("notification", e.getMessage()));
+                .addOnFailureListener(e -> Log.e("notification", e.getMessage()));
+    }
 
-        String type = data.get(Constants.KEY_MSG_TYPE);
-        if (type != null){
-            if (type.equals(Constants.KEY_MSG_INVITATION)){
-                Intent intent = new Intent(getApplicationContext(), IncommingCallActivity.class);
-                intent.putExtra(Constants.KEY_MSG_MEETING_TYPE,
-                                data.get(Constants.KEY_MSG_MEETING_TYPE)
-                );
-                intent.putExtra(Constants.KEY_USER_ID,
-                                data.get(Constants.KEY_USER_ID)
-                );
-                intent.putExtra(Constants.KEY_IMAGE,
-                                data.get(Constants.KEY_IMAGE)
-                );
-                intent.putExtra(Constants.KEY_NAME,
-                                data.get(Constants.KEY_NAME)
-                );
-                intent.putExtra(Constants.KEY_MSG_INVITER_TOKEN,
-                                data.get(Constants.KEY_MSG_INVITER_TOKEN)
-                );
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-            }
-            else if (type.equals(Constants.KEY_MSG_INVITATION_RESPONSE)){
-                Intent intent = new Intent(Constants.KEY_MSG_INVITATION_RESPONSE);
-                intent.putExtra(Constants.KEY_MSG_INVITATION_RESPONSE,
-                                data.get(Constants.KEY_MSG_INVITATION_RESPONSE));
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-            }
+    public void onCallingMessageReceived(Map<String, String> data, String type){
+        if (type.equals(Constants.KEY_MSG_INVITATION)){
+            Intent intent = new Intent(getApplicationContext(), IncommingCallActivity.class);
+            intent.putExtra(Constants.KEY_MSG_MEETING_TYPE,
+                    data.get(Constants.KEY_MSG_MEETING_TYPE)
+            );
+            intent.putExtra(Constants.KEY_USER_ID,
+                    data.get(Constants.KEY_USER_ID)
+            );
+            intent.putExtra(Constants.KEY_IMAGE,
+                    data.get(Constants.KEY_IMAGE)
+            );
+            intent.putExtra(Constants.KEY_NAME,
+                    data.get(Constants.KEY_NAME)
+            );
+            intent.putExtra(Constants.KEY_MSG_INVITER_TOKEN,
+                    data.get(Constants.KEY_MSG_INVITER_TOKEN)
+            );
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
+        else if (type.equals(Constants.KEY_MSG_INVITATION_RESPONSE)){
+            Intent intent = new Intent(Constants.KEY_MSG_INVITATION_RESPONSE);
+            intent.putExtra(Constants.KEY_MSG_INVITATION_RESPONSE,
+                    data.get(Constants.KEY_MSG_INVITATION_RESPONSE));
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
         }
     }
 }

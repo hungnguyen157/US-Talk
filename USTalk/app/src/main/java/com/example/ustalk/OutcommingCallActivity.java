@@ -77,8 +77,8 @@ public class OutcommingCallActivity extends AppCompatActivity {
         });
 
         inviter = CurrentUserDetails.getInstance().getUser();
-        if (meetingType != null && inviter != null){
-            initiateMeeting(meetingType, inviter.token);
+        if (meetingType != null && receiverToken != null){
+            initiateMeeting(meetingType, receiverToken);
         }
     }
 

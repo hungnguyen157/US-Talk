@@ -13,7 +13,7 @@ public class Constants {
     public static final String KEY_IMAGE = "image";
 
     public static final String KEY_MSG_AUTHORIZATION = "Authorization";
-    public static final String KEY_MSG_CONTENT_TYPE = "Content-type";
+    public static final String KEY_MSG_CONTENT_TYPE = "Content-Type";
 
     public static final String KEY_MSG_TYPE = "type";
     public static final String KEY_MSG_INVITATION = "invitation";
