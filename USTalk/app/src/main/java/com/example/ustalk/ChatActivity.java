@@ -20,6 +20,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,13 +39,13 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.vanniktech.emoji.EmojiPopup;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -89,23 +90,23 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         setContentView(R.layout.activity_chat);
 
         //get widgets
-        name = (TextView) findViewById(R.id.name);
-        avatar = (CircleImageView) findViewById(R.id.avatar);
-        btn_back = (ImageView) findViewById(R.id.btn_back);
-        btn_call = (ImageView) findViewById(R.id.btn_call);
-        btn_video_call = (ImageView) findViewById(R.id.btn_video_call);
-        btn_image = (ImageView) findViewById(R.id.btn_image);
-        btn_micro = (ImageView) findViewById(R.id.btn_micro);
-        btn_emoji = (ImageView) findViewById(R.id.btn_emoji);
-        btn_send = (ImageView) findViewById(R.id.btn_send);
-        edit_chat = (EditText) findViewById(R.id.edit_chat);
-        recycler_view_message = (RecyclerView) findViewById(R.id.recycler_view_message);
-        contact_info = (ConstraintLayout) findViewById(R.id.contact_info);
-        chat_background = (ImageView) findViewById(R.id.chat_background);
-        chat_view = (ConstraintLayout) findViewById(R.id.chat_view);
-        toolbar = (ConstraintLayout) findViewById(R.id.toolbar);
-        make_message_field = (ConstraintLayout) findViewById(R.id.make_message_field);
-        chat_box_scrollview = (ScrollView) findViewById(R.id.chat_box_scrollview);
+        name = findViewById(R.id.name);
+        avatar = findViewById(R.id.avatar);
+        btn_back = findViewById(R.id.btn_back);
+        btn_call = findViewById(R.id.btn_call);
+        btn_video_call = findViewById(R.id.btn_video_call);
+        btn_image = findViewById(R.id.btn_image);
+        btn_micro = findViewById(R.id.btn_micro);
+        btn_emoji = findViewById(R.id.btn_emoji);
+        btn_send = findViewById(R.id.btn_send);
+        edit_chat = findViewById(R.id.edit_chat);
+        recycler_view_message = findViewById(R.id.recycler_view_message);
+        contact_info = findViewById(R.id.contact_info);
+        chat_background = findViewById(R.id.chat_background);
+        chat_view = findViewById(R.id.chat_view);
+        toolbar = findViewById(R.id.toolbar);
+        make_message_field = findViewById(R.id.make_message_field);
+        chat_box_scrollview = findViewById(R.id.chat_box_scrollview);
         online_signal = findViewById(R.id.online_signal);
         chat_box_parent = findViewById(R.id.chat_box_parent);
 
@@ -121,13 +122,6 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
 
         //set Userlisteners
         popup = EmojiPopup.Builder.fromRootView(chat_view).build(edit_chat);
-//        btn_emoji.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                popup.toggle();
-//            }
-//        });
-        //btn_send.setOnClickListener(v->SendMes());
 
         init();
         loadReceiverDetails();
@@ -225,7 +219,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
             ApiClient.getClient().create(ApiService.class)
                     .sendMessage(headers, jsonString).enqueue(new Callback<String>() {
                 @Override
-                public void onResponse(Call<String> call, Response<String> response) {
+                public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
                     if (!response.isSuccessful()) {
                         Log.e("notification", String.valueOf(response.code()));
                         return;
@@ -246,7 +240,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 }
 
                 @Override
-                public void onFailure(Call<String> call, Throwable t) {
+                public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
                     Log.e("notification", call.toString());
                 }
             });
@@ -344,7 +338,9 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 break;
             }
             case (R.id.contact_info):{
-                //view contact_info
+                Toast.makeText(getApplicationContext(),
+                        "Chức năng này hiện chưa khả dụng",
+                        Toast.LENGTH_SHORT).show();
                 break;
             }
             case (R.id.btn_call):{
@@ -365,11 +361,6 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 break;
             }
             case (R.id.btn_video_call):{
-//                try {
-//                    URL serverURL = new URL("https://meet.jit.si");
-//                } catch (MalformedURLException e) {
-//                    e.printStackTrace();
-//                }
                 if (receiveToken == null || receiveToken.trim().isEmpty()){
                     Toast.makeText(getApplicationContext(),
                             receivename + " không sẵn sàng cho cuộc gọi video vào lúc này",
@@ -391,7 +382,9 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 break;
             }
             case (R.id.btn_micro):{
-                //send message by voice
+                Toast.makeText(getApplicationContext(),
+                        "Chức năng này vẫn đang được cài đặt",
+                        Toast.LENGTH_SHORT).show();
                 break;
             }
             case (R.id.btn_emoji):{

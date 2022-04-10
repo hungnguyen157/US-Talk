@@ -1,8 +1,12 @@
 package com.example.ustalk;
 
-import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -27,8 +31,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
-import java.util.Random;
-import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -43,6 +45,7 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
     private ArrayList<String> tokens = new ArrayList<>();
     FirebaseFirestore db;
     PreferenceManager prefManager;
+    private int REQUEST_CODE_BATTERY_OPTIMIZATION = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +58,8 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
         loadUsersFromDatabase();
         loadCurrentUserFromDatabase();
         profileImage.setOnClickListener(this);
+
+        checkForBatteryOptimizations();
     }
 
     private void loadCurrentUserFromDatabase() {
@@ -174,5 +179,37 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_HOME);
         startActivity(intent);
+    }
+
+    private void checkForBatteryOptimizations(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+            if (!powerManager.isIgnoringBatteryOptimizations(getPackageName())){
+                AlertDialog.Builder builder = new AlertDialog.Builder(ChatHistoryActivity.this);
+                builder.setTitle("Warning");
+                builder.setMessage("Battery optimization is enabled. It can interrupt running background service");
+                builder.setPositiveButton("Disable", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent intent = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+                        startActivityForResult(intent, REQUEST_CODE_BATTERY_OPTIMIZATION);
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                builder.create().show();
+            }
+        }
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_BATTERY_OPTIMIZATION){
+            checkForBatteryOptimizations();
+        }
     }
 }
