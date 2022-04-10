@@ -84,9 +84,7 @@ public class SignInActivity extends Activity implements View.OnClickListener {
 
     private void signInFromSession() {
         String uid = prefManager.getString("UID");
-        if (uid != null) {
-            transition();
-        }
+        if (uid != null) transition();
     }
 
     @Override

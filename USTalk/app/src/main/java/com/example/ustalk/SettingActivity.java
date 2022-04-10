@@ -22,6 +22,8 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
+import java.util.HashMap;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class SettingActivity extends OnlineActivity implements View.OnClickListener {
@@ -92,7 +94,10 @@ public class SettingActivity extends OnlineActivity implements View.OnClickListe
         {
             PreferenceManager preferenceManager = new PreferenceManager(getApplicationContext());
             String uid = preferenceManager.getString("UID");
-            db.collection("users").document(uid).update("online", false)
+            HashMap<String, Object> changes = new HashMap<>();
+            changes.put("online", false);
+            changes.put("token", null);
+            db.collection("users").document(uid).update(changes)
                     .addOnFailureListener(e -> Log.e("online", e.getMessage()));
             preferenceManager.remove("UID");
 

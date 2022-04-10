@@ -21,8 +21,10 @@ import com.example.ustalk.utilities.CurrentUserDetails;
 import com.example.ustalk.utilities.PreferenceManager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -32,14 +34,18 @@ import java.util.Random;
 
 public class MessagingService extends FirebaseMessagingService {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    PreferenceManager preferenceManager = new PreferenceManager(getApplicationContext());
 
     @Override
     public void onNewToken(@NonNull String token)
     {
         super.onNewToken(token);
-        Log.d("FCM","Token" + token);
-        PreferenceManager preferenceManager = new PreferenceManager(getApplicationContext());
-        preferenceManager.putString("token", token);
+
+        String uid = preferenceManager.getString("UID");
+        if (uid != null) {
+            db.collection("users").document(uid).update("token", token)
+                    .addOnFailureListener(e -> Log.e("updateNewToken", e.getMessage()));
+        }
     }
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage)
     {
