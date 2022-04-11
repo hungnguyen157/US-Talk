@@ -41,7 +41,7 @@ public class MessagingService extends FirebaseMessagingService {
     {
         super.onNewToken(token);
 
-        preferenceManager = new PreferenceManager(getApplicationContext());
+        if (preferenceManager == null) preferenceManager = new PreferenceManager(getApplicationContext());
         String uid = preferenceManager.getString("UID");
         if (uid != null) {
             db.collection("users").document(uid).update("token", token)
@@ -69,15 +69,15 @@ public class MessagingService extends FirebaseMessagingService {
         String uid = data.get("uid");
         db.document("users/" + uid).get().addOnSuccessListener(documentSnapshot -> {
             User user = documentSnapshot.toObject(User.class);
-            String name = data.get("name");
+            String name = user.name;
             String message = data.get("message");
 
             Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            intent.putExtra("name", name);
-            intent.putExtra("imageProfile", user.imageProfile);
+//            intent.putExtra("name", name);
+//            intent.putExtra("imageProfile", user.imageProfile);
             intent.putExtra("receiveID", uid);
-            intent.putExtra("token", user.token);
+//            intent.putExtra("token", user.token);
             PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 
             String channelId = "chatMessage";
