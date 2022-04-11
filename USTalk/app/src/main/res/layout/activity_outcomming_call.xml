@@ -8,20 +8,6 @@
 
     <!--    Guidelines helpers-->
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/message_guidelinetop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.19"/>
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/message_guidelinebottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.29"/>
-
-    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/avatar_guidelinetop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -33,21 +19,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.45" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/name_guidelinetop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.45" />
+        app:layout_constraintGuide_percent="0.5" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/name_guidelinebottom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.55" />
+        app:layout_constraintGuide_percent="0.6" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/button_guidelinetop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.8" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/button_guidelinebottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.9" />
 
     <!--    Items-->
     <ImageView
@@ -55,22 +48,22 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginBottom="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/message_guidelinetop"
+        app:layout_constraintBottom_toTopOf="@+id/textView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
         android:gravity="center"
         android:text="Đang gọi tới"
         android:textSize="50sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/message_guidelinebottom"
+        app:layout_constraintBottom_toTopOf="@+id/avatar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/message_guidelinetop" />
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/avatar"
@@ -93,21 +86,7 @@
         app:layout_constraintBottom_toBottomOf="@id/name_guidelinebottom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/name_guidelinetop" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/button_guidelinetop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.8" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/button_guidelinebottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.9" />
+        app:layout_constraintTop_toBottomOf="@+id/avatar" />
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/btn_cancel"
