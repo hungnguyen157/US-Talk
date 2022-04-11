@@ -34,7 +34,6 @@ public class UserAdapter extends ArrayAdapter<User> {
 //        this.avatars = avatars;
 //        this.lastMsg = lastMsg;
     }
-
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = ((Activity) context).getLayoutInflater();

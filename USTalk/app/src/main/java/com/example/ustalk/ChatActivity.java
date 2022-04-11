@@ -155,11 +155,6 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
     private void loadReceiverDetails()
     {
         receiveID = getIntent().getStringExtra("receiveID");
-        receivename = getIntent().getStringExtra("name");
-        receiveimage=getIntent().getStringExtra("imageProfile");
-        receiveToken = getIntent().getStringExtra("token");
-        name.setText(receivename);
-        Glide.with(getApplicationContext()).load(receiveimage).into(avatar);
 
         if (receiveID.equals(preferenceManager.getString("UID"))){
             btn_call.setVisibility(View.INVISIBLE);
@@ -177,6 +172,11 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 }
                 if (value != null && value.exists()) {
                     boolean status = value.getBoolean("online");
+                    receivename = value.getString("name");
+                    receiveimage = value.getString("imageProfile");
+                    receiveToken = value.getString("token");
+                    name.setText(receivename);
+                    Glide.with(getApplicationContext()).load(receiveimage).into(avatar);
                     if (status) {
                         online_signal.setVisibility(View.VISIBLE);
                     }
