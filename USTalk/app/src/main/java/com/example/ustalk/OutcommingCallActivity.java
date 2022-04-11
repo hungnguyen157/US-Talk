@@ -21,7 +21,6 @@ import com.example.ustalk.network.ApiClient;
 import com.example.ustalk.network.ApiService;
 import com.example.ustalk.utilities.Constants;
 import com.example.ustalk.utilities.CurrentUserDetails;
-import com.example.ustalk.utilities.PreferenceManager;
 
 import org.jitsi.meet.sdk.JitsiMeetActivity;
 import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
@@ -53,10 +52,10 @@ public class OutcommingCallActivity extends AppCompatActivity {
         setContentView(R.layout.activity_outcomming_call);
 
         //get widgets
-        callImageType = (ImageView) findViewById(R.id.callImageType);
-        avatar = (CircleImageView) findViewById(R.id.avatar);
-        btn_cancel = (ImageView) findViewById(R.id.btn_cancel);
-        name = (TextView) findViewById(R.id.name);
+        callImageType = findViewById(R.id.callImageType);
+        avatar = findViewById(R.id.avatar);
+        btn_cancel = findViewById(R.id.btn_cancel);
+        name = findViewById(R.id.name);
 
         //set data
         meetingType = getIntent().getStringExtra("type");
@@ -65,7 +64,7 @@ public class OutcommingCallActivity extends AppCompatActivity {
         receiverName = getIntent().getStringExtra("name");
         receiverAvatar = getIntent().getStringExtra("avatar");
         Glide.with(getApplicationContext()).load(receiverAvatar).into(avatar);
-        name.setText(getIntent().getStringExtra(receiverName));
+        name.setText(receiverName);
         if (meetingType.equals("video")){
             callImageType.setImageResource(R.drawable.video_icon);
         }

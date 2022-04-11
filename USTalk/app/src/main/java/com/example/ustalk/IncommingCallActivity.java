@@ -16,11 +16,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.bumptech.glide.Glide;
-import com.example.ustalk.models.User;
 import com.example.ustalk.network.ApiClient;
 import com.example.ustalk.network.ApiService;
 import com.example.ustalk.utilities.Constants;
-import com.example.ustalk.utilities.CurrentUserDetails;
 
 import org.jitsi.meet.sdk.JitsiMeetActivity;
 import org.jitsi.meet.sdk.JitsiMeetConferenceOptions;
@@ -50,11 +48,11 @@ public class IncommingCallActivity extends AppCompatActivity {
         setContentView(R.layout.activity_incomming_call);
 
         //get widgets
-        callImageType = (ImageView) findViewById(R.id.callImageType);
-        avatar = (CircleImageView) findViewById(R.id.avatar);
-        btn_accept = (ImageView) findViewById(R.id.btn_accept);
-        btn_reject = (ImageView) findViewById(R.id.btn_reject);
-        name = (TextView) findViewById(R.id.name);
+        callImageType = findViewById(R.id.callImageType);
+        avatar = findViewById(R.id.avatar);
+        btn_accept = findViewById(R.id.btn_accept);
+        btn_reject = findViewById(R.id.btn_reject);
+        name = findViewById(R.id.name);
 
         //set data
         meetingType = getIntent().getStringExtra(Constants.KEY_MSG_MEETING_TYPE);
@@ -110,7 +108,6 @@ public class IncommingCallActivity extends AppCompatActivity {
     }
 
     private void sendRemoteMessage(String remoteMessageBody, String type){
-        System.out.println("OK2");
         ApiClient.getClient().create(ApiService.class).sendMessage(
                 Constants.getRemoteMessageHeaders(), remoteMessageBody
         ).enqueue(new Callback<String>() {
@@ -147,7 +144,6 @@ public class IncommingCallActivity extends AppCompatActivity {
                     }
                 }
                 else{
-                    System.out.println("NOT OK");
                     Toast.makeText(IncommingCallActivity.this,
                             response.message(), Toast.LENGTH_SHORT).show();
                 }

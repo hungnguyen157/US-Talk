@@ -52,8 +52,6 @@ public class MessagingService extends FirebaseMessagingService {
     {
         super.onMessageReceived(remoteMessage);
 
-        System.out.println("Something");
-
         Map<String, String> data = remoteMessage.getData();
         String type = data.get(Constants.KEY_MSG_TYPE);
 
