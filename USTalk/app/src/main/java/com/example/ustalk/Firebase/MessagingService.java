@@ -34,18 +34,19 @@ import java.util.Random;
 
 public class MessagingService extends FirebaseMessagingService {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-    //PreferenceManager preferenceManager = new PreferenceManager(getApplicationContext());
+    PreferenceManager preferenceManager;
 
     @Override
     public void onNewToken(@NonNull String token)
     {
         super.onNewToken(token);
 
-//        String uid = preferenceManager.getString("UID");
-//        if (uid != null) {
-//            db.collection("users").document(uid).update("token", token)
-//                    .addOnFailureListener(e -> Log.e("updateNewToken", e.getMessage()));
-//        }
+        preferenceManager = new PreferenceManager(getApplicationContext());
+        String uid = preferenceManager.getString("UID");
+        if (uid != null) {
+            db.collection("users").document(uid).update("token", token)
+                    .addOnFailureListener(e -> Log.e("updateNewToken", e.getMessage()));
+        }
     }
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage)
     {

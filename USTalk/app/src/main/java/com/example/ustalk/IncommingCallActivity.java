@@ -169,6 +169,7 @@ public class IncommingCallActivity extends AppCompatActivity {
             String type = intent.getStringExtra(Constants.KEY_MSG_INVITATION_RESPONSE);
             if (type != null){
                 if (type.equals(Constants.KEY_MSG_INVITATION_CANCELED)){
+                    Toast.makeText(context,"Cuộc gọi bị huỷ", Toast.LENGTH_SHORT).show();
                     finish();
                 }
             }
