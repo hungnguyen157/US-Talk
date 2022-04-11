@@ -1,8 +1,5 @@
 package com.example.ustalk;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Shader;
@@ -14,8 +11,11 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -25,6 +25,7 @@ public class ForgotPasswordActivity extends OnlineActivity {
     TextView txtTitle;
     EditText editEmail;
     Button btnNext;
+    ImageView btnBack;
     String email;
 
     @Override
@@ -32,9 +33,10 @@ public class ForgotPasswordActivity extends OnlineActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forgot_password);
 
-        txtTitle = (TextView) findViewById(R.id.txtTitle);
-        editEmail = (EditText) findViewById(R.id.editEmail);
-        btnNext = (Button) findViewById(R.id.btnNext);
+        txtTitle = findViewById(R.id.txtTitle);
+        editEmail = findViewById(R.id.editEmail);
+        btnBack = findViewById(R.id.btnBack);
+        btnNext = findViewById(R.id.btnNext);
         btnNext.setEnabled(false);
 
         //set gradient color for title
@@ -94,6 +96,13 @@ public class ForgotPasswordActivity extends OnlineActivity {
                                 }
                             }
                         });
+            }
+        });
+
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
             }
         });
     }

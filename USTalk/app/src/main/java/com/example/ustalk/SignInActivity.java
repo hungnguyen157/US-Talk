@@ -34,7 +34,7 @@ public class SignInActivity extends Activity implements View.OnClickListener {
     private FirebaseAuth mAuth;
     FirebaseFirestore db;
 
-    TextView signup, txt_label;
+    TextView txt_forgot_password, signup, txt_label;
     ImageView logo;
     EditText editEmail, editPassword;
     Button btnSignIn;
@@ -54,6 +54,7 @@ public class SignInActivity extends Activity implements View.OnClickListener {
 
         btnSignIn.setOnClickListener(this);
         signup.setOnClickListener(this);
+        txt_forgot_password.setOnClickListener(this);
 
         //Make the label become gradient
         TextPaint txt_paint = txt_label.getPaint();
@@ -77,6 +78,7 @@ public class SignInActivity extends Activity implements View.OnClickListener {
         editPassword = findViewById(R.id.editPassword);
         progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
+        txt_forgot_password = findViewById(R.id.txt_forgot_password);
         signup = findViewById(R.id.signup);
         txt_label = findViewById(R.id.txt_label);
         logo = findViewById(R.id.logo);
@@ -96,6 +98,9 @@ public class SignInActivity extends Activity implements View.OnClickListener {
                 break;
             case R.id.signup:
                 startActivity(new Intent(getApplicationContext(), SignUpActivity.class));
+                break;
+            case R.id.txt_forgot_password:
+                startActivity(new Intent(getApplicationContext(), ForgotPasswordActivity.class));
                 break;
         }
     }
