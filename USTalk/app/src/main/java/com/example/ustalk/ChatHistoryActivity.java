@@ -20,8 +20,6 @@ import com.example.ustalk.models.User;
 import com.example.ustalk.utilities.CurrentUserDetails;
 import com.example.ustalk.utilities.PreferenceManager;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -41,13 +39,10 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
     ListView userList;
     ArrayList<User> users = new ArrayList<>();
     CircleImageView profileImage;
-    private ArrayList<String> uids = new ArrayList<>();
-    private ArrayList<String> name = new ArrayList<>();
-    private ArrayList<String> image = new ArrayList<>();
-    private ArrayList<String> tokens = new ArrayList<>();
+    private final ArrayList<String> uids = new ArrayList<>();
     FirebaseFirestore db;
     PreferenceManager prefManager;
-    private int REQUEST_CODE_BATTERY_OPTIMIZATION = 1;
+    private final int REQUEST_CODE_BATTERY_OPTIMIZATION = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,17 +118,6 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         User user = document.toObject(User.class);
                         uids.add(document.getId());
-                        name.add(user.name);
-                        tokens.add(user.token);
-                        if(user.imageProfile == null)
-                        {
-                            user.setImage("https://firebasestorage.googleapis.com/v0/b/us-talk.appspot.com/o/Avatar%2F164905463799677ci49SJ4JOzmqC7lzPwVW9Axh42?alt=media&token=6e779a68-2e10-414b-b8e6-ff6d2851f34b");
-                            image.add("https://firebasestorage.googleapis.com/v0/b/us-talk.appspot.com/o/Avatar%2F164905463799677ci49SJ4JOzmqC7lzPwVW9Axh42?alt=media&token=6e779a68-2e10-414b-b8e6-ff6d2851f34b");
-                        }
-                        else
-                        {
-                            image.add(user.imageProfile);
-                        }
                         users.add(user);
                     }
                     userList.setAdapter(new UserAdapter(ChatHistoryActivity.this, R.layout.custom_user_row, users));
@@ -142,13 +126,8 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
                         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                             String myUid = CurrentUserDetails.getInstance().getUid();
                             String theirUid = uids.get(i);
-                            String image1 = image.get(i);
-                            String name1 = name.get(i);
                             Intent intent = new Intent(ChatHistoryActivity.this, ChatActivity.class);
-                            intent.putExtra("imageProfile", image1);
-                            intent.putExtra("name",name1);
                             intent.putExtra("receiveID",theirUid);
-                            intent.putExtra("token", tokens.get(i));
                             startActivity(intent);
                         }
                     });
