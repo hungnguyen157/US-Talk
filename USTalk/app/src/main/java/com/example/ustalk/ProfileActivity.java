@@ -1,50 +1,28 @@
 package com.example.ustalk;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.accessibilityservice.AccessibilityService;
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ContentProvider;
-import android.content.ContentResolver;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
-import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.bumptech.glide.Glide;
-import com.example.ustalk.databinding.ActivityProfileBinding;
-import com.example.ustalk.models.User;
 import com.example.ustalk.utilities.CurrentUserDetails;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -52,33 +30,10 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.util.HashMap;
-import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ProfileActivity extends OnlineActivity implements View.OnClickListener {
-//    ImageButton btnBack;
-//    Button btnEdit;
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_profile);
-//        btnBack = (ImageButton) findViewById(R.id.btnBack);
-//        btnEdit = (Button) findViewById(R.id.btnEdit);
-//        btnEdit.setOnClickListener(this);
-//        btnBack.setOnClickListener(this);
-//    }
-//
-//    @Override
-//    public void onClick(View view) {
-//        switch(view.getId()){
-//            case R.id.btnEdit:{
-//                startActivity(new Intent(getApplicationContext(), EditProfile.class));
-//                break;
-//            }
-//        }
-//    }
-//widget variables
     ImageView btnBack;
     CircleImageView profile_image;
     FloatingActionButton fab;
@@ -92,11 +47,14 @@ public class ProfileActivity extends OnlineActivity implements View.OnClickListe
     FirebaseFirestore fireStore;
     ProgressDialog progressDialog;
     int flag =0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+
         fireStore = FirebaseFirestore.getInstance();
+
         //get widgets
         editEmail = (TextView) findViewById(R.id.editEmail);
         btnBack = (ImageView) findViewById(R.id.btnBack);
@@ -186,11 +144,11 @@ public class ProfileActivity extends OnlineActivity implements View.OnClickListe
                             String imageProfile = documentSnapshot.getString("imageProfile");
                             editName.setText(userName);
                             editEmail.setText(email);
-                            if(sex.equals("Nam"))
+                            if(sex.equals("Male"))
                                 rbtn_male.setChecked(true);
                             else
                                 rbtn_female.setChecked(true);
-                            Glide.with(ProfileActivity.this).load(imageProfile).into(profile_image);
+                            Glide.with(getApplicationContext()).load(imageProfile).into(profile_image);
                     }
                 }
     });
