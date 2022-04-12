@@ -454,9 +454,6 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         recycler_view_message.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                System.out.println(recycler_view_message.getHeight());
-                System.out.println(make_message_field.getTop() - toolbar.getBottom());
-
                 int height = make_message_field.getTop() - toolbar.getBottom();
                 if (recycler_view_message.getHeight() >= height && !isKeyboardShowing){
                     recycler_view_message.getLayoutParams().height = height;
@@ -470,7 +467,6 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
-                        System.out.println(recycler_view_message.getHeight());
                         chat_box_scrollview.postDelayed(new Runnable() {
                             @Override
                             public void run() {

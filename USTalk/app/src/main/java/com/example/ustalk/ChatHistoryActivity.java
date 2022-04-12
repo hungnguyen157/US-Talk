@@ -87,6 +87,7 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
                     if (!newToken.equals(user.token)) {
                         db.collection("users").document(uid).update("token", newToken)
                                 .addOnFailureListener(e -> Log.e("token", e.getMessage()));
+                        user.token = newToken;
                     }
                 })
                 .addOnFailureListener(e -> Log.e("updateToken", e.getMessage()));
