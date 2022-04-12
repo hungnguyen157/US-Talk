@@ -90,9 +90,7 @@ public class ForgotPasswordActivity extends OnlineActivity {
                                     onBackPressed();
                                 }
                                 else{
-                                    makeToast("Đã có lỗi xảy ra khi chúng tôi cố gửi cho bạn " +
-                                            "đường link đặt lại mật khẩu.\n" +
-                                            "Xin hãy kiểm tra lại đường truyền mạng hoặc thử lại sau");
+                                    makeToast("Email không khớp với bất kỳ tài khoản nào trên hệ thống");
                                 }
                             }
                         });
