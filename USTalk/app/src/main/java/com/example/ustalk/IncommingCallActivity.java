@@ -123,7 +123,6 @@ public class IncommingCallActivity extends AppCompatActivity {
                             URL serverURL = new URL("https://meet.jit.si");
                             JitsiMeetConferenceOptions.Builder builder = new JitsiMeetConferenceOptions.Builder();
                             builder.setServerURL(serverURL);
-                            builder.setWelcomePageEnabled(false);
                             builder.setRoom(getIntent().getStringExtra(Constants.KEY_MSG_MEETING_ROOM));
                             builder.setVideoMuted(false);
                             if (meetingType.equals("audio")){
