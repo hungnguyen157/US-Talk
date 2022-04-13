@@ -189,6 +189,7 @@ public class OutcommingCallActivity extends AppCompatActivity {
                         URL serverURL = new URL("https://meet.jit.si");
                         JitsiMeetConferenceOptions.Builder builder = new JitsiMeetConferenceOptions.Builder();
                         builder.setServerURL(serverURL);
+                        builder.setWelcomePageEnabled(false);
                         builder.setRoom(meetingRoom);
                         builder.setVideoMuted(false);
                         if (meetingType.equals("audio")){
