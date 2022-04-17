@@ -88,7 +88,7 @@ public class SettingActivity extends OnlineActivity implements View.OnClickListe
         }
         else if(view.getId() == Notifiation.getId())
         {
-
+            startActivity(new Intent(getApplicationContext(),NotificationSettingActivity.class));
         }
         else if(view.getId() == btnSignOut.getId())
         {

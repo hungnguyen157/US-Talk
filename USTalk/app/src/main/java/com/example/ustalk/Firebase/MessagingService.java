@@ -28,6 +28,8 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -37,11 +39,16 @@ public class MessagingService extends FirebaseMessagingService {
     PreferenceManager preferenceManager;
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+        preferenceManager = new PreferenceManager(getApplicationContext());
+    }
+
+    @Override
     public void onNewToken(@NonNull String token)
     {
         super.onNewToken(token);
 
-        if (preferenceManager == null) preferenceManager = new PreferenceManager(getApplicationContext());
         String uid = preferenceManager.getString("UID");
         if (uid != null) {
             db.collection("users").document(uid).update("token", token)
@@ -64,6 +71,18 @@ public class MessagingService extends FirebaseMessagingService {
     }
 
     public void onNotificationMessageReceived(Map<String, String> data){
+        String offTimeString = preferenceManager.getString("whenNotificationOff");
+        String offDurationString = preferenceManager.getString("durationNotificationOff");
+        if (offDurationString != null && offTimeString != null) {
+            Long offDuration = Long.valueOf(offDurationString);
+            Instant offTime = Instant.parse(offTimeString);
+            Instant now = Instant.now();
+            Duration duration = Duration.between(offTime, now);
+            if (offDuration == -1 || duration.toMinutes() <= offDuration) return;
+            preferenceManager.remove("whenNotificationOff");
+            preferenceManager.remove("durationNotificationOff");
+        }
+
         String uid = data.get("uid");
         db.document("users/" + uid).get().addOnSuccessListener(documentSnapshot -> {
             User user = documentSnapshot.toObject(User.class);
@@ -72,10 +91,7 @@ public class MessagingService extends FirebaseMessagingService {
 
             Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//            intent.putExtra("name", name);
-//            intent.putExtra("imageProfile", user.imageProfile);
             intent.putExtra("receiveID", uid);
-//            intent.putExtra("token", user.token);
             PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
 
             String channelId = "chatMessage";
