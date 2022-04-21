@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.bumptech.glide.Glide;
 import com.example.ustalk.models.ChatMessage;
@@ -448,6 +449,12 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                                 getApplicationContext(), make_message_fieldListView, color);
                     }
                 });
+
+        //remove animation when add new message to recycler_view_message
+        RecyclerView.ItemAnimator animator = recycler_view_message.getItemAnimator();
+        if (animator instanceof SimpleItemAnimator) {
+            ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
+        }
 
         //handle chat box behaviour when keyboard appears
         recycler_view_message.setFocusable(false);
