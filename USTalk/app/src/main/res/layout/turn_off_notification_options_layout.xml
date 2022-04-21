@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/custom_notification_dialog_background"
+    android:orientation="vertical">
+    <TextView
+        android:id="@+id/dialogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:text="@string/turn_off_notification"
+        android:textSize="25sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:gravity="center"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/black"/>
+
+    <TextView
+        android:id="@+id/txt15Minutes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
+        android:text="@string/in_15_minutes"
+        android:textSize="25sp"
+        android:textColor="@color/purple_700"
+        android:gravity="center"
+        android:paddingVertical="15dp"
+        android:background="@drawable/custom_ripple_background"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/black"/>
+
+    <TextView
+        android:id="@+id/txt30Minutes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
+        android:text="@string/in_30_minutes"
+        android:textSize="25sp"
+        android:textColor="@color/purple_700"
+        android:gravity="center"
+        android:paddingVertical="15dp"
+        android:background="@drawable/custom_ripple_background"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/black"/>
+
+    <TextView
+        android:id="@+id/txt60Minutes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
+        android:text="@string/in_60_minutes"
+        android:textSize="25sp"
+        android:textColor="@color/purple_700"
+        android:gravity="center"
+        android:paddingVertical="15dp"
+        android:background="@drawable/custom_ripple_background"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/black"/>
+
+    <TextView
+        android:id="@+id/txtUntilITurnOn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
+        android:text="@string/until_i_turn_on_again"
+        android:textSize="25sp"
+        android:textColor="@color/purple_700"
+        android:gravity="center"
+        android:paddingVertical="15dp"
+        android:background="@drawable/custom_ripple_background"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/black"/>
+
+    <TextView
+        android:id="@+id/txtCancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hủy"
+        android:textSize="25sp"
+        android:textColor="@color/purple_700"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:paddingVertical="15dp"
+        android:background="@drawable/custom_ripple_background"/>
+</LinearLayout>

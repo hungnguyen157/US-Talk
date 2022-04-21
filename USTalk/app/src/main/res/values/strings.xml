@@ -31,4 +31,9 @@
     <string name="logout">Đăng xuất</string>
     <string name="profile">Hồ sơ</string>
     <string name="reset_password">Đặt lại mật khẩu</string>
+    <string name="turn_off_notification">Tắt thông báo</string>
+    <string name="in_15_minutes">Trong 15 phút</string>
+    <string name="in_30_minutes">Trong 30 phút</string>
+    <string name="in_60_minutes">Trong 60 phút</string>
+    <string name="until_i_turn_on_again">Cho đến khi tôi bật lại</string>
 </resources>
