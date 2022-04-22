@@ -34,6 +34,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageView
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:elevation="6dp"
+            android:background="@android:color/transparent"
+            android:paddingTop="15dp"
+            android:src="@drawable/react_heart"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/sent_image"
+            app:layout_constraintStart_toStartOf="@+id/sent_image"
+            app:layout_constraintTop_toBottomOf="@+id/sent_image" />
+
         <TextView
             android:id="@+id/time_sent"
             android:layout_width="wrap_content"

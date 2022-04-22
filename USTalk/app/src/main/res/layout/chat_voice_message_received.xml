@@ -57,6 +57,17 @@
             app:layout_constraintTop_toTopOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <ImageView
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:background="@android:color/transparent"
+        android:paddingTop="15dp"
+        android:src="@drawable/react_heart"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/voice_layout"
+        app:layout_constraintEnd_toEndOf="@+id/voice_layout"
+        app:layout_constraintTop_toBottomOf="@+id/voice_layout" />
+
     <TextView
         android:id="@+id/time_received"
         android:layout_width="wrap_content"
