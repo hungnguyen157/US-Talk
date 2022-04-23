@@ -47,14 +47,11 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.Date;
 import java.util.EventListener;
 import java.util.HashMap;
-import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
@@ -292,16 +289,14 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                                                                     .getLong("senderFeeling"));
                         chatMessage.receiverFeeling = (int)((long)documentChange.getDocument()
                                                                     .getLong("receiverFeeling"));
-                    } catch (Exception ex) {
-                        System.out.println("Not OK");
-                        chatMessage.feeling = -1;
+                    } catch (NullPointerException ex) {
                         chatMessage.senderFeeling = -1;
                         chatMessage.receiverFeeling = -1;
                     }
                     Message.add(chatMessage);
                 }
             }
-            Collections.sort(Message,(obj1,obj2)->obj1.dateObject.compareTo(obj2.dateObject));
+            Message.sort((obj1, obj2) -> obj1.dateObject.compareTo(obj2.dateObject));
             if(count == 0)
             {
                 chatAdapter.notifyDataSetChanged();
@@ -421,11 +416,6 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 break;
             }
         }
-    }
-
-    private String getReadableDateTime(Date date)
-    {
-        return new SimpleDateFormat("hh:mm", Locale.getDefault()).format(date);
     }
 
     public void changeImageViewTintColor(Context context, ImageView[] listView, int color){
