@@ -57,25 +57,47 @@
             app:layout_constraintTop_toTopOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageView
-        android:id="@+id/imgReact"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
-        android:elevation="6dp"
-        android:paddingTop="17dp"
-        android:src="@drawable/react_heart"
-        android:visibility="invisible"
+    <LinearLayout
+        android:id="@+id/linearLayout5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="15dp"
+        app:layout_constraintHorizontal_bias="1"
         app:layout_constraintBottom_toBottomOf="@+id/voice_layout"
         app:layout_constraintEnd_toEndOf="@+id/voice_layout"
-        app:layout_constraintTop_toBottomOf="@+id/voice_layout" />
+        app:layout_constraintStart_toStartOf="@+id/voice_layout"
+        app:layout_constraintTop_toBottomOf="@+id/voice_layout">
+        <LinearLayout
+            android:id="@+id/feelingsList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/custom_rounded_lightgray_background"
+            android:elevation="6dp"
+            android:orientation="horizontal"
+            android:paddingHorizontal="2dp"
+            android:paddingVertical="5dp">
+            <ImageView
+                android:id="@+id/imgSenderReact"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:elevation="6dp"
+                android:src="@drawable/react_heart" />
+
+            <ImageView
+                android:id="@+id/imgReceiverReact"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:elevation="6dp"
+                android:src="@drawable/react_heart" />
+        </LinearLayout>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/time_received"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="3dp"
         android:text="this is sent time"
         android:textSize="15sp"
         app:layout_constraintStart_toStartOf="@+id/voice_layout"
-        app:layout_constraintTop_toBottomOf="@+id/imgReact" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout5" />
 </androidx.constraintlayout.widget.ConstraintLayout>

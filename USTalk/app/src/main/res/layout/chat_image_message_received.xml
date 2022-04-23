@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white">
@@ -33,26 +34,50 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/imgReact"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
+        <LinearLayout
+            android:id="@+id/linearLayout5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:elevation="6dp"
-            android:paddingTop="17dp"
-            android:src="@drawable/react_heart"
-            android:visibility="invisible"
+            android:paddingTop="15dp"
+            app:layout_constraintHorizontal_bias="1"
             app:layout_constraintBottom_toBottomOf="@+id/received_image"
             app:layout_constraintEnd_toEndOf="@+id/received_image"
-            app:layout_constraintTop_toBottomOf="@+id/received_image" />
+            app:layout_constraintStart_toStartOf="@+id/received_image"
+            app:layout_constraintTop_toBottomOf="@+id/received_image">
+            <LinearLayout
+                android:id="@+id/feelingsList"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/custom_rounded_lightgray_background"
+                android:elevation="6dp"
+                android:orientation="horizontal"
+                android:paddingHorizontal="2dp"
+                android:paddingVertical="5dp">
+
+                <ImageView
+                    android:id="@+id/imgSenderReact"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:elevation="6dp"
+                    android:src="@drawable/react_heart" />
+
+                <ImageView
+                    android:id="@+id/imgReceiverReact"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:elevation="6dp"
+                    android:src="@drawable/react_heart" />
+            </LinearLayout>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/time_received"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="3dp"
             android:text="this is received time"
             android:textSize="15sp"
             app:layout_constraintStart_toStartOf="@+id/received_image"
-            app:layout_constraintTop_toBottomOf="@+id/imgReact" />
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout5"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

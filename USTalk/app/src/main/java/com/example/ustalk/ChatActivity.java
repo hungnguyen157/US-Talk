@@ -199,7 +199,8 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         mes.put("Message", message);
         mes.put("Time", new Date());
         mes.put("sendimage", false);
-        mes.put("feeling", -1);
+        mes.put("senderFeeling", -1);
+        mes.put("receiverFeeling", -1);
         database.collection("chat").add(mes);
         edit_chat.setText(null);
         System.out.println(preferenceManager.getString("UID"));
@@ -287,9 +288,15 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                     chatMessage.dateObject = documentChange.getDocument().getDate("Time");
                     chatMessage.sendimage = documentChange.getDocument().getBoolean("sendimage");
                     try {
-                        chatMessage.feeling = documentChange.getDocument().getLong("feeling");
+                        chatMessage.senderFeeling = (int)((long)documentChange.getDocument()
+                                                                    .getLong("senderFeeling"));
+                        chatMessage.receiverFeeling = (int)((long)documentChange.getDocument()
+                                                                    .getLong("receiverFeeling"));
                     } catch (Exception ex) {
+                        System.out.println("Not OK");
                         chatMessage.feeling = -1;
+                        chatMessage.senderFeeling = -1;
+                        chatMessage.receiverFeeling = -1;
                     }
                     Message.add(chatMessage);
                 }
@@ -329,7 +336,8 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 mes.put("Message", getReceiveimage);
                 mes.put("Time", new Date());
                 mes.put("sendimage",true);
-                mes.put("feeling", -1);
+                mes.put("senderFeeling", -1);
+                mes.put("receiverFeeling", -1);
                 database.collection("chat").add(mes);
                 sentMessage = true;
             } catch (FileNotFoundException e) {

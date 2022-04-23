@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_textview"
             android:backgroundTint="@android:color/transparent"
-            android:paddingHorizontal="20dp"
+            android:paddingHorizontal="22dp"
             android:paddingTop="7dp"
             android:paddingBottom="10dp"
             android:text="this is a sent message"
@@ -39,25 +39,49 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
 
-        <ImageView
-            android:id="@+id/imgReact"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:elevation="6dp"
-            android:paddingTop="17dp"
-            android:src="@drawable/react_heart"
+        <LinearLayout
+            android:id="@+id/linearLayout5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="15dp"
             app:layout_constraintBottom_toBottomOf="@+id/sent_text"
+            app:layout_constraintEnd_toEndOf="@+id/sent_text"
+            app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="@+id/sent_text"
-            app:layout_constraintTop_toBottomOf="@+id/sent_text" />
+            app:layout_constraintTop_toBottomOf="@+id/sent_text">
+            <LinearLayout
+                android:id="@+id/feelingsList"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/custom_rounded_lightgray_background"
+                android:elevation="6dp"
+                android:layoutDirection="rtl"
+                android:orientation="horizontal"
+                android:paddingHorizontal="2dp"
+                android:paddingVertical="5dp">
+                <ImageView
+                    android:id="@+id/imgSenderReact"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:elevation="6dp"
+                    android:src="@drawable/react_heart" />
+
+                <ImageView
+                    android:id="@+id/imgReceiverReact"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:elevation="6dp"
+                    android:src="@drawable/react_heart" />
+            </LinearLayout>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/time_sent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="3dp"
             android:text="this is sent time"
             android:textSize="15sp"
             app:layout_constraintEnd_toEndOf="@+id/sent_text"
-            app:layout_constraintTop_toBottomOf="@+id/imgReact" />
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout5" />
     </com.example.ustalk.BackgroundAwareLayout>
 </com.example.ustalk.BackgroundAwareLayout>

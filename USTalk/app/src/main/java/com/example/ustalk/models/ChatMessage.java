@@ -9,4 +9,6 @@ public class ChatMessage {
     public Date dateObject,time;
     public boolean sendimage;
     public long feeling;
+    public int senderFeeling;
+    public int receiverFeeling;
 }
