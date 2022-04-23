@@ -40,9 +40,11 @@
             app:layout_constraintTop_toTopOf="parent"/>
 
         <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:paddingTop="12dp"
+            android:id="@+id/imgReact"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:elevation="6dp"
+            android:paddingTop="17dp"
             android:src="@drawable/react_heart"
             app:layout_constraintBottom_toBottomOf="@+id/sent_text"
             app:layout_constraintStart_toStartOf="@+id/sent_text"
@@ -56,6 +58,6 @@
             android:text="this is sent time"
             android:textSize="15sp"
             app:layout_constraintEnd_toEndOf="@+id/sent_text"
-            app:layout_constraintTop_toBottomOf="@+id/sent_text"/>
+            app:layout_constraintTop_toBottomOf="@+id/imgReact" />
     </com.example.ustalk.BackgroundAwareLayout>
 </com.example.ustalk.BackgroundAwareLayout>

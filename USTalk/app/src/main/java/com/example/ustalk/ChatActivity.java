@@ -126,7 +126,6 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
 
         init();
         loadReceiverDetails();
-        ListenMes();
 
         //add Views to 2 list Views
         toolbarListView = new ImageView[3];
@@ -141,6 +140,8 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         make_message_fieldListView[3] = btn_send;
 
         cloneMessengerChatBox();
+
+        ListenMes();
     }
     private void init()
     {
@@ -191,15 +192,16 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
     }
     public void SendMes()
     {
-            String message = edit_chat.getText().toString();HashMap<String, Object> mes = new HashMap<>();
-            mes.put("senderID", preferenceManager.getString("UID"));
-            mes.put("RecceiveID", receiveID);
-            mes.put("Message", message);
-            mes.put("Time", new Date());
-            mes.put("sendimage",false);
-            database.collection("chat").add(mes);
-            edit_chat.setText(null);
-            System.out.println(preferenceManager.getString("UID"));sendNotification(message);
+        String message = edit_chat.getText().toString();HashMap<String, Object> mes = new HashMap<>();
+        mes.put("senderID", preferenceManager.getString("UID"));
+        mes.put("RecceiveID", receiveID);
+        mes.put("Message", message);
+        mes.put("Time", new Date());
+        mes.put("sendimage", false);
+        mes.put("feeling", -1);
+        database.collection("chat").add(mes);
+        edit_chat.setText(null);
+        System.out.println(preferenceManager.getString("UID"));sendNotification(message);
     }
 
     private void sendNotification(String message) {
@@ -274,12 +276,18 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
             {
                 if(documentChange.getType() == DocumentChange.Type.ADDED){
                     ChatMessage chatMessage = new ChatMessage();
+                    chatMessage.id = documentChange.getDocument().getId();
                     chatMessage.senderID = documentChange.getDocument().getString("senderID");
                     chatMessage.receicedID = documentChange.getDocument().getString("RecceiveID");
                     chatMessage.message = documentChange.getDocument().getString("Message");
                     chatMessage.time = documentChange.getDocument().getDate("Time");
                     chatMessage.dateObject = documentChange.getDocument().getDate("Time");
                     chatMessage.sendimage = documentChange.getDocument().getBoolean("sendimage");
+                    try {
+                        chatMessage.feeling = documentChange.getDocument().getLong("feeling");
+                    } catch (Exception ex) {
+                        chatMessage.feeling = -1;
+                    }
                     Message.add(chatMessage);
                 }
             }
@@ -315,6 +323,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 mes.put("Message", getReceiveimage);
                 mes.put("Time", new Date());
                 mes.put("sendimage",true);
+                mes.put("feeling", -1);
                 database.collection("chat").add(mes);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();

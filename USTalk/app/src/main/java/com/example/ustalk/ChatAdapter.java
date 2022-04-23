@@ -1,17 +1,24 @@
 package com.example.ustalk;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
@@ -25,6 +32,7 @@ import com.example.ustalk.databinding.ChatVoiceMessageReceivedBinding;
 import com.example.ustalk.databinding.ChatVoiceMessageSentBinding;
 import com.example.ustalk.models.ChatMessage;
 import com.example.ustalk.utilities.AudioService;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -182,30 +190,140 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         }
     }
 
+    private void showReactPicker(ChatMessage chatMessage, ImageView imgReact){
+        Dialog dialog = new Dialog(context);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.react_picker_layout);
+        dialog.setCanceledOnTouchOutside(true);
+
+        ImageView btnLike, btnLove, btnHaha, btnWow, btnSad, btnAngry, btnChosenReact;
+        btnLike = dialog.findViewById(R.id.btnLike);
+        btnLove = dialog.findViewById(R.id.btnLove);
+        btnHaha = dialog.findViewById(R.id.btnHaha);
+        btnWow = dialog.findViewById(R.id.btnWow);
+        btnSad = dialog.findViewById(R.id.btnSad);
+        btnAngry = dialog.findViewById(R.id.btnAngry);
+
+
+        btnLike.setOnClickListener(view ->
+                chooseReactEmotion(chatMessage, R.drawable.react_like, dialog, imgReact));
+        btnLove.setOnClickListener(view ->
+                chooseReactEmotion(chatMessage, R.drawable.react_heart, dialog, imgReact));
+        btnHaha.setOnClickListener(view ->
+                chooseReactEmotion(chatMessage, R.drawable.react_haha, dialog, imgReact));
+        btnWow.setOnClickListener(view ->
+                chooseReactEmotion(chatMessage, R.drawable.react_wow, dialog, imgReact));
+        btnSad.setOnClickListener(view ->
+                chooseReactEmotion(chatMessage, R.drawable.react_sad, dialog, imgReact));
+        btnAngry.setOnClickListener(view ->
+                chooseReactEmotion(chatMessage, R.drawable.react_angry, dialog, imgReact));
+
+        int chosenReact = (int)chatMessage.feeling;
+        btnChosenReact = null;
+        switch (chosenReact) {
+            case (R.drawable.react_like): {
+                btnChosenReact = btnLike;
+                break;
+            }
+            case (R.drawable.react_heart): {
+                btnChosenReact = btnLove;
+                break;
+            }
+            case (R.drawable.react_haha): {
+                btnChosenReact = btnHaha;
+                break;
+            }
+            case (R.drawable.react_wow): {
+                btnChosenReact = btnWow;
+                break;
+            }
+            case (R.drawable.react_sad): {
+                btnChosenReact = btnSad;
+                break;
+            }
+            case (R.drawable.react_angry): {
+                btnChosenReact = btnAngry;
+                break;
+            }
+        }
+        if (btnChosenReact != null) {
+            btnChosenReact.setBackgroundTintList(ColorStateList.valueOf(context.getColor(R.color.light_gray)));
+        }
+
+        dialog.show();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setGravity(Gravity.CENTER);
+    }
+
+    private void chooseReactEmotion(ChatMessage chatMessage, int reactId, Dialog dialog, ImageView imgReact){
+        final FirebaseFirestore database = FirebaseFirestore.getInstance();;
+        if (chatMessage.feeling != reactId) {
+            chatMessage.feeling = reactId;
+        }
+        else {
+            chatMessage.feeling = -1;
+        }
+        setReactImage(imgReact, (int)chatMessage.feeling);
+        database.collection("chat").document(chatMessage.id).update("feeling", chatMessage.feeling);
+
+        dialog.dismiss();
+    }
+
+    private void setReactImage(ImageView imgReact, int feeling) {
+        if (feeling == -1) {
+            imgReact.getLayoutParams().height = 0;
+            imgReact.setVisibility(View.INVISIBLE);
+        }
+        else {
+            imgReact.setImageResource(feeling);
+            imgReact.getLayoutParams().height = imgReact.getLayoutParams().width;
+            imgReact.setVisibility(View.VISIBLE);
+        }
+        imgReact.requestLayout();
+    }
+
     //Needed ViewHolder classes
     private class SentMessageViewHolder extends RecyclerView.ViewHolder{
-        private final ChatTextMessageSentBinding biding;
+        private final ChatTextMessageSentBinding binding;
         public SentMessageViewHolder(ChatTextMessageSentBinding chatTextMessageSentBinding) {
             super(chatTextMessageSentBinding.getRoot());
-            biding = chatTextMessageSentBinding;
+            binding = chatTextMessageSentBinding;
         }
         public void setData(ChatMessage chatMessage)
         {
-            biding.sentText.setText(chatMessage.message);
-            biding.timeSent.setText(getReadableDateTime(chatMessage.time));
+            binding.sentText.setText(chatMessage.message);
+            binding.timeSent.setText(getReadableDateTime(chatMessage.time));
+            setReactImage(binding.imgReact, (int)chatMessage.feeling);
+
+            binding.sentText.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    showReactPicker(chatMessage, binding.imgReact);
+                    return false;
+                }
+            });
         }
     }
 
     private class ReceivedMessageViewHolder extends RecyclerView.ViewHolder{
-        private final ChatTextMessageReceivedBinding biding;
+        private final ChatTextMessageReceivedBinding binding;
         public ReceivedMessageViewHolder(ChatTextMessageReceivedBinding chatTextMessageReceivedBinding) {
             super(chatTextMessageReceivedBinding.getRoot());
-            biding = chatTextMessageReceivedBinding;
+            binding = chatTextMessageReceivedBinding;
         }
         public void setData(ChatMessage chatMessage)
         {
-            biding.receivedText.setText(chatMessage.message);
-            biding.timeReceived.setText(getReadableDateTime(chatMessage.time));
+            binding.receivedText.setText(chatMessage.message);
+            binding.timeReceived.setText(getReadableDateTime(chatMessage.time));
+            setReactImage(binding.imgReact, (int)chatMessage.feeling);
+
+            binding.receivedText.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    showReactPicker(chatMessage, binding.imgReact);
+                    return false;
+                }
+            });
         }
     }
 
@@ -221,11 +339,19 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             Bitmap bitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length);
             binding.sentImage.setImageBitmap(bitmap);
             binding.timeSent.setText(getReadableDateTime(chatMessage.time));
+            setReactImage(binding.imgReact, (int)chatMessage.feeling);
 
             binding.sentImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     viewImageFullSize(bytes);
+                }
+            });
+            binding.sentImage.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    showReactPicker(chatMessage, binding.imgReact);
+                    return false;
                 }
             });
         }
@@ -243,11 +369,19 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             Bitmap bitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length);
             binding.receivedImage.setImageBitmap(bitmap);
             binding.timeReceived.setText(getReadableDateTime(chatMessage.time));
+            setReactImage(binding.imgReact, (int)chatMessage.feeling);
 
             binding.receivedImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     viewImageFullSize(bytes);
+                }
+            });
+            binding.receivedImage.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    showReactPicker(chatMessage, binding.imgReact);
+                    return false;
                 }
             });
         }
@@ -271,6 +405,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 }
             };
             binding.soundSeekbar.setMax(100);
+            setReactImage(binding.imgReact, (int)chatMessage.feeling);
+
             binding.soundSeekbar.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -286,6 +422,13 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 public void onClick(View view) {
                     setPlayOrPauseAudio(binding.btnPlayOrStop, binding.soundSeekbar, binding.timeLast,
                             updater, handler);
+                }
+            });
+            binding.voiceLayout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    showReactPicker(chatMessage, binding.imgReact);
+                    return false;
                 }
             });
         }
@@ -309,6 +452,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 }
             };
             binding.soundSeekbar.setMax(100);
+            setReactImage(binding.imgReact, (int)chatMessage.feeling);
+
             binding.soundSeekbar.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -324,6 +469,13 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 public void onClick(View view) {
                     setPlayOrPauseAudio(binding.btnPlayOrStop, binding.soundSeekbar, binding.timeLast,
                             updater, handler);
+                }
+            });
+            binding.voiceLayout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    showReactPicker(chatMessage, binding.imgReact);
+                    return false;
                 }
             });
         }
