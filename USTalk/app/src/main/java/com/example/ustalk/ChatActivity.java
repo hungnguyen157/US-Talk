@@ -84,6 +84,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
     String getReceiveimage;
     BackgroundAwareLayout chat_box_parent;
     private String receiveToken;
+    private boolean sentMessage = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -201,7 +202,9 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         mes.put("feeling", -1);
         database.collection("chat").add(mes);
         edit_chat.setText(null);
-        System.out.println(preferenceManager.getString("UID"));sendNotification(message);
+        System.out.println(preferenceManager.getString("UID"));
+        sendNotification(message);
+        sentMessage = true;
     }
 
     private void sendNotification(String message) {
@@ -298,7 +301,10 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
             }
             else {
                 chatAdapter.notifyItemRangeInserted(Message.size(),Message.size());
-                recycler_view_message.smoothScrollToPosition(Message.size()-1);
+                if (sentMessage) {
+                    recycler_view_message.smoothScrollToPosition(Message.size() - 1);
+                    sentMessage = false;
+                }
             }
             recycler_view_message.setVisibility(View.VISIBLE);
         }
@@ -325,6 +331,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 mes.put("sendimage",true);
                 mes.put("feeling", -1);
                 database.collection("chat").add(mes);
+                sentMessage = true;
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
