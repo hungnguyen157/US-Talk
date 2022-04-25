@@ -273,44 +273,63 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         if(value != null)
         {
             int count = Message.size();
+            ArrayList<Integer> modifiedPositions = new ArrayList<>();
             for (DocumentChange documentChange : value.getDocumentChanges())
             {
-                if(documentChange.getType() == DocumentChange.Type.ADDED){
-                    ChatMessage chatMessage = new ChatMessage();
-                    chatMessage.id = documentChange.getDocument().getId();
-                    chatMessage.senderID = documentChange.getDocument().getString("senderID");
-                    chatMessage.receicedID = documentChange.getDocument().getString("RecceiveID");
-                    chatMessage.message = documentChange.getDocument().getString("Message");
-                    chatMessage.time = documentChange.getDocument().getDate("Time");
-                    chatMessage.dateObject = documentChange.getDocument().getDate("Time");
-                    chatMessage.sendimage = documentChange.getDocument().getBoolean("sendimage");
-                    try {
-                        chatMessage.senderFeeling = (int)((long)documentChange.getDocument()
-                                                                    .getLong("senderFeeling"));
-                        chatMessage.receiverFeeling = (int)((long)documentChange.getDocument()
-                                                                    .getLong("receiverFeeling"));
-                    } catch (NullPointerException ex) {
-                        chatMessage.senderFeeling = -1;
-                        chatMessage.receiverFeeling = -1;
-                    }
+                DocumentChange.Type type = documentChange.getType();
+                if(type == DocumentChange.Type.ADDED){
+                    ChatMessage chatMessage = getChatMessageFromDocumentChange(documentChange);
                     Message.add(chatMessage);
+                }
+                else if (type == DocumentChange.Type.MODIFIED) {
+                    ChatMessage chatMessage = getChatMessageFromDocumentChange(documentChange);
+                    ChatMessage chatMessageInMessage = Message.stream()
+                            .filter(chatMessage1 -> chatMessage.id.equals(chatMessage1.id))
+                            .findFirst().orElse(null);
+                    modifiedPositions.add(Message.indexOf(chatMessageInMessage));
                 }
             }
             Message.sort((obj1, obj2) -> obj1.dateObject.compareTo(obj2.dateObject));
-            if(count == 0)
-            {
+            if(count == 0) {
                 chatAdapter.notifyDataSetChanged();
             }
             else {
-                chatAdapter.notifyItemRangeInserted(Message.size(),Message.size());
-                if (sentMessage) {
-                    recycler_view_message.smoothScrollToPosition(Message.size() - 1);
-                    sentMessage = false;
+                int size = Message.size();
+                if (size != count) {
+                    chatAdapter.notifyItemRangeInserted(Message.size(),Message.size());
+                    if (sentMessage) {
+                        recycler_view_message.smoothScrollToPosition(Message.size() - 1);
+                        sentMessage = false;
+                    }
+                }
+                for (Integer modifiedPosition : modifiedPositions) {
+                    System.out.println(modifiedPosition);
+                    chatAdapter.notifyItemChanged(modifiedPosition);
                 }
             }
             recycler_view_message.setVisibility(View.VISIBLE);
         }
     };
+    private ChatMessage getChatMessageFromDocumentChange(DocumentChange documentChange) {
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.id = documentChange.getDocument().getId();
+        chatMessage.senderID = documentChange.getDocument().getString("senderID");
+        chatMessage.receicedID = documentChange.getDocument().getString("RecceiveID");
+        chatMessage.message = documentChange.getDocument().getString("Message");
+        chatMessage.time = documentChange.getDocument().getDate("Time");
+        chatMessage.dateObject = documentChange.getDocument().getDate("Time");
+        chatMessage.sendimage = documentChange.getDocument().getBoolean("sendimage");
+        try {
+            chatMessage.senderFeeling = (int)((long)documentChange.getDocument()
+                    .getLong("senderFeeling"));
+            chatMessage.receiverFeeling = (int)((long)documentChange.getDocument()
+                    .getLong("receiverFeeling"));
+        } catch (NullPointerException ex) {
+            chatMessage.senderFeeling = -1;
+            chatMessage.receiverFeeling = -1;
+        }
+        return chatMessage;
+    }
     private void openGallery(){
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent,IMAGE_GALLERY_REQUEST);

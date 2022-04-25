@@ -18,6 +18,7 @@ import android.view.Window;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
@@ -283,13 +284,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             database.collection("chat").document(chatMessage.id)
                     .update("receiverFeeling", chatMessage.receiverFeeling);
         }
-        setReactImage(imgSenderReact, imgReceiverReact,
-                chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
         dialog.dismiss();
     }
 
-    private void setReactImage(ImageView imgSenderReact, ImageView imgReceiverReact,
+    private void setReactImage(ImageView imgSenderReact, ImageView imgReceiverReact, LinearLayout feelingsList,
                                int senderFeeling, int receiverFeeling) {
         if (senderFeeling == -1) {
             imgSenderReact.setVisibility(View.GONE);
@@ -308,6 +307,11 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             imgReceiverReact.setVisibility(View.VISIBLE);
         }
         imgReceiverReact.requestLayout();
+
+        if (senderFeeling == -1 && receiverFeeling == -1) {
+            feelingsList.setVisibility(View.GONE);
+        }
+        else feelingsList.setVisibility(View.VISIBLE);
     }
 
     //Needed ViewHolder classes
@@ -321,7 +325,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         {
             binding.sentText.setText(chatMessage.message);
             binding.timeSent.setText(getReadableDateTime(chatMessage.time));
-            setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
+            setReactImage(binding.imgSenderReact, binding.imgReceiverReact, binding.feelingsList,
                     chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
             binding.sentText.setOnLongClickListener(view -> {
@@ -342,7 +346,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         {
             binding.receivedText.setText(chatMessage.message);
             binding.timeReceived.setText(getReadableDateTime(chatMessage.time));
-            setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
+            setReactImage(binding.imgSenderReact, binding.imgReceiverReact, binding.feelingsList,
                     chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
             binding.receivedText.setOnLongClickListener(view -> {
@@ -365,7 +369,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             Bitmap bitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length);
             binding.sentImage.setImageBitmap(bitmap);
             binding.timeSent.setText(getReadableDateTime(chatMessage.time));
-            setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
+            setReactImage(binding.imgSenderReact, binding.imgReceiverReact, binding.feelingsList,
                     chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
             binding.sentImage.setOnClickListener(view -> viewImageFullSize(bytes));
@@ -389,7 +393,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             Bitmap bitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length);
             binding.receivedImage.setImageBitmap(bitmap);
             binding.timeReceived.setText(getReadableDateTime(chatMessage.time));
-            setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
+            setReactImage(binding.imgSenderReact, binding.imgReceiverReact, binding.feelingsList,
                     chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
             binding.receivedImage.setOnClickListener(view -> viewImageFullSize(bytes));
@@ -419,7 +423,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 }
             };
             binding.soundSeekbar.setMax(100);
-            setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
+            setReactImage(binding.imgSenderReact, binding.imgReceiverReact, binding.feelingsList,
                     chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
             binding.soundSeekbar.setOnTouchListener((view, motionEvent) -> {
@@ -457,7 +461,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 }
             };
             binding.soundSeekbar.setMax(100);
-            setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
+            setReactImage(binding.imgSenderReact, binding.imgReceiverReact, binding.feelingsList,
                     chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
             binding.soundSeekbar.setOnTouchListener((view, motionEvent) -> {
