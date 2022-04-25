@@ -30,7 +30,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_textview"
             android:backgroundTint="@android:color/transparent"
-            android:paddingHorizontal="22dp"
+            android:paddingStart="21dp"
+            android:paddingEnd="23dp"
             android:paddingTop="7dp"
             android:paddingBottom="10dp"
             android:text="this is a sent message"
@@ -38,15 +39,14 @@
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"/>
-
         <LinearLayout
-            android:id="@+id/linearLayout5"
+            android:id="@+id/feelingsListHolder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="15dp"
             app:layout_constraintBottom_toBottomOf="@+id/sent_text"
             app:layout_constraintEnd_toEndOf="@+id/sent_text"
-            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintHorizontal_bias="1"
             app:layout_constraintStart_toStartOf="@+id/sent_text"
             app:layout_constraintTop_toBottomOf="@+id/sent_text">
             <LinearLayout
@@ -55,19 +55,18 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/custom_rounded_lightgray_background"
                 android:elevation="6dp"
-                android:layoutDirection="rtl"
                 android:orientation="horizontal"
                 android:paddingHorizontal="2dp"
                 android:paddingVertical="5dp">
                 <ImageView
-                    android:id="@+id/imgSenderReact"
+                    android:id="@+id/imgReceiverReact"
                     android:layout_width="25dp"
                     android:layout_height="25dp"
                     android:elevation="6dp"
                     android:src="@drawable/react_heart" />
 
                 <ImageView
-                    android:id="@+id/imgReceiverReact"
+                    android:id="@+id/imgSenderReact"
                     android:layout_width="25dp"
                     android:layout_height="25dp"
                     android:elevation="6dp"
@@ -81,7 +80,8 @@
             android:layout_height="wrap_content"
             android:text="this is sent time"
             android:textSize="15sp"
+            android:layout_marginTop="5dp"
             app:layout_constraintEnd_toEndOf="@+id/sent_text"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout5" />
+            app:layout_constraintTop_toBottomOf="@+id/feelingsListHolder" />
     </com.example.ustalk.BackgroundAwareLayout>
 </com.example.ustalk.BackgroundAwareLayout>

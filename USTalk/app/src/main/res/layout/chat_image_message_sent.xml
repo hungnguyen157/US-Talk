@@ -35,12 +35,12 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
-            android:id="@+id/linearLayout5"
+            android:id="@+id/feelingsListHolder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:elevation="6dp"
             android:paddingTop="15dp"
-            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintHorizontal_bias="1"
             app:layout_constraintBottom_toBottomOf="@+id/sent_image"
             app:layout_constraintEnd_toEndOf="@+id/sent_image"
             app:layout_constraintStart_toStartOf="@+id/sent_image"
@@ -51,20 +51,18 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/custom_rounded_lightgray_background"
                 android:elevation="6dp"
-                android:layoutDirection="rtl"
                 android:orientation="horizontal"
                 android:paddingHorizontal="2dp"
                 android:paddingVertical="5dp">
-
                 <ImageView
-                    android:id="@+id/imgSenderReact"
+                    android:id="@+id/imgReceiverReact"
                     android:layout_width="25dp"
                     android:layout_height="25dp"
                     android:elevation="6dp"
                     android:src="@drawable/react_heart" />
 
                 <ImageView
-                    android:id="@+id/imgReceiverReact"
+                    android:id="@+id/imgSenderReact"
                     android:layout_width="25dp"
                     android:layout_height="25dp"
                     android:elevation="6dp"
@@ -78,7 +76,8 @@
             android:layout_height="wrap_content"
             android:text="this is sent time"
             android:textSize="15sp"
+            android:layout_marginTop="5dp"
             app:layout_constraintEnd_toEndOf="@+id/sent_image"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout5" />
+            app:layout_constraintTop_toBottomOf="@+id/feelingsListHolder" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -12,7 +12,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -285,7 +284,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                     .update("receiverFeeling", chatMessage.receiverFeeling);
         }
         setReactImage(imgSenderReact, imgReceiverReact,
-                (int)chatMessage.senderFeeling, (int)chatMessage.receiverFeeling);
+                chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
         dialog.dismiss();
     }
@@ -323,15 +322,12 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             binding.sentText.setText(chatMessage.message);
             binding.timeSent.setText(getReadableDateTime(chatMessage.time));
             setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
-                    (int)chatMessage.senderFeeling, (int)chatMessage.receiverFeeling);
+                    chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
-            binding.sentText.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    showReactPicker(chatMessage, binding.imgSenderReact, binding.imgReceiverReact,
-                            getAdapterPosition());
-                    return false;
-                }
+            binding.sentText.setOnLongClickListener(view -> {
+                showReactPicker(chatMessage, binding.imgSenderReact, binding.imgReceiverReact,
+                        getAdapterPosition());
+                return false;
             });
         }
     }
@@ -347,15 +343,12 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             binding.receivedText.setText(chatMessage.message);
             binding.timeReceived.setText(getReadableDateTime(chatMessage.time));
             setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
-                    (int)chatMessage.senderFeeling, (int)chatMessage.receiverFeeling);
+                    chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
-            binding.receivedText.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    showReactPicker(chatMessage, binding.imgSenderReact, binding.imgReceiverReact,
-                            getAdapterPosition());
-                    return false;
-                }
+            binding.receivedText.setOnLongClickListener(view -> {
+                showReactPicker(chatMessage, binding.imgSenderReact, binding.imgReceiverReact,
+                        getAdapterPosition());
+                return false;
             });
         }
     }
@@ -373,21 +366,13 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             binding.sentImage.setImageBitmap(bitmap);
             binding.timeSent.setText(getReadableDateTime(chatMessage.time));
             setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
-                    (int)chatMessage.senderFeeling, (int)chatMessage.receiverFeeling);
+                    chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
-            binding.sentImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    viewImageFullSize(bytes);
-                }
-            });
-            binding.sentImage.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    showReactPicker(chatMessage, binding.imgSenderReact, binding.imgReceiverReact,
-                            getAdapterPosition());
-                    return false;
-                }
+            binding.sentImage.setOnClickListener(view -> viewImageFullSize(bytes));
+            binding.sentImage.setOnLongClickListener(view -> {
+                showReactPicker(chatMessage, binding.imgSenderReact, binding.imgReceiverReact,
+                        getAdapterPosition());
+                return false;
             });
         }
     }
@@ -405,21 +390,13 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             binding.receivedImage.setImageBitmap(bitmap);
             binding.timeReceived.setText(getReadableDateTime(chatMessage.time));
             setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
-                    (int)chatMessage.senderFeeling, (int)chatMessage.receiverFeeling);
+                    chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
-            binding.receivedImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    viewImageFullSize(bytes);
-                }
-            });
-            binding.receivedImage.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    showReactPicker(chatMessage, binding.imgSenderReact, binding.imgReceiverReact,
-                            getAdapterPosition());
-                    return false;
-                }
+            binding.receivedImage.setOnClickListener(view -> viewImageFullSize(bytes));
+            binding.receivedImage.setOnLongClickListener(view -> {
+                showReactPicker(chatMessage, binding.imgSenderReact, binding.imgReceiverReact,
+                        getAdapterPosition());
+                return false;
             });
         }
     }
@@ -443,32 +420,21 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             };
             binding.soundSeekbar.setMax(100);
             setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
-                    (int)chatMessage.senderFeeling, (int)chatMessage.receiverFeeling);
+                    chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
-            binding.soundSeekbar.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    SeekBar seekBar = (SeekBar) view;
-                    int playPosition = (int) ((audioService.getDuration() / 100) * seekBar.getProgress());
-                    audioService.seekTo(playPosition);
-                    binding.timeLast.setBase(audioService.getDuration() - audioService.getCurrentPostion());
-                    return false;
-                }
+            binding.soundSeekbar.setOnTouchListener((view, motionEvent) -> {
+                SeekBar seekBar = (SeekBar) view;
+                int playPosition = (int) ((audioService.getDuration() / 100) * seekBar.getProgress());
+                audioService.seekTo(playPosition);
+                binding.timeLast.setBase(audioService.getDuration() - audioService.getCurrentPostion());
+                return false;
             });
-            binding.btnPlayOrStop.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    setPlayOrPauseAudio(binding.btnPlayOrStop, binding.soundSeekbar, binding.timeLast,
-                            updater, handler);
-                }
-            });
-            binding.voiceLayout.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    showReactPicker(chatMessage, binding.imgSenderReact, binding.imgReceiverReact,
-                            getAdapterPosition());
-                    return false;
-                }
+            binding.btnPlayOrStop.setOnClickListener(view -> setPlayOrPauseAudio(binding.btnPlayOrStop, binding.soundSeekbar, binding.timeLast,
+                    updater, handler));
+            binding.voiceLayout.setOnLongClickListener(view -> {
+                showReactPicker(chatMessage, binding.imgSenderReact, binding.imgReceiverReact,
+                        getAdapterPosition());
+                return false;
             });
         }
     }
@@ -492,32 +458,21 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             };
             binding.soundSeekbar.setMax(100);
             setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
-                    (int)chatMessage.senderFeeling, (int)chatMessage.receiverFeeling);
+                    chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
-            binding.soundSeekbar.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    SeekBar seekBar = (SeekBar) view;
-                    int playPosition = (int) ((audioService.getDuration() / 100) * seekBar.getProgress());
-                    audioService.seekTo(playPosition);
-                    binding.timeLast.setBase(audioService.getDuration() - audioService.getCurrentPostion());
-                    return false;
-                }
+            binding.soundSeekbar.setOnTouchListener((view, motionEvent) -> {
+                SeekBar seekBar = (SeekBar) view;
+                int playPosition = (int) ((audioService.getDuration() / 100) * seekBar.getProgress());
+                audioService.seekTo(playPosition);
+                binding.timeLast.setBase(audioService.getDuration() - audioService.getCurrentPostion());
+                return false;
             });
-            binding.btnPlayOrStop.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    setPlayOrPauseAudio(binding.btnPlayOrStop, binding.soundSeekbar, binding.timeLast,
-                            updater, handler);
-                }
-            });
-            binding.voiceLayout.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    showReactPicker(chatMessage, binding.imgSenderReact, binding.imgReceiverReact,
-                            getAdapterPosition());
-                    return false;
-                }
+            binding.btnPlayOrStop.setOnClickListener(view -> setPlayOrPauseAudio(binding.btnPlayOrStop, binding.soundSeekbar, binding.timeLast,
+                    updater, handler));
+            binding.voiceLayout.setOnLongClickListener(view -> {
+                showReactPicker(chatMessage, binding.imgSenderReact, binding.imgReceiverReact,
+                        getAdapterPosition());
+                return false;
             });
         }
     }
