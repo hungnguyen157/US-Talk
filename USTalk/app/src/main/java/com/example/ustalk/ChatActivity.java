@@ -286,7 +286,8 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                     ChatMessage chatMessageInMessage = Message.stream()
                             .filter(chatMessage1 -> chatMessage.id.equals(chatMessage1.id))
                             .findFirst().orElse(null);
-                    modifiedPositions.add(Message.indexOf(chatMessageInMessage));
+                    Message.set(Message.indexOf(chatMessageInMessage), chatMessage);
+                    modifiedPositions.add(Message.indexOf(chatMessage));
                 }
             }
             Message.sort((obj1, obj2) -> obj1.dateObject.compareTo(obj2.dateObject));

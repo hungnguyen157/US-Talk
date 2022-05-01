@@ -190,13 +190,13 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         }
     }
 
-    private void showReactPicker(ChatMessage chatMessage, int position){
+    private void showReactPicker(ChatMessage chatMessage){
         Dialog dialog = new Dialog(context);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.react_picker_layout);
         dialog.setCanceledOnTouchOutside(true);
 
-        final boolean isSender = chatMessages.get(position).senderID.equals(senderID);
+        final boolean isSender = chatMessage.senderID.equals(senderID);
 
         dialog.findViewById(R.id.btnLike).setOnClickListener(view ->
                 chooseReactEmotion(chatMessage, R.drawable.react_like, dialog, isSender));
@@ -314,7 +314,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                     chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
             binding.sentText.setOnLongClickListener(view -> {
-                showReactPicker(chatMessage,  getAdapterPosition());
+                showReactPicker(chatMessage);
                 return false;
             });
         }
@@ -334,7 +334,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                     chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
             binding.receivedText.setOnLongClickListener(view -> {
-                showReactPicker(chatMessage,  getAdapterPosition());
+                showReactPicker(chatMessage);
                 return false;
             });
         }
@@ -357,7 +357,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
             binding.sentImage.setOnClickListener(view -> viewImageFullSize(bytes));
             binding.sentImage.setOnLongClickListener(view -> {
-                showReactPicker(chatMessage,  getAdapterPosition());
+                showReactPicker(chatMessage);
                 return false;
             });
         }
@@ -380,7 +380,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
             binding.receivedImage.setOnClickListener(view -> viewImageFullSize(bytes));
             binding.receivedImage.setOnLongClickListener(view -> {
-                showReactPicker(chatMessage,  getAdapterPosition());
+                showReactPicker(chatMessage);
                 return false;
             });
         }
@@ -417,7 +417,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             binding.btnPlayOrStop.setOnClickListener(view -> setPlayOrPauseAudio(binding.btnPlayOrStop, binding.soundSeekbar, binding.timeLast,
                     updater, handler));
             binding.voiceLayout.setOnLongClickListener(view -> {
-                showReactPicker(chatMessage,  getAdapterPosition());
+                showReactPicker(chatMessage);
                 return false;
             });
         }
@@ -454,7 +454,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             binding.btnPlayOrStop.setOnClickListener(view -> setPlayOrPauseAudio(binding.btnPlayOrStop, binding.soundSeekbar, binding.timeLast,
                     updater, handler));
             binding.voiceLayout.setOnLongClickListener(view -> {
-                showReactPicker(chatMessage,  getAdapterPosition());
+                showReactPicker(chatMessage);
                 return false;
             });
         }
