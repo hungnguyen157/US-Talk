@@ -283,27 +283,20 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private void setReactImage(ImageView imgSenderReact, ImageView imgReceiverReact, LinearLayout feelingsList,
                                int senderFeeling, int receiverFeeling) {
         if (senderFeeling == -1) {
-            imgSenderReact.setVisibility(View.GONE);
+            imgSenderReact.setImageResource(R.drawable.ic_baseline_insert_emoticon);
         }
         else {
             imgSenderReact.setImageResource(senderFeeling);
-            imgSenderReact.setVisibility(View.VISIBLE);
         }
         imgSenderReact.requestLayout();
 
         if (receiverFeeling == -1) {
-            imgReceiverReact.setVisibility(View.GONE);
+            imgReceiverReact.setImageResource(R.drawable.ic_baseline_insert_emoticon);
         }
         else {
             imgReceiverReact.setImageResource(receiverFeeling);
-            imgReceiverReact.setVisibility(View.VISIBLE);
         }
         imgReceiverReact.requestLayout();
-
-        if (senderFeeling == -1 && receiverFeeling == -1) {
-            feelingsList.setVisibility(View.GONE);
-        }
-        else feelingsList.setVisibility(View.VISIBLE);
     }
 
     //Needed ViewHolder classes
