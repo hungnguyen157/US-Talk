@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:background="@drawable/custom_dialog_background"
+    android:paddingVertical="10dp"
+    android:paddingHorizontal="0dp">
+    <!--    Guideline Helpers-->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.8"/>
+
+    <!--    Items-->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/voice_layout"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="20dp"
+        android:background="@drawable/preview_voice_message_background"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="10dp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+        <ImageButton
+            android:id="@+id/btn_play_or_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_round_play_arrow_24"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <SeekBar
+            android:id="@+id/sound_seekbar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/time"
+            app:layout_constraintStart_toEndOf="@+id/btn_play_or_stop"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Chronometer
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:countDown="false"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Chronometer
+            android:id="@+id/timeRecord"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageView
+        android:id="@+id/btnStartPauseRecord"
+        android:layout_width="60dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="5dp"
+        android:background="@drawable/start_pause_button_background"
+        android:paddingVertical="10dp"
+        android:src="@drawable/voice_icon"
+        app:layout_constraintBottom_toBottomOf="@+id/voice_layout"
+        app:layout_constraintStart_toStartOf="@+id/guideline2"
+        app:layout_constraintTop_toTopOf="@+id/voice_layout"
+        app:tint="@color/black" />
+
+    <ImageView
+        android:id="@+id/btnCancelRecord"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="50dp"
+        android:src="@drawable/ic_baseline_delete_24"
+        app:layout_constraintStart_toStartOf="@+id/voice_layout"
+        app:layout_constraintTop_toBottomOf="@+id/voice_layout" />
+
+    <ImageView
+        android:id="@+id/btnResetRecord"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="15dp"
+        android:src="@drawable/ic_round_refresh_24"
+        app:layout_constraintBottom_toBottomOf="@+id/btnCancelRecord"
+        app:layout_constraintStart_toEndOf="@+id/btnCancelRecord"
+        app:layout_constraintTop_toTopOf="@+id/btnCancelRecord" />
+
+    <ImageView
+        android:id="@+id/btnSendVoiceMessage"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_round_send_24"
+        app:layout_constraintBottom_toBottomOf="@+id/btnCancelRecord"
+        app:layout_constraintEnd_toEndOf="@+id/btnStartPauseRecord"
+        app:layout_constraintStart_toStartOf="@+id/btnStartPauseRecord"
+        app:layout_constraintTop_toTopOf="@+id/btnCancelRecord" />
+</androidx.constraintlayout.widget.ConstraintLayout>

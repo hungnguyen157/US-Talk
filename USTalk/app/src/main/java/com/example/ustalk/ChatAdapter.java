@@ -10,15 +10,14 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
@@ -31,7 +30,7 @@ import com.example.ustalk.databinding.ChatTextMessageSentBinding;
 import com.example.ustalk.databinding.ChatVoiceMessageReceivedBinding;
 import com.example.ustalk.databinding.ChatVoiceMessageSentBinding;
 import com.example.ustalk.models.ChatMessage;
-import com.example.ustalk.utilities.AudioService;
+import com.example.ustalk.utilities.AudioPlayerService;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
@@ -43,13 +42,12 @@ import java.util.Locale;
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private final ArrayList<ChatMessage> chatMessages;
     private final String senderID;
-    private AudioService audioService;
     public static final int VIEW_TYPE_SENT = 1;
     public static final int VIEW_TYPE_RECEIVED = 2;
     public static final int VIEW_TYPE_SENT_IMAGE = 3;
     public static final int VIEW_TYPE_RECEIVED_IMAGE = 4;
-    public static final int VIEW_TYPE_SENT_AUDIO = 5;
-    public static final int VIEW_TYPE_RECEIVED_AUDIO = 6;
+    public static final int VIEW_TYPE_SENT_VOICE = 5;
+    public static final int VIEW_TYPE_RECEIVED_VOICE = 6;
 
     Context context;
     public ChatAdapter(Context context, ArrayList<ChatMessage> chatMessages, String senderID) {
@@ -62,42 +60,43 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if(viewType == VIEW_TYPE_SENT)
-        {
+        if(viewType == VIEW_TYPE_SENT) {
             return new SentMessageViewHolder(ChatTextMessageSentBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false));
         }
-        else if (viewType == VIEW_TYPE_RECEIVED)
-        {
+        else if (viewType == VIEW_TYPE_RECEIVED) {
             return new ReceivedMessageViewHolder(ChatTextMessageReceivedBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false));
         }
-        else if (viewType ==VIEW_TYPE_RECEIVED_IMAGE )
-        {
+        else if (viewType ==VIEW_TYPE_RECEIVED_IMAGE ) {
             return new ReceivedImageViewHolder(ChatImageMessageReceivedBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false));
         }
-        else if (viewType == VIEW_TYPE_SENT_IMAGE)
-        {
+        else if (viewType == VIEW_TYPE_SENT_IMAGE) {
             return new SentImageViewHolder(ChatImageMessageSentBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false));
         }
-        return null;
+        else if (viewType == VIEW_TYPE_SENT_VOICE) {
+            return new SentVoiceViewHolder(ChatVoiceMessageSentBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false));
+        }
+        return new ReceivedVoiceViewHolder(ChatVoiceMessageReceivedBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false));
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        if(getItemViewType(position) == VIEW_TYPE_SENT)
-        {
+        if(getItemViewType(position) == VIEW_TYPE_SENT) {
             ((SentMessageViewHolder) holder).setData(chatMessages.get(position));
         }
-        else if (getItemViewType(position) == VIEW_TYPE_RECEIVED)
-        {
+        else if (getItemViewType(position) == VIEW_TYPE_RECEIVED) {
             ((ReceivedMessageViewHolder) holder).setData(chatMessages.get(position));
         }
-        else if (getItemViewType(position) == VIEW_TYPE_RECEIVED_IMAGE)
-        {
+        else if (getItemViewType(position) == VIEW_TYPE_RECEIVED_IMAGE) {
             ((ReceivedImageViewHolder) holder).setData(chatMessages.get(position));
         }
-        else if(getItemViewType(position) == VIEW_TYPE_SENT_IMAGE)
-        {
+        else if(getItemViewType(position) == VIEW_TYPE_SENT_IMAGE) {
             ((SentImageViewHolder) holder).setData(chatMessages.get(position));
+        }
+        else if (getItemViewType(position) == VIEW_TYPE_SENT_VOICE) {
+            ((SentVoiceViewHolder) holder).setData(chatMessages.get(position));
+        }
+        else if (getItemViewType(position) == VIEW_TYPE_RECEIVED_VOICE) {
+            ((ReceivedVoiceViewHolder) holder).setData(chatMessages.get(position));
         }
     }
 
@@ -108,18 +107,27 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     @Override
     public int getItemViewType(int position) {
-        if (chatMessages.get(position).senderID.equals(senderID) && !chatMessages.get(position).sendimage)
-        {
+        if (chatMessages.get(position).senderID.equals(senderID)
+                && !chatMessages.get(position).sendimage && !chatMessages.get(position).sendvoice) {
             return VIEW_TYPE_SENT;
         }
-        else if (!chatMessages.get(position).senderID.equals(senderID) && !chatMessages.get(position).sendimage)
-        {
+        else if (!chatMessages.get(position).senderID.equals(senderID)
+                && !chatMessages.get(position).sendimage && !chatMessages.get(position).sendvoice) {
             return VIEW_TYPE_RECEIVED;
         }
-        else if (chatMessages.get(position).senderID.equals(senderID) && chatMessages.get(position).sendimage)
+        else if (chatMessages.get(position).senderID.equals(senderID)
+                && chatMessages.get(position).sendimage) {
             return VIEW_TYPE_SENT_IMAGE;
-        else
+        }
+        else if (!chatMessages.get(position).senderID.equals(senderID)
+                && chatMessages.get(position).sendimage) {
             return VIEW_TYPE_RECEIVED_IMAGE;
+        }
+        else if (chatMessages.get(position).senderID.equals(senderID)
+                && chatMessages.get(position).sendvoice) {
+            return VIEW_TYPE_SENT_VOICE;
+        }
+        else return VIEW_TYPE_RECEIVED_VOICE;
     }
 
     //Other needed functions
@@ -135,57 +143,35 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     }
 
     private void setPlayOrPauseAudio(ImageButton imgBtn, SeekBar seekBar, Chronometer chronometer,
-                                     Runnable updater, Handler handler){
-        if (audioService != null){
-            if (audioService.isPlaying()){
+                                     AudioPlayerService audioPlayerService, Runnable updater, Handler handler){
+        if (audioPlayerService != null){
+            if (audioPlayerService.isPlaying()){
                 handler.removeCallbacks(updater);
                 chronometer.stop();
-                audioService.pauseAudio();
+                audioPlayerService.pauseAudio();
                 imgBtn.setImageResource(R.drawable.ic_round_play_arrow_24);
             }
             else{
-                String url = "";
-                audioService.playAudioFromURL(url, new AudioService.OnPlayCallBack() {
-                    @Override
-                    public void onFinished() {
-                        seekBar.setProgress(0);
-                        chronometer.setBase(audioService.getDuration());
-                        imgBtn.setImageResource(R.drawable.ic_round_play_arrow_24);
-                    }
+                audioPlayerService.playAudio(() -> {
+                    seekBar.setProgress(100);
+                    chronometer.stop();
+                    chronometer.setBase(SystemClock.elapsedRealtime() + audioPlayerService.getDuration());
+                    imgBtn.setImageResource(R.drawable.ic_round_play_arrow_24);
+                    handler.removeCallbacks(updater);
                 });
                 imgBtn.setImageResource(R.drawable.ic_round_pause_24);
-                chronometer.setBase(audioService.getDuration() - audioService.getCurrentPostion());
+                chronometer.setBase(SystemClock.elapsedRealtime() +
+                        (audioPlayerService.getDuration() - audioPlayerService.getCurrentPosition()));
                 chronometer.start();
-                updateSeekerBar(updater, seekBar, handler);
+                updateSeekerBar(audioPlayerService, updater, seekBar, handler);
             }
         }
     }
-
-//    private String milliSecondsToTimer(long milliSeconds){
-//        String timeString = "";
-//        String secondsString;
-//
-//        final int hoursToMilliSeconds = 1000 * 60 * 60;
-//        int hours = (int) (milliSeconds / hoursToMilliSeconds);
-//        int minutes = (int) ((milliSeconds % hoursToMilliSeconds) / (1000 * 60));
-//        int seconds = (int) (((milliSeconds % hoursToMilliSeconds) % (1000 * 60)) / 1000);
-//
-//        if (hours > 0){
-//            if (hours < 10) timeString = "0" + hours + ":";
-//            else timeString = hours + ":";
-//        }
-//        if (minutes < 10) timeString += "0";
-//        if (seconds < 10) secondsString = "0" + seconds;
-//        else secondsString = "" + seconds;
-//
-//        timeString = timeString + minutes + ":" + secondsString;
-//        return timeString;
-//    }
-
-    private void updateSeekerBar(Runnable updater, SeekBar seekBar, Handler handler){
-        if (audioService.isPlaying()){
+    private void updateSeekerBar(AudioPlayerService audioPlayerService,
+                                 Runnable updater, SeekBar seekBar, Handler handler){
+        if (audioPlayerService.isPlaying()){
             seekBar.setProgress(
-                    (int)(((float) audioService.getCurrentPostion() / audioService.getDuration()) * 100));
+                    (int)(((float) audioPlayerService.getCurrentPosition() / audioPlayerService.getDuration()) * 100));
             handler.postDelayed(updater, 1000);
         }
     }
@@ -280,7 +266,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         dialog.dismiss();
     }
 
-    private void setReactImage(ImageView imgSenderReact, ImageView imgReceiverReact, LinearLayout feelingsList,
+    private void setReactImage(ImageView imgSenderReact, ImageView imgReceiverReact,
                                int senderFeeling, int receiverFeeling) {
         if (senderFeeling == -1) {
             imgSenderReact.setImageResource(R.drawable.ic_baseline_insert_emoticon);
@@ -310,7 +296,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         {
             binding.sentText.setText(chatMessage.message);
             binding.timeSent.setText(getReadableDateTime(chatMessage.time));
-            setReactImage(binding.imgSenderReact, binding.imgReceiverReact, binding.feelingsList,
+            setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
                     chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
             binding.sentText.setOnLongClickListener(view -> {
@@ -330,7 +316,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         {
             binding.receivedText.setText(chatMessage.message);
             binding.timeReceived.setText(getReadableDateTime(chatMessage.time));
-            setReactImage(binding.imgSenderReact, binding.imgReceiverReact, binding.feelingsList,
+            setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
                     chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
             binding.receivedText.setOnLongClickListener(view -> {
@@ -352,7 +338,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             Bitmap bitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length);
             binding.sentImage.setImageBitmap(bitmap);
             binding.timeSent.setText(getReadableDateTime(chatMessage.time));
-            setReactImage(binding.imgSenderReact, binding.imgReceiverReact, binding.feelingsList,
+            setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
                     chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
             binding.sentImage.setOnClickListener(view -> viewImageFullSize(bytes));
@@ -375,7 +361,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             Bitmap bitmap = BitmapFactory.decodeByteArray(bytes,0,bytes.length);
             binding.receivedImage.setImageBitmap(bitmap);
             binding.timeReceived.setText(getReadableDateTime(chatMessage.time));
-            setReactImage(binding.imgSenderReact, binding.imgReceiverReact, binding.feelingsList,
+            setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
                     chatMessage.senderFeeling, chatMessage.receiverFeeling);
 
             binding.receivedImage.setOnClickListener(view -> viewImageFullSize(bytes));
@@ -388,34 +374,35 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private class SentVoiceViewHolder extends RecyclerView.ViewHolder{
         public ChatVoiceMessageSentBinding binding;
+        AudioPlayerService audioPlayerService;
         private Runnable updater = null;
         private Handler handler = null;
-        public SentVoiceViewHolder(@NonNull View itemView) {
-            super(itemView);
+        public SentVoiceViewHolder(@NonNull ChatVoiceMessageSentBinding chatVoiceMessageSentBinding) {
+            super(chatVoiceMessageSentBinding.getRoot());
+            binding = chatVoiceMessageSentBinding;
         }
         @SuppressLint("ClickableViewAccessibility")
         public void setData(ChatMessage chatMessage){
-            audioService = new AudioService(context);
+            audioPlayerService = new AudioPlayerService(chatMessage.message);
             handler = new Handler();
-            updater = new Runnable() {
-                @Override
-                public void run() {
-                    updateSeekerBar(updater, binding.soundSeekbar, handler);
-                }
-            };
+            updater = () -> updateSeekerBar(audioPlayerService, updater, binding.soundSeekbar, handler);
             binding.soundSeekbar.setMax(100);
-            setReactImage(binding.imgSenderReact, binding.imgReceiverReact, binding.feelingsList,
+            binding.soundSeekbar.setProgress(100);
+            setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
                     chatMessage.senderFeeling, chatMessage.receiverFeeling);
+            binding.timeLast.setBase(SystemClock.elapsedRealtime() + audioPlayerService.getDuration());
 
             binding.soundSeekbar.setOnTouchListener((view, motionEvent) -> {
                 SeekBar seekBar = (SeekBar) view;
-                int playPosition = (int) ((audioService.getDuration() / 100) * seekBar.getProgress());
-                audioService.seekTo(playPosition);
-                binding.timeLast.setBase(audioService.getDuration() - audioService.getCurrentPostion());
+                int playPosition = (int) ((audioPlayerService.getDuration() / 100) * seekBar.getProgress());
+                audioPlayerService.seekTo(playPosition);
+                binding.timeLast.setBase(SystemClock.elapsedRealtime() +
+                        (audioPlayerService.getDuration() - audioPlayerService.getCurrentPosition()));
                 return false;
             });
-            binding.btnPlayOrStop.setOnClickListener(view -> setPlayOrPauseAudio(binding.btnPlayOrStop, binding.soundSeekbar, binding.timeLast,
-                    updater, handler));
+            binding.btnPlayOrStop.setOnClickListener(view ->
+                    setPlayOrPauseAudio(binding.btnPlayOrStop, binding.soundSeekbar, binding.timeLast,
+                            audioPlayerService, updater, handler));
             binding.voiceLayout.setOnLongClickListener(view -> {
                 showReactPicker(chatMessage);
                 return false;
@@ -425,34 +412,35 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private class ReceivedVoiceViewHolder extends RecyclerView.ViewHolder{
         public ChatVoiceMessageReceivedBinding binding;
+        AudioPlayerService audioPlayerService;
         private Runnable updater = null;
         private Handler handler = null;
-        public ReceivedVoiceViewHolder(@NonNull View itemView) {
-            super(itemView);
+        public ReceivedVoiceViewHolder(@NonNull ChatVoiceMessageReceivedBinding chatVoiceMessageReceivedBinding) {
+            super(chatVoiceMessageReceivedBinding.getRoot());
+            binding = chatVoiceMessageReceivedBinding;
         }
         @SuppressLint("ClickableViewAccessibility")
         public void setData(ChatMessage chatMessage){
-            audioService = new AudioService(context);
+            audioPlayerService = new AudioPlayerService(chatMessage.message);
             handler = new Handler();
-            updater = new Runnable() {
-                @Override
-                public void run() {
-                    updateSeekerBar(updater, binding.soundSeekbar, handler);
-                }
-            };
+            updater = () -> updateSeekerBar(audioPlayerService, updater, binding.soundSeekbar, handler);
             binding.soundSeekbar.setMax(100);
-            setReactImage(binding.imgSenderReact, binding.imgReceiverReact, binding.feelingsList,
+            binding.soundSeekbar.setProgress(100);
+            setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
                     chatMessage.senderFeeling, chatMessage.receiverFeeling);
+            binding.timeLast.setBase(SystemClock.elapsedRealtime() + audioPlayerService.getDuration());
 
             binding.soundSeekbar.setOnTouchListener((view, motionEvent) -> {
                 SeekBar seekBar = (SeekBar) view;
-                int playPosition = (int) ((audioService.getDuration() / 100) * seekBar.getProgress());
-                audioService.seekTo(playPosition);
-                binding.timeLast.setBase(audioService.getDuration() - audioService.getCurrentPostion());
+                int playPosition = (int) ((audioPlayerService.getDuration() / 100) * seekBar.getProgress());
+                audioPlayerService.seekTo(playPosition);
+                binding.timeLast.setBase(SystemClock.elapsedRealtime() +
+                        (audioPlayerService.getDuration() - audioPlayerService.getCurrentPosition()));
                 return false;
             });
-            binding.btnPlayOrStop.setOnClickListener(view -> setPlayOrPauseAudio(binding.btnPlayOrStop, binding.soundSeekbar, binding.timeLast,
-                    updater, handler));
+            binding.btnPlayOrStop.setOnClickListener(view ->
+                    setPlayOrPauseAudio(binding.btnPlayOrStop, binding.soundSeekbar, binding.timeLast,
+                            audioPlayerService, updater, handler));
             binding.voiceLayout.setOnLongClickListener(view -> {
                 showReactPicker(chatMessage);
                 return false;

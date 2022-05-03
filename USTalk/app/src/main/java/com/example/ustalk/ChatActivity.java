@@ -1,28 +1,46 @@
 package com.example.ustalk;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.Window;
+import android.widget.Chronometer;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
@@ -31,22 +49,43 @@ import com.example.ustalk.models.ChatMessage;
 import com.example.ustalk.models.User;
 import com.example.ustalk.network.ApiClient;
 import com.example.ustalk.network.ApiService;
+import com.example.ustalk.utilities.AudioPlayerService;
 import com.example.ustalk.utilities.CurrentUserDetails;
 import com.example.ustalk.utilities.PreferenceManager;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.vanniktech.emoji.EmojiPopup;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
@@ -63,6 +102,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
     private ChatAdapter chatAdapter;
     private PreferenceManager preferenceManager;
     private FirebaseFirestore database;
+    int unloadedTypeMessNum = 2;
     HashMap<String, String> headers = new HashMap<>();
     CircleImageView avatar;
     ImageView btn_back, btn_call, btn_video_call, btn_image, btn_micro, btn_emoji, btn_send;
@@ -82,6 +122,19 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
     BackgroundAwareLayout chat_box_parent;
     private String receiveToken;
     private boolean sentMessage = false;
+    Dialog recordVoiceDialog;
+    String audioSentPath, audioTempPath, audioTempPath2;
+    MediaRecorder mediaRecorder;
+    Chronometer time, timeRecord;
+    ImageButton btn_play_or_stop;
+    ImageView btnStartPauseRecord;
+    boolean isRecording = false, isConcated = false;
+    long recorderPosition;
+    private AudioPlayerService audioPlayerService;
+    private Handler handler;
+    private Runnable updater;
+    SeekBar sound_seekbar;
+    long startRecord;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -196,6 +249,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         mes.put("Message", message);
         mes.put("Time", new Date());
         mes.put("sendimage", false);
+        mes.put("sendvoice", false);
         mes.put("senderFeeling", -1);
         mes.put("receiverFeeling", -1);
         database.collection("chat").add(mes);
@@ -298,7 +352,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 int size = Message.size();
                 if (size != count) {
                     chatAdapter.notifyItemRangeInserted(Message.size(),Message.size());
-                    if (sentMessage) {
+                    if (sentMessage || unloadedTypeMessNum > 0) {
                         recycler_view_message.smoothScrollToPosition(Message.size() - 1);
                         sentMessage = false;
                     }
@@ -309,6 +363,8 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 }
             }
             recycler_view_message.setVisibility(View.VISIBLE);
+
+            if (unloadedTypeMessNum > 0) unloadedTypeMessNum--;
         }
     };
 
@@ -332,6 +388,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 mes.put("Message", getReceiveimage);
                 mes.put("Time", new Date());
                 mes.put("sendimage",true);
+                mes.put("sendvoice", false);
                 mes.put("senderFeeling", -1);
                 mes.put("receiverFeeling", -1);
                 database.collection("chat").add(mes);
@@ -354,17 +411,17 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
     @Override
     public void onClick(View view) {
         switch (view.getId()){
-            case (R.id.btn_back):{
+            case (R.id.btn_back): {
                 onBackPressed();
                 break;
             }
-            case (R.id.contact_info):{
+            case (R.id.contact_info): {
                 Toast.makeText(getApplicationContext(),
                         "Chức năng này hiện chưa khả dụng",
                         Toast.LENGTH_SHORT).show();
                 break;
             }
-            case (R.id.btn_call):{
+            case (R.id.btn_call): {
                 if (receiveToken == null || receiveToken.trim().isEmpty()){
                     Toast.makeText(getApplicationContext(),
                             receivename + " không sẵn sàng cho cuộc gọi âm thanh vào lúc này",
@@ -381,7 +438,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 }
                 break;
             }
-            case (R.id.btn_video_call):{
+            case (R.id.btn_video_call): {
                 if (receiveToken == null || receiveToken.trim().isEmpty()){
                     Toast.makeText(getApplicationContext(),
                             receivename + " không sẵn sàng cho cuộc gọi video vào lúc này",
@@ -398,33 +455,99 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 }
                 break;
             }
-            case (R.id.btn_image):{
+            case (R.id.btn_image): {
                 openGallery();
                 break;
             }
-            case (R.id.btn_micro):{
-                Toast.makeText(getApplicationContext(),
-                        "Chức năng này vẫn đang được cài đặt",
-                        Toast.LENGTH_SHORT).show();
+            case (R.id.btn_micro): {
+                if (!checkRecordAudioPermission()) {
+                    recordVoiceDialog = new Dialog(ChatActivity.this);
+                    showRecordVoiceDialog();
+                }
+                else requestRecordAudioPermission();
                 break;
             }
-            case (R.id.btn_emoji):{
+            case (R.id.btn_emoji): {
                 popup.toggle();
                 break;
             }
-            case (R.id.btn_send):{
-                SendMes();
+            case (R.id.btn_send): {
+                if (!edit_chat.getText().toString().trim().isEmpty()) SendMes();
+                break;
+            }
+            case (R.id.btn_play_or_stop): {
+                previewVoiceMessage();
+                break;
+            }
+            case (R.id.btnStartPauseRecord): {
+                if (isRecording) {
+                    pauseRecord();
+                }
+                else {
+                    try {
+                        resumeRecord();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        recordVoiceDialog.dismiss();
+                    }
+                }
+                break;
+            }
+            case (R.id.btnCancelRecord): {
+                try {
+                    stopRecord(false);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    recordVoiceDialog.dismiss();
+                }
+                break;
+            }
+            case (R.id.btnResetRecord): {
+                try {
+                    resetRecord();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    recordVoiceDialog.dismiss();
+                }
+                break;
+            }
+            case (R.id.btnSendVoiceMessage): {
+                try {
+                    stopRecord(true);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    recordVoiceDialog.dismiss();
+                }
                 break;
             }
         }
     }
 
+    //check needed permission
+    private boolean checkRecordAudioPermission() {
+        boolean isRecordingNotOK = ContextCompat.checkSelfPermission(
+                ChatActivity.this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED;
+        boolean isWriteExternalNotOK = ContextCompat.checkSelfPermission(
+                ChatActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED;
+        boolean isReadExternalNotOK = ContextCompat.checkSelfPermission(
+                ChatActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED;
+        return isRecordingNotOK || isWriteExternalNotOK || isReadExternalNotOK;
+    }
+    private void requestRecordAudioPermission() {
+        ActivityCompat.requestPermissions(
+                ChatActivity.this,
+                new String[]{Manifest.permission.RECORD_AUDIO,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE},
+                165);
+    }
+
+    //make chat box look likes Messenger chat box
     public void changeImageViewTintColor(Context context, ImageView[] listView, int color){
         for (ImageView imageView : listView) {
             imageView.setColorFilter(context.getColor(color), PorterDuff.Mode.MULTIPLY);
         }
     }
-
     public void cloneMessengerChatBox(){
         //set image for main_background and prevent effect of adjustResize on it
         chat_background.setImageResource(R.drawable.chat_background);
@@ -497,5 +620,458 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                         }, 50);
                     }
                 });
+    }
+
+    //handle record voice message part
+    @SuppressLint("ClickableViewAccessibility")
+    private void showRecordVoiceDialog() {
+        recordVoiceDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        recordVoiceDialog.setContentView(R.layout.record_message_layout);
+        recordVoiceDialog.setCanceledOnTouchOutside(false);
+
+        ImageView btnCancelRecord, btnResetRecord, btnSend;
+        btn_play_or_stop = recordVoiceDialog.findViewById(R.id.btn_play_or_stop);
+        sound_seekbar = recordVoiceDialog.findViewById(R.id.sound_seekbar);
+        time = recordVoiceDialog.findViewById(R.id.time);
+        timeRecord = recordVoiceDialog.findViewById(R.id.timeRecord);
+        btnStartPauseRecord = recordVoiceDialog.findViewById(R.id.btnStartPauseRecord);
+        btnCancelRecord = recordVoiceDialog.findViewById(R.id.btnCancelRecord);
+        btnResetRecord = recordVoiceDialog.findViewById(R.id.btnResetRecord);
+        btnSend = recordVoiceDialog.findViewById(R.id.btnSendVoiceMessage);
+
+        btn_play_or_stop.setOnClickListener(this);
+        btnStartPauseRecord.setOnClickListener(this);
+        btnCancelRecord.setOnClickListener(this);
+        btnResetRecord.setOnClickListener(this);
+        btnSend.setOnClickListener(this);
+
+        sound_seekbar.setMax(100);
+        sound_seekbar.setOnTouchListener((view, motionEvent) -> {
+            SeekBar seekBar = (SeekBar) view;
+            int playPosition = (int) ((audioPlayerService.getDuration() / 100) * seekBar.getProgress());
+            audioPlayerService.seekTo(playPosition);
+            time.setBase(SystemClock.elapsedRealtime() - audioPlayerService.getCurrentPosition());
+            return false;
+        });
+
+        String externalStorageDirectory = Environment.getExternalStorageDirectory().getAbsolutePath();
+        String fileName = "USTalkVoiceMess_" + LocalDateTime.now().toString() + ".wav";
+        audioSentPath = externalStorageDirectory + "/Music/" + fileName;
+        audioTempPath = externalStorageDirectory + "/Music/" + "Temp" + fileName;
+        audioTempPath2 = externalStorageDirectory + "/Music/" + "Temp2" + fileName;
+
+        //setup audio recorder
+        mediaRecorder = new MediaRecorder();
+        try {
+            startRecord();
+            startRecord = System.currentTimeMillis();
+        } catch (Exception e) {
+            e.printStackTrace();
+            recordVoiceDialog.dismiss();
+        }
+
+        recordVoiceDialog.show();
+        recordVoiceDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
+                                                ViewGroup.LayoutParams.WRAP_CONTENT);
+        recordVoiceDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        recordVoiceDialog.getWindow().setGravity(Gravity.BOTTOM);
+    }
+    private void startRecord() throws IOException {
+        //change accessibility of some widgets
+        btn_play_or_stop.setEnabled(false);
+        sound_seekbar.setProgress(100);
+        sound_seekbar.setEnabled(false);
+        time.setVisibility(View.INVISIBLE);
+        timeRecord.setVisibility(View.VISIBLE);
+        btnStartPauseRecord.setImageResource(R.drawable.ic_round_pause_24);
+
+        //setup recorder for new record
+        prepareAudioRecorder();
+
+        //start recording
+        mediaRecorder.start();
+        recorderPosition = 0;
+        timeRecord.setBase(SystemClock.elapsedRealtime() - recorderPosition);
+        timeRecord.start();
+        isRecording = true;
+        isConcated = false;
+    }
+    private void prepareAudioRecorder() throws IOException {
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_NB);
+        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        mediaRecorder.setOutputFile(audioTempPath);
+        mediaRecorder.prepare();
+    }
+    private void pauseRecord() {
+        //pause recording
+        isRecording = false;
+        mediaRecorder.stop();
+        recorderPosition = SystemClock.elapsedRealtime() - timeRecord.getBase();
+        timeRecord.stop();
+
+        //change accessibility of some widgets
+        timeRecord.setVisibility(View.INVISIBLE);
+        btn_play_or_stop.setEnabled(true);
+        sound_seekbar.setEnabled(true);
+        time.setVisibility(View.VISIBLE);
+        time.setBase(SystemClock.elapsedRealtime() - recorderPosition);
+        btnStartPauseRecord.setImageResource(R.drawable.voice_icon);
+
+        //Create a temp copy audio file to preview
+        try {
+            concatenateToMainFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+            recordVoiceDialog.dismiss();
+        }
+
+        //initial audio player service
+        audioPlayerService = new AudioPlayerService(Uri.fromFile(new File(audioSentPath)).toString());
+        handler = new Handler();
+        updater = new Runnable() {
+            @Override
+            public void run() {
+                updateSeekerBar();
+            }
+        };
+    }
+    private void concatenateToMainFile() throws IOException {
+        File mainFile = new File(audioSentPath);
+        if (!mainFile.exists()) {
+            Files.copy(new File(audioTempPath).toPath(),
+                    new File(audioSentPath).toPath(),
+                    StandardCopyOption.REPLACE_EXISTING);
+        }
+        else {
+            //concatenate2AudioFile();
+        }
+        isConcated = true;
+    }
+    private void concatenate2AudioFile() {
+        int RECORDER_SAMPLERATE = 0;
+        try {
+            String[] selection=new String[2];
+            selection[0]=audioSentPath;
+            selection[1]=audioTempPath;
+            int length = selection.length;
+            DataOutputStream amplifyOutputStream = new DataOutputStream(
+                                    new BufferedOutputStream(new FileOutputStream(audioTempPath2)));
+            DataInputStream[] mergeFilesStream = new DataInputStream[length];
+            long[] sizes = new long[length];
+            for (int i = 0; i < length; i++) {
+                File file = new File(selection[i]);
+                sizes[i] = (file.length() - 44) / 2;
+            }
+            for (int i = 0; i < length; i++) {
+                mergeFilesStream[i] =new DataInputStream(
+                        new BufferedInputStream(new FileInputStream(selection[i])));
+                if (i == length - 1) {
+                    mergeFilesStream[i].skip(24);
+                    byte[] sampleRt = new byte[4];
+                    mergeFilesStream[i].read(sampleRt);
+                    ByteBuffer bbInt = ByteBuffer.wrap(sampleRt).order(ByteOrder.LITTLE_ENDIAN);
+                    RECORDER_SAMPLERATE = bbInt.getInt();
+                    mergeFilesStream[i].skip(16);
+                }
+                else {
+                    mergeFilesStream[i].skip(44);
+                }
+
+            }
+
+            for (int b = 0; b < length; b++) {
+                for (int i = 0; i < (int)sizes[b]; i++) {
+                    byte[] dataBytes = new byte[2];
+                    try {
+                        dataBytes[0] = mergeFilesStream[b].readByte();
+                        dataBytes[1] = mergeFilesStream[b].readByte();
+                    }
+                    catch (EOFException e) {
+                        amplifyOutputStream.close();
+                    }
+                    short dataInShort = ByteBuffer.wrap(dataBytes).order(ByteOrder.LITTLE_ENDIAN).getShort();
+                    float dataInFloat= (float) dataInShort/37268.0f;
+
+                    short outputSample = (short)(dataInFloat * 37268.0f);
+                    byte[] dataFin = new byte[2];
+                    dataFin[0] = (byte) (outputSample & 0xff);
+                    dataFin[1] = (byte)((outputSample >> 8) & 0xff);
+                    amplifyOutputStream.write(dataFin, 0 , 2);
+                }
+            }
+            amplifyOutputStream.close();
+            for (int i = 0; i < length; i++) {
+                mergeFilesStream[i].close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        long size = 0;
+        try {
+            FileInputStream fileSize = new FileInputStream(audioTempPath2);
+            size = fileSize.getChannel().size();
+            fileSize.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //write header to new file
+        final int RECORDER_BPP = 16;
+
+        long datasize = size + 36;
+        long byteRate = ((long) RECORDER_BPP * RECORDER_SAMPLERATE) / 8;
+        long longSampleRate = RECORDER_SAMPLERATE;
+        byte[] header = new byte[44];
+
+        header[0] = 'R';  // RIFF/WAVE header
+        header[1] = 'I';
+        header[2] = 'F';
+        header[3] = 'F';
+        header[4] = (byte) (datasize & 0xff);
+        header[5] = (byte) ((datasize >> 8) & 0xff);
+        header[6] = (byte) ((datasize >> 16) & 0xff);
+        header[7] = (byte) ((datasize >> 24) & 0xff);
+        header[8] = 'W';
+        header[9] = 'A';
+        header[10] = 'V';
+        header[11] = 'E';
+        header[12] = 'f';  // 'fmt ' chunk
+        header[13] = 'm';
+        header[14] = 't';
+        header[15] = ' ';
+        header[16] = 16;  // 4 bytes: size of 'fmt ' chunk
+        header[17] = 0;
+        header[18] = 0;
+        header[19] = 0;
+        header[20] = 1;  // format = 1
+        header[21] = 0;
+        header[22] = (byte) 1;
+        header[23] = 0;
+        header[24] = (byte) (longSampleRate & 0xff);
+        header[25] = (byte) ((longSampleRate >> 8) & 0xff);
+        header[26] = (byte) ((longSampleRate >> 16) & 0xff);
+        header[27] = (byte) ((longSampleRate >> 24) & 0xff);
+        header[28] = (byte) (byteRate & 0xff);
+        header[29] = (byte) ((byteRate >> 8) & 0xff);
+        header[30] = (byte) ((byteRate >> 16) & 0xff);
+        header[31] = (byte) ((byteRate >> 24) & 0xff);
+        header[32] = (byte) ((RECORDER_BPP) / 8);  // block align
+        header[33] = 0;
+        header[34] = RECORDER_BPP;  // bits per sample
+        header[35] = 0;
+        header[36] = 'd';
+        header[37] = 'a';
+        header[38] = 't';
+        header[39] = 'a';
+        header[40] = (byte) (size & 0xff);
+        header[41] = (byte) ((size >> 8) & 0xff);
+        header[42] = (byte) ((size >> 16) & 0xff);
+        header[43] = (byte) ((size >> 24) & 0xff);
+        // out.write(header, 0, 44);
+
+        try {
+            //add header to concatenated new file
+            RandomAccessFile rFile = new RandomAccessFile(audioTempPath2, "rw");
+            rFile.seek(0);
+            rFile.write(header);
+            rFile.close();
+
+            //copy to the main file
+            Files.copy(new File(audioTempPath2).toPath(),
+                    new File(audioSentPath).toPath(),
+                    StandardCopyOption.REPLACE_EXISTING);
+            File tempConcatenatedFile = new File(audioTempPath2);
+            tempConcatenatedFile.delete();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+    private void WriteWaveFileHeader(FileOutputStream out, long totalAudioLen,
+                                     long totalDataLen, long longSampleRate, int channels, long byteRate)
+            throws IOException {
+
+        byte[] header = new byte[44];
+
+        header[0] = 'R';
+        header[1] = 'I';
+        header[2] = 'F';
+        header[3] = 'F';
+        header[4] = (byte)(totalDataLen & 0xff);
+        header[5] = (byte)((totalDataLen >> 8) & 0xff);
+        header[6] = (byte)((totalDataLen >> 16) & 0xff);
+        header[7] = (byte)((totalDataLen >> 24) & 0xff);
+        header[8] = 'W';
+        header[9] = 'A';
+        header[10] = 'V';
+        header[11] = 'E';
+        header[12] = 'f';
+        header[13] = 'm';
+        header[14] = 't';
+        header[15] = ' ';
+        header[16] = 16;
+        header[17] = 0;
+        header[18] = 0;
+        header[19] = 0;
+        header[20] = 1;
+        header[21] = 0;
+        header[22] = (byte) channels;
+        header[23] = 0;
+        header[24] = (byte)(longSampleRate & 0xff);
+        header[25] = (byte)((longSampleRate >> 8) & 0xff);
+        header[26] = (byte)((longSampleRate >> 16) & 0xff);
+        header[27] = (byte)((longSampleRate >> 24) & 0xff);
+        header[28] = (byte)(byteRate & 0xff);
+        header[29] = (byte)((byteRate >> 8) & 0xff);
+        header[30] = (byte)((byteRate >> 16) & 0xff);
+        header[31] = (byte)((byteRate >> 24) & 0xff);
+        header[32] = (byte)(2 * 16 / 8);
+        header[33] = 0;
+        header[34] = 16;
+        header[35] = 0;
+        header[36] = 'd';
+        header[37] = 'a';
+        header[38] = 't';
+        header[39] = 'a';
+        header[40] = (byte)(totalAudioLen & 0xff);
+        header[41] = (byte)((totalAudioLen >> 8) & 0xff);
+        header[42] = (byte)((totalAudioLen >> 16) & 0xff);
+        header[43] = (byte)((totalAudioLen >> 24) & 0xff);
+
+        out.write(header, 0, 44);
+    }
+    private void resumeRecord() throws IOException {
+        //clear the audio player service
+        clearAudioPlayerService();
+
+        //change accessibility of some widgets
+        btn_play_or_stop.setEnabled(false);
+        sound_seekbar.setEnabled(false);
+        time.setVisibility(View.INVISIBLE);
+        timeRecord.setVisibility(View.VISIBLE);
+        btnStartPauseRecord.setImageResource(R.drawable.ic_round_pause_24);
+
+        //resume recording
+        prepareAudioRecorder();
+        mediaRecorder.start();
+        timeRecord.setBase(SystemClock.elapsedRealtime() - recorderPosition);
+        timeRecord.start();
+        isRecording = true;
+        isConcated = false;
+    }
+    private void stopRecord(boolean forSend) throws IOException {
+        //clear audio player service
+        clearAudioPlayerService();
+
+        //stop recording
+        timeRecord.stop();
+        recorderPosition = 0;
+        if (isRecording) {
+            mediaRecorder.stop();
+        }
+        mediaRecorder.release();
+        mediaRecorder = null;
+        isRecording = false;
+
+        //check if recording was stopped to send message
+        if (forSend) {
+            if (!isConcated) {
+                concatenateToMainFile();
+            }
+            sendVoiceMessage();
+        }
+
+        //delete temp file (which used to store audio file while recording)
+        File mainFile = new File(audioSentPath);
+        if (mainFile.exists()) mainFile.delete();
+        File tempFile = new File(audioTempPath);
+        if (tempFile.exists()) tempFile.delete();
+        recordVoiceDialog.dismiss();
+    }
+    private void sendVoiceMessage() {
+        Uri uri = Uri.fromFile(new File(audioSentPath));
+        StorageReference audioRef = FirebaseStorage.getInstance().getReference().
+                child("VoiceMessages/"
+                        + CurrentUserDetails.getInstance().getUid() + "_" + receiveID + "_"
+                        + System.currentTimeMillis());
+        audioRef.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
+                while(!urlTask.isSuccessful());
+                String voiceUrl = urlTask.getResult().toString();
+
+                HashMap<String, Object> mes = new HashMap<>();
+                mes.put("senderID", preferenceManager.getString("UID"));
+                mes.put("RecceiveID", receiveID);
+                mes.put("Message", voiceUrl);
+                mes.put("Time", new Date());
+                mes.put("sendimage",false);
+                mes.put("sendvoice", true);
+                mes.put("senderFeeling", -1);
+                mes.put("receiverFeeling", -1);
+                database.collection("chat").add(mes);
+                sentMessage = true;
+            }
+        });
+    }
+    private void resetRecord() throws IOException {
+        //clear audio player service
+        clearAudioPlayerService();
+
+        File mainFile = new File(audioSentPath);
+        if (mainFile.exists()) mainFile.delete();
+
+        //reset recorder
+        if (isRecording) mediaRecorder.stop();
+        mediaRecorder.reset();
+        startRecord();
+        isConcated = false;
+    }
+    private void clearAudioPlayerService() {
+        sound_seekbar.setProgress(100);
+        time.stop();
+        time.setBase(SystemClock.elapsedRealtime() - recorderPosition);
+
+        if (audioPlayerService != null) {
+            audioPlayerService.clearPlayer();
+            audioPlayerService = null;
+        }
+    }
+
+    //preview voice message parts
+    private void previewVoiceMessage(){
+        if (audioPlayerService != null){
+            if (audioPlayerService.isPlaying()){
+                handler.removeCallbacks(updater);
+                time.stop();
+                audioPlayerService.pauseAudio();
+                btn_play_or_stop.setImageResource(R.drawable.ic_round_play_arrow_24);
+            }
+            else{
+                audioPlayerService.playAudio(new AudioPlayerService.OnPlayCallBack() {
+                    @Override
+                    public void onFinished() {
+                        sound_seekbar.setProgress(100);
+                        time.stop();
+                        time.setBase(SystemClock.elapsedRealtime() - recorderPosition);
+                        btn_play_or_stop.setImageResource(R.drawable.ic_round_play_arrow_24);
+                        handler.removeCallbacks(updater);
+                    }
+                });
+                btn_play_or_stop.setImageResource(R.drawable.ic_round_pause_24);
+                time.setBase(SystemClock.elapsedRealtime() - audioPlayerService.getCurrentPosition());
+                time.start();
+                updateSeekerBar();
+            }
+        }
+    }
+    private void updateSeekerBar(){
+        if (audioPlayerService.isPlaying()){
+            sound_seekbar.setProgress(
+                    (int)(((float) audioPlayerService.getCurrentPosition() / audioPlayerService.getDuration()) * 100));
+            handler.postDelayed(updater, 1000);
+        }
     }
 }

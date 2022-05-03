@@ -1,7 +1,5 @@
 package com.example.ustalk.models;
 
-import android.provider.ContactsContract;
-
 import com.google.firebase.firestore.DocumentChange;
 
 import java.util.Date;
@@ -10,6 +8,7 @@ public class ChatMessage {
     public String id, senderID,receicedID,message;
     public Date dateObject,time;
     public boolean sendimage;
+    public boolean sendvoice;
     public int senderFeeling;
     public int receiverFeeling;
 
@@ -22,6 +21,11 @@ public class ChatMessage {
         chatMessage.time = documentChange.getDocument().getDate("Time");
         chatMessage.dateObject = documentChange.getDocument().getDate("Time");
         chatMessage.sendimage = documentChange.getDocument().getBoolean("sendimage");
+        try {
+            chatMessage.sendvoice = documentChange.getDocument().getBoolean("sendvoice");
+        } catch (NullPointerException ex) {
+            chatMessage.sendvoice = false;
+        }
         try {
             chatMessage.senderFeeling = (int)((long)documentChange.getDocument()
                     .getLong("senderFeeling"));
