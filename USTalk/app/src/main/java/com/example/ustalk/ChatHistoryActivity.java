@@ -10,17 +10,20 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
+import com.example.ustalk.models.ChatMessage;
 import com.example.ustalk.models.User;
 import com.example.ustalk.utilities.CurrentUserDetails;
 import com.example.ustalk.utilities.PreferenceManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -31,6 +34,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -40,9 +44,12 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
     ArrayList<User> users = new ArrayList<>();
     CircleImageView profileImage;
     private final ArrayList<String> uids = new ArrayList<>();
+    private final ArrayList<Date> lastTimes = new ArrayList<>();
+    private final ArrayList<String> lastMessages = new ArrayList<>();
     FirebaseFirestore db;
     PreferenceManager prefManager;
     private final int REQUEST_CODE_BATTERY_OPTIMIZATION = 1;
+    private UserAdapter userAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +62,15 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
         loadUsersFromDatabase();
         loadCurrentUserFromDatabase();
         profileImage.setOnClickListener(this);
+
+        userAdapter = new UserAdapter(ChatHistoryActivity.this, R.layout.custom_user_row, users, uids, lastMessages);
+        userList.setAdapter(userAdapter);
+        userList.setOnItemClickListener((adapterView, view, i, l) -> {
+            String theirUid = uids.get(i);
+            Intent intent = new Intent(ChatHistoryActivity.this, ChatActivity.class);
+            intent.putExtra("receiveID",theirUid);
+            startActivity(intent);
+        });
 
         checkForBatteryOptimizations();
     }
@@ -111,29 +127,54 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
     }
 
     private void loadUsersFromDatabase() {
-        db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        User user = document.toObject(User.class);
-                        uids.add(document.getId());
-                        users.add(user);
-                    }
-                    userList.setAdapter(new UserAdapter(ChatHistoryActivity.this, R.layout.custom_user_row, users));
-                    userList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                            String myUid = CurrentUserDetails.getInstance().getUid();
-                            String theirUid = uids.get(i);
-                            Intent intent = new Intent(ChatHistoryActivity.this, ChatActivity.class);
-                            intent.putExtra("receiveID",theirUid);
-                            startActivity(intent);
+        db.collection("users").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Log.i("counter", "load users from db");
+                String myUid = prefManager.getString("UID");
+
+                int i = 0;
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    User user = document.toObject(User.class);
+                    String theirUid = document.getId();
+                    uids.add(theirUid);
+                    users.add(user);
+                    lastTimes.add(null);
+                    lastMessages.add(null);
+
+                    int finalI = i;
+                    EventListener<QuerySnapshot> listener = (value, error) -> {
+                        if (error != null) {
+                            Log.e("last message", error.getMessage());
+                            return;
                         }
-                    });
+                        if (value == null) {
+                            Log.e("last message", "value is null");
+                            return;
+                        }
+                        for (DocumentChange doc : value.getDocumentChanges()) {
+                            ChatMessage message = ChatMessage.fromDocumentChange(doc);
+                            Date time = message.time;
+                            Date recentTime = lastTimes.get(finalI);
+                            if (recentTime == null || time.after(recentTime)) {
+                                lastTimes.set(finalI, time);
+                                lastMessages.set(finalI, message.message);
+                                userAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    };
+                    db.collection("chat")
+                            .whereEqualTo("senderID", myUid)
+                            .whereEqualTo("RecceiveID", theirUid)
+                            .addSnapshotListener(listener);
+                    db.collection("chat")
+                            .whereEqualTo("senderID", theirUid)
+                            .whereEqualTo("RecceiveID", myUid)
+                            .addSnapshotListener(listener);
+                    i++;
                 }
-                else Log.w("users", "Error getting documents.", task.getException());
+                userAdapter.notifyDataSetChanged();
             }
+            else Log.w("users", "Error getting documents.", task.getException());
         });
     }
 

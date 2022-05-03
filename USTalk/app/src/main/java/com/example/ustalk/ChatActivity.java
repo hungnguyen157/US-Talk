@@ -278,11 +278,11 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
             {
                 DocumentChange.Type type = documentChange.getType();
                 if(type == DocumentChange.Type.ADDED){
-                    ChatMessage chatMessage = getChatMessageFromDocumentChange(documentChange);
+                    ChatMessage chatMessage = ChatMessage.fromDocumentChange(documentChange);
                     Message.add(chatMessage);
                 }
                 else if (type == DocumentChange.Type.MODIFIED) {
-                    ChatMessage chatMessage = getChatMessageFromDocumentChange(documentChange);
+                    ChatMessage chatMessage = ChatMessage.fromDocumentChange(documentChange);
                     ChatMessage chatMessageInMessage = Message.stream()
                             .filter(chatMessage1 -> chatMessage.id.equals(chatMessage1.id))
                             .findFirst().orElse(null);
@@ -311,26 +311,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
             recycler_view_message.setVisibility(View.VISIBLE);
         }
     };
-    private ChatMessage getChatMessageFromDocumentChange(DocumentChange documentChange) {
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.id = documentChange.getDocument().getId();
-        chatMessage.senderID = documentChange.getDocument().getString("senderID");
-        chatMessage.receicedID = documentChange.getDocument().getString("RecceiveID");
-        chatMessage.message = documentChange.getDocument().getString("Message");
-        chatMessage.time = documentChange.getDocument().getDate("Time");
-        chatMessage.dateObject = documentChange.getDocument().getDate("Time");
-        chatMessage.sendimage = documentChange.getDocument().getBoolean("sendimage");
-        try {
-            chatMessage.senderFeeling = (int)((long)documentChange.getDocument()
-                    .getLong("senderFeeling"));
-            chatMessage.receiverFeeling = (int)((long)documentChange.getDocument()
-                    .getLong("receiverFeeling"));
-        } catch (NullPointerException ex) {
-            chatMessage.senderFeeling = -1;
-            chatMessage.receiverFeeling = -1;
-        }
-        return chatMessage;
-    }
+
     private void openGallery(){
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent,IMAGE_GALLERY_REQUEST);
