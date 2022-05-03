@@ -157,9 +157,12 @@ public class ChatHistoryActivity extends OnlineActivity implements View.OnClickL
                             Date recentTime = lastTimes.get(finalI);
                             if (recentTime == null || time.after(recentTime)) {
                                 lastTimes.set(finalI, time);
-                                String lastMessage = message.message;
-                                if (message.sendimage) lastMessage = "Đã gửi một hình ảnh";
-                                else if (message.sendvoice) lastMessage = "Đã gửi một tin nhắn âm thanh";
+                                String lastMessage = "";
+                                if (message.senderID.equals(myUid)) lastMessage = "Bạn: ";
+                                if (!message.sendimage && !message.sendvoice) lastMessage += message.message;
+                                if (message.sendimage) lastMessage += "Đã gửi một hình ảnh";
+                                else if (message.sendvoice) lastMessage += "Đã gửi một tin nhắn âm thanh";
+                                lastMessages.set(finalI, lastMessage);
                                 userAdapter.notifyDataSetChanged();
                             }
                         }
