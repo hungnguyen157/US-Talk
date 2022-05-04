@@ -131,8 +131,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     }
 
     //Other needed functions
-    private String getReadableDateTime(Date date)
-    {
+    private String getReadableDateTime(Date date) {
         return new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(date);
     }
 
@@ -391,6 +390,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
                     chatMessage.senderFeeling, chatMessage.receiverFeeling);
             binding.timeLast.setBase(SystemClock.elapsedRealtime() + audioPlayerService.getDuration());
+            binding.timeSent.setText(getReadableDateTime(chatMessage.time));
 
             binding.soundSeekbar.setOnTouchListener((view, motionEvent) -> {
                 SeekBar seekBar = (SeekBar) view;
@@ -429,6 +429,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             setReactImage(binding.imgSenderReact, binding.imgReceiverReact,
                     chatMessage.senderFeeling, chatMessage.receiverFeeling);
             binding.timeLast.setBase(SystemClock.elapsedRealtime() + audioPlayerService.getDuration());
+            binding.timeReceived.setText(getReadableDateTime(chatMessage.time));
 
             binding.soundSeekbar.setOnTouchListener((view, motionEvent) -> {
                 SeekBar seekBar = (SeekBar) view;

@@ -12,6 +12,8 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
@@ -68,12 +70,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -81,10 +78,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -109,7 +102,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
     TextView name;
     EditText edit_chat;
     RecyclerView recycler_view_message;
-    String receiveID, receiveimage, receivename;
+    private String userID, receiveID, receiveimage, receivename, receiveToken;
     EmojiPopup popup;
     ImageView chat_background, online_signal;
     ImageView[] toolbarListView, make_message_fieldListView;
@@ -118,29 +111,42 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
     ScrollView chat_box_scrollview;
     private int IMAGE_GALLERY_REQUEST = 3;
     private Uri imageUri;
-    String getReceiveimage;
     BackgroundAwareLayout chat_box_parent;
-    private String receiveToken;
     private boolean sentMessage = false;
     Dialog recordVoiceDialog;
-    String audioSentPath, audioTempPath, audioTempPath2;
-    MediaRecorder mediaRecorder;
+    String audioSentPath, audioTempPath, audioTempPath2, audioRawPath;
+    AudioRecord voiceRecorder;
+    private Thread recordingThread;
+    private final int RECORDER_BPP = 16;
+    private final int RECORDER_SAMPLE_RATE = 8000;
+    private final int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_STEREO;
+    private final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+    private final int bufferSize = AudioRecord.getMinBufferSize(
+                                    RECORDER_SAMPLE_RATE, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING);
     Chronometer time, timeRecord;
     ImageButton btn_play_or_stop;
     ImageView btnStartPauseRecord;
-    boolean isRecording = false, isConcated = false;
-    long recorderPosition;
+    boolean isRecording = false, isConcatenated = false;
+    long recorderPosition = 0;
     private AudioPlayerService audioPlayerService;
     private Handler handler;
     private Runnable updater;
     SeekBar sound_seekbar;
-    long startRecord;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        initViews();
+        initSomeOtherVariables();
+        loadReceiverDetails();
+
+        cloneMessengerChatBox();
+
+        ListenMes();
+    }
+    private void initViews() {
         //get widgets
         name = findViewById(R.id.name);
         avatar = findViewById(R.id.avatar);
@@ -171,12 +177,18 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         btn_emoji.setOnClickListener(this);
         btn_send.setOnClickListener(this);
         contact_info.setOnClickListener(this);
-
-        //set Userlisteners
         popup = EmojiPopup.Builder.fromRootView(chat_view).build(edit_chat);
-
-        init();
-        loadReceiverDetails();
+    }
+    private void initSomeOtherVariables() {
+        preferenceManager = new PreferenceManager(getApplicationContext());
+        userID = preferenceManager.getString("UID");
+        Message = new ArrayList<>();
+        chatAdapter = new ChatAdapter(this, Message, userID);
+        recycler_view_message.setAdapter(chatAdapter);
+        database = FirebaseFirestore.getInstance();
+        headers.put("Authorization", "key=AAAAfFAKHSg:APA91bFihyTKsgfLDvBAymYxZbZvsLb4Rax7iEx7imaxejEFcefc36Q9PSTSUa2KuzO_LOe12XBo09CmAZnGfVuK0SegeWcdVx0gahWyiq8MM3G_wd-lXAtqJEfpgUlKgYsNtDxWKqEb");
+        headers.put("Content-Type", "application/json");
+        //"registration_ids"
 
         //add Views to 2 list Views
         toolbarListView = new ImageView[3];
@@ -189,27 +201,12 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         make_message_fieldListView[1] = btn_micro;
         make_message_fieldListView[2] = btn_emoji;
         make_message_fieldListView[3] = btn_send;
-
-        cloneMessengerChatBox();
-
-        ListenMes();
-    }
-    private void init()
-    {
-        preferenceManager = new PreferenceManager(getApplicationContext());
-        Message = new ArrayList<>();
-        chatAdapter = new ChatAdapter(this,Message,preferenceManager.getString("UID"));
-        recycler_view_message.setAdapter(chatAdapter);
-        database = FirebaseFirestore.getInstance();
-        headers.put("Authorization", "key=AAAAfFAKHSg:APA91bFihyTKsgfLDvBAymYxZbZvsLb4Rax7iEx7imaxejEFcefc36Q9PSTSUa2KuzO_LOe12XBo09CmAZnGfVuK0SegeWcdVx0gahWyiq8MM3G_wd-lXAtqJEfpgUlKgYsNtDxWKqEb");
-        headers.put("Content-Type", "application/json");
-        //"registration_ids"
     }
     private void loadReceiverDetails()
     {
         receiveID = getIntent().getStringExtra("receiveID");
 
-        if (receiveID.equals(preferenceManager.getString("UID"))){
+        if (receiveID.equals(userID)){
             btn_call.setVisibility(View.INVISIBLE);
             btn_call.setClickable(false);
             btn_video_call.setVisibility(View.INVISIBLE);
@@ -241,24 +238,89 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
             }
         });
     }
-    public void SendMes()
+
+    //send text message function
+    private void sendTextMessage()
     {
         String message = edit_chat.getText().toString();HashMap<String, Object> mes = new HashMap<>();
-        mes.put("senderID", preferenceManager.getString("UID"));
+        sendMessage(message, false, false);
+    }
+
+    //get image message functions
+    private void openGallery(){
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent,IMAGE_GALLERY_REQUEST);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode==RESULT_OK&&data!=null){
+            imageUri = data.getData();
+            try {
+                InputStream is = getContentResolver().openInputStream(imageUri);
+                Bitmap bitmap = BitmapFactory.decodeStream(is);
+                String getReceiveimage = encodeImage(bitmap);
+                sendImageMessage(getReceiveimage);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private String encodeImage(Bitmap bitmap)
+    {
+        int previewWidth = 350;
+        int previewHeight = bitmap.getHeight() *previewWidth / bitmap.getWidth();
+        Bitmap previewBitmap = Bitmap.createScaledBitmap(bitmap,previewWidth,previewHeight,false);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        previewBitmap.compress(Bitmap.CompressFormat.PNG,100,byteArrayOutputStream);
+        byte[] bytes = byteArrayOutputStream.toByteArray();
+        return Base64.getEncoder().encodeToString(bytes);
+    }
+    //send image message function
+    private void sendImageMessage(String getReceiveimage) {
+        sendMessage(getReceiveimage, true, false);
+    }
+
+    //send voice message function
+    private void sendVoiceMessage() {
+        Uri uri = Uri.fromFile(new File(audioSentPath));
+        StorageReference audioRef = FirebaseStorage.getInstance().getReference().
+                child("VoiceMessages/"
+                        + CurrentUserDetails.getInstance().getUid() + "_" + receiveID + "_"
+                        + System.currentTimeMillis());
+        audioRef.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
+                while(!urlTask.isSuccessful());
+                String voiceUrl = urlTask.getResult().toString();
+                sendMessage(voiceUrl, false, true);
+            }
+        });
+    }
+
+    //send message function
+    private void sendMessage(String message, boolean isImage, boolean isVoice)
+    {
+        HashMap<String, Object> mes = new HashMap<>();
+        mes.put("senderID", userID);
         mes.put("RecceiveID", receiveID);
         mes.put("Message", message);
         mes.put("Time", new Date());
-        mes.put("sendimage", false);
-        mes.put("sendvoice", false);
+        mes.put("sendimage", isImage);
+        mes.put("sendvoice", isVoice);
         mes.put("senderFeeling", -1);
         mes.put("receiverFeeling", -1);
         database.collection("chat").add(mes);
         edit_chat.setText(null);
-        System.out.println(preferenceManager.getString("UID"));
-        sendNotification(message);
+        System.out.println(userID);
+        if (isImage) sendNotification("Đã gửi một hình ảnh");
+        else if (isVoice) sendNotification("Đã gửi một tin nhắn âm thanh");
+        else sendNotification(message);
         sentMessage = true;
     }
 
+    //send notification whenever there is a new message sent
     private void sendNotification(String message) {
         try {
             JSONArray tokens = new JSONArray();
@@ -266,7 +328,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
 
             User me = CurrentUserDetails.getInstance().getUser();
             JSONObject data = new JSONObject();
-            data.put("uid", preferenceManager.getString("UID"));
+            data.put("uid", userID);
             data.put("message", message);
 
             JSONObject body = new JSONObject();
@@ -308,28 +370,32 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         }
     }
 
-    private void ListenMes()
-    {
-        database.collection("chat")
-                .whereEqualTo("senderID",preferenceManager.getString("UID"))
-                .whereEqualTo("RecceiveID",receiveID)
-                .addSnapshotListener(eventListener);
-        database.collection("chat")
-                .whereEqualTo("senderID",receiveID)
-                .whereEqualTo("RecceiveID",preferenceManager.getString("UID"))
-                .addSnapshotListener(eventListener);
+    private void ListenMes() {
+        if (receiveID.equals(userID)) {
+            database.collection("chat")
+                    .whereEqualTo("senderID", userID)
+                    .whereEqualTo("RecceiveID", receiveID)
+                    .addSnapshotListener(eventListener);
+        }
+        else {
+            database.collection("chat")
+                    .whereEqualTo("senderID", userID)
+                    .whereEqualTo("RecceiveID", receiveID)
+                    .addSnapshotListener(eventListener);
+            database.collection("chat")
+                    .whereEqualTo("senderID", receiveID)
+                    .whereEqualTo("RecceiveID", userID)
+                    .addSnapshotListener(eventListener);
+        }
     }
     private final com.google.firebase.firestore.EventListener<QuerySnapshot> eventListener =(value, error) ->{
-        if(error != null)
-        {
+        if(error != null) {
             return ;
         }
-        if(value != null)
-        {
+        if(value != null) {
             int count = Message.size();
             ArrayList<Integer> modifiedPositions = new ArrayList<>();
-            for (DocumentChange documentChange : value.getDocumentChanges())
-            {
+            for (DocumentChange documentChange : value.getDocumentChanges()) {
                 DocumentChange.Type type = documentChange.getType();
                 if(type == DocumentChange.Type.ADDED){
                     ChatMessage chatMessage = ChatMessage.fromDocumentChange(documentChange);
@@ -368,46 +434,16 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         }
     };
 
-    private void openGallery(){
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent,IMAGE_GALLERY_REQUEST);
+    private Intent createCallIntent(String type){
+        Intent intentCall = new Intent(getApplicationContext(), OutcommingCallActivity.class);
+        intentCall.putExtra("uid", receiveID);
+        intentCall.putExtra("name", receivename);
+        intentCall.putExtra("avatar", receiveimage);
+        intentCall.putExtra("token", receiveToken);
+        intentCall.putExtra("type", type);
+        return intentCall;
     }
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode==RESULT_OK&&data!=null){
-            imageUri = data.getData();
-            try {
-                InputStream is = getContentResolver().openInputStream(imageUri);
-                Bitmap bitmap = BitmapFactory.decodeStream(is);
-                getReceiveimage = encodeImage(bitmap);
-                ChatMessage chatMessage = new ChatMessage();
-                HashMap<String, Object> mes = new HashMap<>();
-                mes.put("senderID", preferenceManager.getString("UID"));
-                mes.put("RecceiveID", receiveID);
-                mes.put("Message", getReceiveimage);
-                mes.put("Time", new Date());
-                mes.put("sendimage",true);
-                mes.put("sendvoice", false);
-                mes.put("senderFeeling", -1);
-                mes.put("receiverFeeling", -1);
-                database.collection("chat").add(mes);
-                sentMessage = true;
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    private String encodeImage(Bitmap bitmap)
-    {
-        int previewWidth = 350;
-        int previewHeight = bitmap.getHeight() *previewWidth / bitmap.getWidth();
-        Bitmap previewBitmap = Bitmap.createScaledBitmap(bitmap,previewWidth,previewHeight,false);
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        previewBitmap.compress(Bitmap.CompressFormat.PNG,100,byteArrayOutputStream);
-        byte[] bytes = byteArrayOutputStream.toByteArray();
-        return Base64.getEncoder().encodeToString(bytes);
-    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()){
@@ -428,12 +464,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                             Toast.LENGTH_SHORT).show();
                 }
                 else{
-                    Intent intentAudioCall = new Intent(getApplicationContext(), OutcommingCallActivity.class);
-                    intentAudioCall.putExtra("uid", receiveID);
-                    intentAudioCall.putExtra("name", receivename);
-                    intentAudioCall.putExtra("avatar", receiveimage);
-                    intentAudioCall.putExtra("token", receiveToken);
-                    intentAudioCall.putExtra("type", "audio");
+                    Intent intentAudioCall = createCallIntent("audio");
                     startActivity(intentAudioCall);
                 }
                 break;
@@ -445,12 +476,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                             Toast.LENGTH_SHORT).show();
                 }
                 else{
-                    Intent intentVideoCall = new Intent(getApplicationContext(), OutcommingCallActivity.class);
-                    intentVideoCall.putExtra("uid", receiveID);
-                    intentVideoCall.putExtra("name", receivename);
-                    intentVideoCall.putExtra("avatar", receiveimage);
-                    intentVideoCall.putExtra("token", receiveToken);
-                    intentVideoCall.putExtra("type", "video");
+                    Intent intentVideoCall = createCallIntent("video");
                     startActivity(intentVideoCall);
                 }
                 break;
@@ -472,7 +498,7 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
                 break;
             }
             case (R.id.btn_send): {
-                if (!edit_chat.getText().toString().trim().isEmpty()) SendMes();
+                if (!edit_chat.getText().toString().trim().isEmpty()) sendTextMessage();
                 break;
             }
             case (R.id.btn_play_or_stop): {
@@ -655,16 +681,15 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         });
 
         String externalStorageDirectory = Environment.getExternalStorageDirectory().getAbsolutePath();
-        String fileName = "USTalkVoiceMess_" + LocalDateTime.now().toString() + ".wav";
-        audioSentPath = externalStorageDirectory + "/Music/" + fileName;
-        audioTempPath = externalStorageDirectory + "/Music/" + "Temp" + fileName;
-        audioTempPath2 = externalStorageDirectory + "/Music/" + "Temp2" + fileName;
+        String fileName = "USTalkVoiceMess_" + LocalDateTime.now().toString();
+        audioSentPath = externalStorageDirectory + "/Music/" + fileName + ".wav";
+        audioTempPath = externalStorageDirectory + "/Music/" + "Temp" + fileName + ".wav";
+        audioTempPath2 = externalStorageDirectory + "/Music/" + "Temp2" + fileName + ".wav";
+        audioRawPath = externalStorageDirectory + "/Music/" + "Raw" + fileName + ".raw";
 
-        //setup audio recorder
-        mediaRecorder = new MediaRecorder();
+        //start recording
         try {
             startRecord();
-            startRecord = System.currentTimeMillis();
         } catch (Exception e) {
             e.printStackTrace();
             recordVoiceDialog.dismiss();
@@ -685,28 +710,52 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         timeRecord.setVisibility(View.VISIBLE);
         btnStartPauseRecord.setImageResource(R.drawable.ic_round_pause_24);
 
-        //setup recorder for new record
-        prepareAudioRecorder();
-
-        //start recording
-        mediaRecorder.start();
-        recorderPosition = 0;
-        timeRecord.setBase(SystemClock.elapsedRealtime() - recorderPosition);
-        timeRecord.start();
-        isRecording = true;
-        isConcated = false;
+        //setup recorder and start recording if permission is granted
+        if (ActivityCompat.checkSelfPermission(
+                ChatActivity.this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+            voiceRecorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
+                    RECORDER_SAMPLE_RATE, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING, bufferSize);
+            voiceRecorder.startRecording();
+            timeRecord.setBase(SystemClock.elapsedRealtime() - recorderPosition);
+            timeRecord.start();
+            isRecording = true;
+            isConcatenated = false;
+            recordingThread = new Thread(this::writeAudioDataToRawFile, "AudioRecorder Thread");
+            recordingThread.start();
+        }
     }
-    private void prepareAudioRecorder() throws IOException {
-        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_NB);
-        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-        mediaRecorder.setOutputFile(audioTempPath);
-        mediaRecorder.prepare();
+    private void writeAudioDataToRawFile() {
+        byte[] data = new byte[bufferSize];
+        FileOutputStream fos = null;
+
+        try {
+            fos = new FileOutputStream(audioRawPath);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        if (fos != null) {
+            int read;
+            while (isRecording) {
+                read = voiceRecorder.read(data, 0, bufferSize);
+                if (AudioRecord.ERROR_INVALID_OPERATION != read) {
+                    try {
+                        fos.write(data);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            try {
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
     private void pauseRecord() {
         //pause recording
-        isRecording = false;
-        mediaRecorder.stop();
+        clearVoiceRecorder();
         recorderPosition = SystemClock.elapsedRealtime() - timeRecord.getBase();
         timeRecord.stop();
 
@@ -718,247 +767,97 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         time.setBase(SystemClock.elapsedRealtime() - recorderPosition);
         btnStartPauseRecord.setImageResource(R.drawable.voice_icon);
 
-        //Create a temp copy audio file to preview
-        try {
-            concatenateToMainFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-            recordVoiceDialog.dismiss();
-        }
+        //convert recorded raw audio to .wav file to preview if need to
+        convertRawToWaveFile();
 
         //initial audio player service
         audioPlayerService = new AudioPlayerService(Uri.fromFile(new File(audioSentPath)).toString());
         handler = new Handler();
-        updater = new Runnable() {
-            @Override
-            public void run() {
-                updateSeekerBar();
-            }
-        };
+        updater = this::updateSeekerBar;
     }
-    private void concatenateToMainFile() throws IOException {
-        File mainFile = new File(audioSentPath);
-        if (!mainFile.exists()) {
-            Files.copy(new File(audioTempPath).toPath(),
-                    new File(audioSentPath).toPath(),
-                    StandardCopyOption.REPLACE_EXISTING);
-        }
-        else {
-            //concatenate2AudioFile();
-        }
-        isConcated = true;
-    }
-    private void concatenate2AudioFile() {
-        int RECORDER_SAMPLERATE = 0;
+    private void convertRawToWaveFile() {
+        FileInputStream fis;
+        FileOutputStream fos;
+        long totalAudioLen, totalDataLen;
+        int channels = 2;
+        long byteRate = RECORDER_BPP * RECORDER_SAMPLE_RATE * channels / 8;
+
+        byte[] data = new byte[bufferSize];
+
         try {
-            String[] selection=new String[2];
-            selection[0]=audioSentPath;
-            selection[1]=audioTempPath;
-            int length = selection.length;
-            DataOutputStream amplifyOutputStream = new DataOutputStream(
-                                    new BufferedOutputStream(new FileOutputStream(audioTempPath2)));
-            DataInputStream[] mergeFilesStream = new DataInputStream[length];
-            long[] sizes = new long[length];
-            for (int i = 0; i < length; i++) {
-                File file = new File(selection[i]);
-                sizes[i] = (file.length() - 44) / 2;
-            }
-            for (int i = 0; i < length; i++) {
-                mergeFilesStream[i] =new DataInputStream(
-                        new BufferedInputStream(new FileInputStream(selection[i])));
-                if (i == length - 1) {
-                    mergeFilesStream[i].skip(24);
-                    byte[] sampleRt = new byte[4];
-                    mergeFilesStream[i].read(sampleRt);
-                    ByteBuffer bbInt = ByteBuffer.wrap(sampleRt).order(ByteOrder.LITTLE_ENDIAN);
-                    RECORDER_SAMPLERATE = bbInt.getInt();
-                    mergeFilesStream[i].skip(16);
-                }
-                else {
-                    mergeFilesStream[i].skip(44);
-                }
+            fis = new FileInputStream(audioRawPath);
+            fos = new FileOutputStream(audioSentPath, true);
+            totalAudioLen = fis.getChannel().size() + fos.getChannel().size();
+            totalDataLen = totalAudioLen + 44;
 
+            WriteWaveFileHeader(totalAudioLen, totalDataLen, channels, byteRate, audioSentPath);
+
+            while (fis.read(data) != -1) {
+                fos.write(data);
             }
 
-            for (int b = 0; b < length; b++) {
-                for (int i = 0; i < (int)sizes[b]; i++) {
-                    byte[] dataBytes = new byte[2];
-                    try {
-                        dataBytes[0] = mergeFilesStream[b].readByte();
-                        dataBytes[1] = mergeFilesStream[b].readByte();
-                    }
-                    catch (EOFException e) {
-                        amplifyOutputStream.close();
-                    }
-                    short dataInShort = ByteBuffer.wrap(dataBytes).order(ByteOrder.LITTLE_ENDIAN).getShort();
-                    float dataInFloat= (float) dataInShort/37268.0f;
-
-                    short outputSample = (short)(dataInFloat * 37268.0f);
-                    byte[] dataFin = new byte[2];
-                    dataFin[0] = (byte) (outputSample & 0xff);
-                    dataFin[1] = (byte)((outputSample >> 8) & 0xff);
-                    amplifyOutputStream.write(dataFin, 0 , 2);
-                }
-            }
-            amplifyOutputStream.close();
-            for (int i = 0; i < length; i++) {
-                mergeFilesStream[i].close();
-            }
+            fis.close();
+            fos.close();
+            isConcatenated = true;
         } catch (IOException e) {
             e.printStackTrace();
+            isConcatenated = false;
         }
-        long size = 0;
-        try {
-            FileInputStream fileSize = new FileInputStream(audioTempPath2);
-            size = fileSize.getChannel().size();
-            fileSize.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    }
+    private void WriteWaveFileHeader(long totalAudioLen, long totalDataLen, int channels, long byteRate,
+                                     String outFileName) {
 
-        //write header to new file
-        final int RECORDER_BPP = 16;
-
-        long datasize = size + 36;
-        long byteRate = ((long) RECORDER_BPP * RECORDER_SAMPLERATE) / 8;
-        long longSampleRate = RECORDER_SAMPLERATE;
         byte[] header = new byte[44];
+        // RIFF/WAVE header
+        header[0] = 'R'; header[1] = 'I'; header[2] = 'F'; header[3] = 'F';
+        header[4] = (byte) (totalDataLen & 0xff);
+        header[5] = (byte) ((totalDataLen >> 8) & 0xff);
+        header[6] = (byte) ((totalDataLen >> 16) & 0xff);
+        header[7] = (byte) ((totalDataLen >> 24) & 0xff);
+        header[8] = 'W'; header[9] = 'A'; header[10] = 'V'; header[11] = 'E';
 
-        header[0] = 'R';  // RIFF/WAVE header
-        header[1] = 'I';
-        header[2] = 'F';
-        header[3] = 'F';
-        header[4] = (byte) (datasize & 0xff);
-        header[5] = (byte) ((datasize >> 8) & 0xff);
-        header[6] = (byte) ((datasize >> 16) & 0xff);
-        header[7] = (byte) ((datasize >> 24) & 0xff);
-        header[8] = 'W';
-        header[9] = 'A';
-        header[10] = 'V';
-        header[11] = 'E';
-        header[12] = 'f';  // 'fmt ' chunk
-        header[13] = 'm';
-        header[14] = 't';
-        header[15] = ' ';
-        header[16] = 16;  // 4 bytes: size of 'fmt ' chunk
-        header[17] = 0;
-        header[18] = 0;
-        header[19] = 0;
+        // 'fmt ' chunk
+        header[12] = 'f'; header[13] = 'm'; header[14] = 't'; header[15] = ' ';
+
+        // 4 bytes: size of 'fmt ' chunk
+        header[16] = 16; header[17] = 0; header[18] = 0; header[19] = 0;
+
         header[20] = 1;  // format = 1
         header[21] = 0;
-        header[22] = (byte) 1;
+        header[22] = (byte) channels;
         header[23] = 0;
-        header[24] = (byte) (longSampleRate & 0xff);
-        header[25] = (byte) ((longSampleRate >> 8) & 0xff);
-        header[26] = (byte) ((longSampleRate >> 16) & 0xff);
-        header[27] = (byte) ((longSampleRate >> 24) & 0xff);
+        header[24] = (byte) (RECORDER_SAMPLE_RATE & 0xff);
+        header[25] = (byte) ((RECORDER_SAMPLE_RATE >> 8) & 0xff);
+        header[26] = (byte) ((RECORDER_SAMPLE_RATE >> 16) & 0xff);
+        header[27] = (byte) ((RECORDER_SAMPLE_RATE >> 24) & 0xff);
         header[28] = (byte) (byteRate & 0xff);
         header[29] = (byte) ((byteRate >> 8) & 0xff);
         header[30] = (byte) ((byteRate >> 16) & 0xff);
         header[31] = (byte) ((byteRate >> 24) & 0xff);
-        header[32] = (byte) ((RECORDER_BPP) / 8);  // block align
+        header[32] = (byte) (2 * 16 / 8);  // block align
         header[33] = 0;
         header[34] = RECORDER_BPP;  // bits per sample
         header[35] = 0;
-        header[36] = 'd';
-        header[37] = 'a';
-        header[38] = 't';
-        header[39] = 'a';
-        header[40] = (byte) (size & 0xff);
-        header[41] = (byte) ((size >> 8) & 0xff);
-        header[42] = (byte) ((size >> 16) & 0xff);
-        header[43] = (byte) ((size >> 24) & 0xff);
-        // out.write(header, 0, 44);
+        header[36] = 'd'; header[37] = 'a'; header[38] = 't'; header[39] = 'a';
+        header[40] = (byte) (totalAudioLen & 0xff);
+        header[41] = (byte) ((totalAudioLen >> 8) & 0xff);
+        header[42] = (byte) ((totalAudioLen >> 16) & 0xff);
+        header[43] = (byte) ((totalAudioLen >> 24) & 0xff);
 
-        try {
-            //add header to concatenated new file
-            RandomAccessFile rFile = new RandomAccessFile(audioTempPath2, "rw");
+        try(RandomAccessFile rFile = new RandomAccessFile(outFileName, "rw")) {
             rFile.seek(0);
-            rFile.write(header);
-            rFile.close();
-
-            //copy to the main file
-            Files.copy(new File(audioTempPath2).toPath(),
-                    new File(audioSentPath).toPath(),
-                    StandardCopyOption.REPLACE_EXISTING);
-            File tempConcatenatedFile = new File(audioTempPath2);
-            tempConcatenatedFile.delete();
+            rFile.write(header, 0, 44);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-    }
-    private void WriteWaveFileHeader(FileOutputStream out, long totalAudioLen,
-                                     long totalDataLen, long longSampleRate, int channels, long byteRate)
-            throws IOException {
-
-        byte[] header = new byte[44];
-
-        header[0] = 'R';
-        header[1] = 'I';
-        header[2] = 'F';
-        header[3] = 'F';
-        header[4] = (byte)(totalDataLen & 0xff);
-        header[5] = (byte)((totalDataLen >> 8) & 0xff);
-        header[6] = (byte)((totalDataLen >> 16) & 0xff);
-        header[7] = (byte)((totalDataLen >> 24) & 0xff);
-        header[8] = 'W';
-        header[9] = 'A';
-        header[10] = 'V';
-        header[11] = 'E';
-        header[12] = 'f';
-        header[13] = 'm';
-        header[14] = 't';
-        header[15] = ' ';
-        header[16] = 16;
-        header[17] = 0;
-        header[18] = 0;
-        header[19] = 0;
-        header[20] = 1;
-        header[21] = 0;
-        header[22] = (byte) channels;
-        header[23] = 0;
-        header[24] = (byte)(longSampleRate & 0xff);
-        header[25] = (byte)((longSampleRate >> 8) & 0xff);
-        header[26] = (byte)((longSampleRate >> 16) & 0xff);
-        header[27] = (byte)((longSampleRate >> 24) & 0xff);
-        header[28] = (byte)(byteRate & 0xff);
-        header[29] = (byte)((byteRate >> 8) & 0xff);
-        header[30] = (byte)((byteRate >> 16) & 0xff);
-        header[31] = (byte)((byteRate >> 24) & 0xff);
-        header[32] = (byte)(2 * 16 / 8);
-        header[33] = 0;
-        header[34] = 16;
-        header[35] = 0;
-        header[36] = 'd';
-        header[37] = 'a';
-        header[38] = 't';
-        header[39] = 'a';
-        header[40] = (byte)(totalAudioLen & 0xff);
-        header[41] = (byte)((totalAudioLen >> 8) & 0xff);
-        header[42] = (byte)((totalAudioLen >> 16) & 0xff);
-        header[43] = (byte)((totalAudioLen >> 24) & 0xff);
-
-        out.write(header, 0, 44);
     }
     private void resumeRecord() throws IOException {
         //clear the audio player service
         clearAudioPlayerService();
 
-        //change accessibility of some widgets
-        btn_play_or_stop.setEnabled(false);
-        sound_seekbar.setEnabled(false);
-        time.setVisibility(View.INVISIBLE);
-        timeRecord.setVisibility(View.VISIBLE);
-        btnStartPauseRecord.setImageResource(R.drawable.ic_round_pause_24);
-
-        //resume recording
-        prepareAudioRecorder();
-        mediaRecorder.start();
-        timeRecord.setBase(SystemClock.elapsedRealtime() - recorderPosition);
-        timeRecord.start();
-        isRecording = true;
-        isConcated = false;
+        //restart recorder
+        startRecord();
     }
     private void stopRecord(boolean forSend) throws IOException {
         //clear audio player service
@@ -968,53 +867,22 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         timeRecord.stop();
         recorderPosition = 0;
         if (isRecording) {
-            mediaRecorder.stop();
+            clearVoiceRecorder();
         }
-        mediaRecorder.release();
-        mediaRecorder = null;
-        isRecording = false;
 
         //check if recording was stopped to send message
         if (forSend) {
-            if (!isConcated) {
-                concatenateToMainFile();
-            }
+            if (!isConcatenated) convertRawToWaveFile();
             sendVoiceMessage();
         }
 
         //delete temp file (which used to store audio file while recording)
         File mainFile = new File(audioSentPath);
         if (mainFile.exists()) mainFile.delete();
-        File tempFile = new File(audioTempPath);
-        if (tempFile.exists()) tempFile.delete();
-        recordVoiceDialog.dismiss();
-    }
-    private void sendVoiceMessage() {
-        Uri uri = Uri.fromFile(new File(audioSentPath));
-        StorageReference audioRef = FirebaseStorage.getInstance().getReference().
-                child("VoiceMessages/"
-                        + CurrentUserDetails.getInstance().getUid() + "_" + receiveID + "_"
-                        + System.currentTimeMillis());
-        audioRef.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
-                while(!urlTask.isSuccessful());
-                String voiceUrl = urlTask.getResult().toString();
+        File rawFile = new File(audioRawPath);
+        if (rawFile.exists()) rawFile.delete();
 
-                HashMap<String, Object> mes = new HashMap<>();
-                mes.put("senderID", preferenceManager.getString("UID"));
-                mes.put("RecceiveID", receiveID);
-                mes.put("Message", voiceUrl);
-                mes.put("Time", new Date());
-                mes.put("sendimage",false);
-                mes.put("sendvoice", true);
-                mes.put("senderFeeling", -1);
-                mes.put("receiverFeeling", -1);
-                database.collection("chat").add(mes);
-                sentMessage = true;
-            }
-        });
+        recordVoiceDialog.dismiss();
     }
     private void resetRecord() throws IOException {
         //clear audio player service
@@ -1024,17 +892,26 @@ public class ChatActivity extends OnlineActivity implements View.OnClickListener
         if (mainFile.exists()) mainFile.delete();
 
         //reset recorder
-        if (isRecording) mediaRecorder.stop();
-        mediaRecorder.reset();
+        if (isRecording) {
+            clearVoiceRecorder();
+        }
+        recorderPosition = 0;
         startRecord();
-        isConcated = false;
+    }
+    private void clearVoiceRecorder() {
+        isRecording = false;
+        voiceRecorder.stop();
+        voiceRecorder.release();
+        recordingThread = null;
     }
     private void clearAudioPlayerService() {
+        btn_play_or_stop.setImageResource(R.drawable.ic_round_play_arrow_24);
         sound_seekbar.setProgress(100);
         time.stop();
         time.setBase(SystemClock.elapsedRealtime() - recorderPosition);
 
         if (audioPlayerService != null) {
+            handler.removeCallbacks(updater);
             audioPlayerService.clearPlayer();
             audioPlayerService = null;
         }
