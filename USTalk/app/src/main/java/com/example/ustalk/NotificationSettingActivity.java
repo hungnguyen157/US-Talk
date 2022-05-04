@@ -37,15 +37,14 @@ public class NotificationSettingActivity extends OnlineActivity implements View.
         //get widgets
         btnBack = findViewById(R.id.btnBack);
         switchOnOffNotification = findViewById(R.id.switchOnOffNotification);
-        switchOnOffNotification.setChecked(true);
 
         //set listener for widgets
         btnBack.setOnClickListener(this);
         switchOnOffNotification.setOnCheckedChangeListener((compoundButton, b) -> {
             if (b){
                 if (previousState != b) {
-//                        preferenceManager.remove("whenNotificationOff");
-//                        preferenceManager.remove("durationNotificationOff");
+                    preferenceManager.remove("whenNotificationOff");
+                    preferenceManager.remove("durationNotificationOff");
                     Toast.makeText(getApplicationContext(), "On", Toast.LENGTH_SHORT).show();
                     previousState = b;
                 }
@@ -57,11 +56,20 @@ public class NotificationSettingActivity extends OnlineActivity implements View.
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        boolean turnedOn = (preferenceManager.getString("whenNotificationOff") == null);
+        previousState = turnedOn;
+        switchOnOffNotification.setChecked(turnedOn);
+    }
+
+    @Override
     public void onClick(View view) {
         int minutes = 0;
         switch (view.getId()) {
             case (R.id.btnBack): {
                 onBackPressed();
+                return;
             }
             case (R.id.txt15Minutes): {
                 minutes = 15;
@@ -91,13 +99,13 @@ public class NotificationSettingActivity extends OnlineActivity implements View.
         else {
             switchOnOffNotification.setChecked(true);
         }
-        dialog.dismiss();
+        if (dialog != null) dialog.dismiss();
     }
 
     private void turnOffNotification(int minutes) {
         Instant now = Instant.now();
-//        preferenceManager.putString("whenNotificationOff", now.toString());
-//        preferenceManager.putString("durationNotificationOff", String.valueOf(minutes));
+        preferenceManager.putString("whenNotificationOff", now.toString());
+        preferenceManager.putString("durationNotificationOff", String.valueOf(minutes));
         Toast.makeText(getApplicationContext(), "Off" + minutes, Toast.LENGTH_SHORT).show();
     }
 
